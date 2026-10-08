@@ -28,9 +28,11 @@ from course_index import (episode_dir, load_course_manifest, public_rel_path,
 from sync_ci_inputs import sync_episode  # noqa: E402
 
 WORKFLOW = "render-course-video.yml"
-DEFAULT_REPO = "RIT-MESH/Terraform-Azure-Labs-and-Case_Studies"
+# Render farm lives on the second GitHub account (2026-10-09, user decision):
+# all video CI dispatches, artifact downloads and CI-input syncs go here.
+DEFAULT_REPO = "ritmesh14/terraform-lab-renderer"
 DEFAULT_CLONE = os.path.join(os.path.expanduser("~"), "Documents", "GitHub",
-                             "Terraform-Azure-Labs-and-Case_Studies")
+                             "terraform-lab-renderer")
 
 
 def lab_number(ep):
@@ -152,11 +154,14 @@ def main():
     args = ap.parse_args()
 
     if not shutil_gh():
-        repo = "RIT-MESH/Terraform-Azure-Labs-and-Case_Studies"
+        repo = DEFAULT_REPO
         print(f"gh CLI unavailable — run these exact commands:\n"
-              f"  1. python video-course/tools/sync_ci_inputs.py --lab {args.lab}\n"
+              f"  1. python video-course/tools/sync_ci_inputs.py --github-clone {DEFAULT_CLONE}"
+              f" --lab {args.lab}"
+              f"{' --section ' + args.section if args.section else ''}\n"
               f"     (then git add/commit/push the changed files)\n"
-              f"  2. gh workflow run {WORKFLOW} -R {repo} -f lab={args.lab}\n"
+              f"  2. gh workflow run {WORKFLOW} -R {repo} -f lab={args.lab}"
+              f"{' -f section=' + args.section if args.section else ''}\n"
               f"  3. gh run watch / gh run download  # artifact -> final/")
         return
     labs = load_course_manifest(args.source_root)

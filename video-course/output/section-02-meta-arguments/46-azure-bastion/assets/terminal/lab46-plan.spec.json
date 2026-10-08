@@ -1,0 +1,11 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan",
+  "output_file": "lab46-plan.txt",
+  "highlight": [
+    "\"AzureBastionSubnet\"",
+    "\"bas-secure-access\"",
+    "(sensitive value)",
+    "Plan: 8 to add"
+  ]
+}

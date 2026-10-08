@@ -1,0 +1,10 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan",
+  "output_file": "lab43-plan.txt",
+  "highlight": [
+    "\"rg-linux-structure\"",
+    "\"vm-structured\"",
+    "Plan: 5 to add"
+  ]
+}

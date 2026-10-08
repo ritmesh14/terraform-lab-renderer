@@ -1,0 +1,74 @@
+{
+ "episode": "32-multiple-public-ips",
+ "source": "writing/scenes.json",
+ "scenes": [
+  {
+   "id": "S001",
+   "narration": "Welcome back. Four labs of for_each — now count gets its polish. This is Lab 32: three identical public IPs, created with count, named with format so they come out pip zero one, pip zero two, pip zero three — zero-padded, sorted, tidy. And the output teaches one more symbol: the splat. Let's build it."
+  },
+  {
+   "id": "S002",
+   "narration": "Three things in this lesson. One: count driven by a local — change one number, re-apply, and the fan-out scales. Two: format with the percent zero two d placeholder — zero-padded names computed from count dot index. Three: the splat — star in brackets — the short expression that collects one attribute from every count instance into a list."
+  },
+  {
+   "id": "S003",
+   "narration": "Placement. Labs 28 through 31 were all for_each — named copies, keyed addresses. This lab deliberately returns to count, because these three public IPs are truly identical: no copy has a meaning the others lack, so numbers are fine. Count is not the enemy — it's the right tool for identical things, and this lab shows its best form. The splat at the end returns again when we talk about state addressing."
+  },
+  {
+   "id": "S004",
+   "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 32-multiple-public-ips. The direct link is in the video description. Main dot T F holds everything; terraform dot T F pins the providers."
+  },
+  {
+   "id": "S005",
+   "narration": "Two files matter here, and the first is terraform dot T F. It pins the tooling: Terraform 1.5 or newer, and the azurerm provider around version 3.70 — nothing else, because this lab needs no extras. The provider block at the bottom is the bridge to Azure; the empty features block enables the provider's default behaviours. That's the whole file — every interesting line lives in main dot T F."
+  },
+  {
+   "id": "S006",
+   "narration": "The whole fan-out is controlled by one number: locals holds ip count equals three. Change that number, re-apply, and Azure gains or loses public IPs — nothing else in the file mentions the count. The resource group is the usual container — rg dash multi dash pips. Note this lab has no VNet at all: public IPs don't need one."
+  },
+  {
+   "id": "S007",
+   "narration": "One public IP block, count equals local dot ip count. Terraform will expand this single block into three instances — this[0], this[1], this[2]. The name is where format earns its keep: format, quote pip percent zero two d quote, count dot index plus one. Percent zero two d means: print the number as an integer, padded with zeros to at least two digits. So index zero plus one gives pip dash zero one — not pip dash 1. Why pad? Because plain sorting would put pip dash 10 before pip dash 2. Zero-padded names sort correctly as strings — pip zero two always sits between pip zero one and pip zero three, no matter how far the count grows. The rest is standard: static allocation on the standard SKU, so each address survives deallocations — and the three instances stay independent."
+  },
+  {
+   "id": "S008",
+   "narration": "The expression is one line: count equals local dot ip count — the number three. Terraform expands it into three instances addressed by position — this bracket zero, bracket one, bracket two. And each instance's name comes from format and count dot index: index zero becomes pip zero one — plus one turns the zero-based index into a human count."
+  },
+  {
+   "id": "S009",
+   "narration": "The output uses the symbol this lab is really about: azurerm_public_ip dot this, star in brackets, dot ip_address. That star-in-brackets is the splat — it means: for every instance of this counted resource, take ip_address, and give me the list. One more thing the comment flags: ip_address is only known AFTER apply — Azure assigns it, not Terraform. So the plan shows a placeholder, and the real three addresses appear once the apply finishes."
+  },
+  {
+   "id": "S010",
+   "narration": "Start from the instances: three counted copies, addressed by index in state. Each instance carries the same attribute — ip address — and each value is unknown until Azure assigns it at apply time. The splat is the expression that walks all of them at once — star in brackets means every instance, no loop written by hand. And the result is one list of three addresses — which is exactly what the output prints after apply."
+  },
+  {
+   "id": "S011",
+   "narration": "Here's how the pieces connect. Locals hold the one number that scales everything: ip count three. The resource group groups everything in Azure. The public IPs: count expands one block into three instances, and format turns each index into a zero-padded name. The output splats ip_address off every instance into a list. Everything lands inside your Azure subscription."
+  },
+  {
+   "id": "S012",
+   "narration": "Here's the plan — terraform plan, an illustrative view. The resource group, then three public IPs: pip dash zero one, pip dash zero two, pip dash zero three — each with a named argument marked sensitive where secrets would appear. Four to add, zero to destroy. One block in the code; three numbered copies in the plan."
+  },
+  {
+   "id": "S013",
+   "narration": "And after apply, the output — terraform output ips, an illustrative view. The splat delivered exactly what it promised: a list of three addresses, in index order. During plan these were placeholders; Azure assigned the real values at apply."
+  },
+  {
+   "id": "S014",
+   "narration": "Three pitfalls. One: count dot index starts at zero — the plus one inside format is what makes pip zero one the first name; forget it and your first IP is pip zero zero. Two: the splat on a counted resource always yields a list — address elements by position; if you need named access, that's for_each territory. And three, the count classic: IPs are addressed by position, so destroying the middle one shifts every later address — Terraform sees new names at old positions and wants to recreate. Identical, interchangeable things only."
+  },
+  {
+   "id": "S015",
+   "narration": "Quick recap — five things. One: count reads a local, so one number scales the whole fan-out. Two: format with percent zero two d turns count dot index plus one into zero-padded names. Three: the padding isn't decoration — it keeps names sorting correctly as the count grows past nine. Four: the splat collects one attribute from every instance into a single list. Five: that attribute is known after apply — plan shows placeholders, apply fills in the real values. Count for identical things — named and polished."
+  },
+  {
+   "id": "S016",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+  },
+  {
+   "id": "S017",
+   "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+  }
+ ]
+}

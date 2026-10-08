@@ -1,0 +1,11 @@
+{
+  "mode": "illustrative",
+  "command": "terraform output",
+  "output_file": "lab50-output.txt",
+  "highlight": [
+    "rule_names",
+    "nic_ips",
+    "\"172.22.0.10\"",
+    "\"172.22.0.11\""
+  ]
+}

@@ -1,0 +1,65 @@
+{
+ "layers": [
+  [
+   "tfvars",
+   "var",
+   "rg",
+   "subnets",
+   "nsgs"
+  ]
+ ],
+ "nodes": [
+  {
+   "id": "tfvars",
+   "label": "terraform.tfvars: subnets map"
+  },
+  {
+   "id": "var",
+   "label": "variable \"subnets\" (map(object))"
+  },
+  {
+   "id": "rg",
+   "label": "rg-foreach-vars"
+  },
+  {
+   "id": "subnets",
+   "label": "subnets: web/app/data (for_each = var)"
+  },
+  {
+   "id": "nsgs",
+   "label": "nsgs: web/app only (filter if v.nsg)"
+  }
+ ],
+ "edges": [
+  {
+   "id": "tfvars-var",
+   "from": "tfvars",
+   "to": "var",
+   "label": "value"
+  },
+  {
+   "id": "var-subnets",
+   "from": "var",
+   "to": "subnets",
+   "label": "for_each (full map)"
+  },
+  {
+   "id": "rg-subnets",
+   "from": "rg",
+   "to": "subnets",
+   "label": "reference"
+  },
+  {
+   "id": "var-nsgs",
+   "from": "var",
+   "to": "nsgs",
+   "label": "for_each (filtered)"
+  },
+  {
+   "id": "rg-nsgs",
+   "from": "rg",
+   "to": "nsgs",
+   "label": "reference"
+  }
+ ]
+}

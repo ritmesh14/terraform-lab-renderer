@@ -1,0 +1,5 @@
+terraform output public_ip
+
+public_ip = "203.0.113.88"
+
+# provisioner ran at create time: apt-get update + cat /etc/os-release

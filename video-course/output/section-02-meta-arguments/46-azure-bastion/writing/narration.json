@@ -1,0 +1,86 @@
+{
+ "episode": "46-azure-bastion",
+ "source": "writing/scenes.json",
+ "scenes": [
+  {
+   "id": "S001",
+   "narration": "Welcome back. Every VM we've deployed lately had a public IP — a door on the open internet. This is Lab 46, and we take that door away. The VM goes private-only, and access comes through Azure Bastion — a managed jump box that brokers RDP over TLS on 443. Plus the rule Bastion enforces before anything deploys: a subnet literally named AzureBastionSubnet. Let's build it."
+  },
+  {
+   "id": "S002",
+   "narration": "Three things in this lesson. One: the deployment itself — a Windows virtual machine with a private-only NIC; no public IP anywhere on the VM. Two: the naming rule — Bastion refuses to deploy unless its subnet is EXACTLY named AzureBastionSubnet and is at least a slash 26. Three: the access path — you connect from the portal, Bastion brokers the RDP session over TLS on port 443, and the only internet-exposed endpoint is Bastion's own address."
+  },
+  {
+   "id": "S003",
+   "narration": "Placement. Labs 44 and 45 made VMs reachable the direct way — a static public IP on the NIC, SSH from the internet. This lab is the other design: nothing on the VM is internet-facing; Bastion is the single controlled door. One thing to keep straight: the AzureBastionSubnet naming and the slash 26 are Azure's rules, checked at deploy time — Terraform happily plans a wrong subnet name; Azure is the one that refuses it."
+  },
+  {
+   "id": "S004",
+   "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 46-azure-bastion. The direct link is in the video description. Main dot T F holds everything; terraform dot T F pins the providers."
+  },
+  {
+   "id": "S005",
+   "narration": "Terraform dot T F pins the tooling: Terraform 1.5 or newer, and the azurerm provider around version 3.70 — no extra providers this time. The provider block at the bottom bridges to Azure; the empty features block enables the provider's defaults."
+  },
+  {
+   "id": "S006",
+   "narration": "One input: admin password, a string marked sensitive = true. Windows VMs authenticate with a password, not an SSH key — and sensitive hides the value from plan and apply output. It does NOT hide it from the state file — hold that thought for the pitfalls."
+  },
+  {
+   "id": "S007",
+   "narration": "The container: resource group rg dash bastion. And the VNet: vnet dash bastion on 10.252 slash 16 — it hosts BOTH subnets this lab needs: the workload subnet and the Bastion subnet."
+  },
+  {
+   "id": "S008",
+   "narration": "The workload subnet: snet dash vm on 10.252.1 slash 24. The VM lives here — private IPs only. And the special one. Its name is not a suggestion — AzureBastionSubnet, spelled exactly, capital A, capital B, capital S. And the prefix is a slash 26 — Bastion requires /26 or larger. Get either wrong and Terraform plans it fine, but Azure refuses the deployment."
+  },
+  {
+   "id": "S009",
+   "narration": "One public IP in this lab — and it belongs to BASTION, not the VM: pip dash bastion, static allocation on the standard SKU. Clients hit this address on 443; the VM never gets one."
+  },
+  {
+   "id": "S010",
+   "narration": "The Bastion host itself: bas dash secure dash access, the managed jump box. Note what's NOT here — no sku argument. The provider default is Basic, and Basic is enough for this lab's portal connection; it still takes about ten minutes to deploy, so plan and apply appear to hang on this one resource. Patience. The ip configuration wires the two halves: subnet id points at AzureBastionSubnet, and public ip address id at pip bastion. Those two references are what makes the host deployable."
+  },
+  {
+   "id": "S011",
+   "narration": "The VM's NIC: nic dash bastion dash vm, attached to snet vm with a DYNAMIC private IP. Look at what's missing — there is no public ip address id in this ip configuration. That omission IS the security posture: the NIC is private-only, by design."
+  },
+  {
+   "id": "S012",
+   "narration": "The Windows VM: vm dash bastion, NIC from the block above — and admin password equals var dot admin password, the sensitive input. No admin ssh key block at all — Windows authenticates with the password. The nested blocks match the Linux anatomy exactly — os disk on standard SSD, and the source image reference pointing at Windows Server 2022 datacenter azure edition. Only the publisher and the auth method changed."
+  },
+  {
+   "id": "S013",
+   "narration": "Two outputs: bastion dns — the address you'll open the portal session from — and the VM's name. The VM deliberately has no public ip output. There isn't one."
+  },
+  {
+   "id": "S014",
+   "narration": "Here's how the pieces connect. The resource group and VNet — one VNet hosting both the workload subnet and the Bastion subnet. Two subnets: the VM's snet dash vm, and the reserved AzureBastionSubnet — exact name required, /26 or larger. The public IP — Bastion's only internet exposure, for the 443 listener. The VM gets none. The Bastion host: bound to AzureBastionSubnet and that public IP inside its ip configuration. The workload side: a private-only NIC and the Windows VM — reachable through Bastion, never from the internet. Everything lands inside your Azure subscription."
+  },
+  {
+   "id": "S015",
+   "narration": "Here's the plan — terraform plan, an illustrative view. Eight to add: resource group, VNet, TWO subnets, the public IP, the Bastion host, the NIC, and the Windows VM. The password shows redacted as a sensitive value — and note which resource does NOT appear: a public IP for the VM. There isn't one."
+  },
+  {
+   "id": "S016",
+   "narration": "And the outputs — terraform output, an illustrative view. Bastion dns, and the VM's name. To reach the machine you open the VM in the portal, choose Connect → Bastion, sign in as azureadmin with the password variable — and a browser RDP session opens over 443."
+  },
+  {
+   "id": "S017",
+   "narration": "Three pitfalls. One: the subnet name is enforced by Azure, not Terraform — the plan will look perfect with any name, and the apply will fail at deploy time unless it's exactly AzureBastionSubnet, on a /26 or larger. Two: sensitive equals true only redacts the CLI — the password is stored in the state file in plain text; that's one more reason state files never get committed. Three: Bastion is one of the slowest resources in Azure — around ten minutes — so the apply will look stuck on the host; it isn't. Wait it out."
+  },
+  {
+   "id": "S018",
+   "narration": "Quick recap — five things. One: the VM has no public IP — its NIC is private-only, and that omission is the design. Two: the Bastion subnet must be exactly AzureBastionSubnet on a /26 or larger — Azure enforces both at deploy time. Three: the only internet-facing endpoint is Bastion's own public IP, on 443. Four: access goes through the portal — Connect, Bastion, sign in — and Bastion brokers RDP over TLS. Five: the Windows VM authenticates with the sensitive password variable, not an SSH key. The door moved off the VM and onto a managed broker."
+  },
+  {
+   "id": "S019",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+  },
+  {
+   "id": "S020",
+   "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+  }
+ ]
+}

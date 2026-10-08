@@ -1,0 +1,268 @@
+{
+ "title": "Your First Resource: The Azure Storage Account",
+ "lesson_label": "Azure Foundations — Lab 02",
+ "scenes": [
+  {
+   "id": "S001",
+   "type": "TITLE",
+   "title": "Your First Resource: The Azure Storage Account",
+   "lesson_label": "Azure Foundations — Lab 02",
+   "narration": "Welcome back. In lab one, we proved Terraform could sign in to Azure. Now we put that identity to work. In this lesson, we create your first real resources: a resource group, and a storage account. Along the way, you'll learn resource blocks, locals, and a stateful random suffix that keeps your names stable. By the end, Terraform will have created real infrastructure in your subscription.",
+   "audio": "audio/S001.mp3"
+  },
+  {
+   "id": "S002",
+   "type": "CONCEPT",
+   "heading": "What you'll learn",
+   "points": [
+    "resource blocks — where Terraform creates and manages real infrastructure",
+    "locals — compute names once, reuse them everywhere",
+    "The random provider — a suffix saved in state, stable across every run"
+   ],
+   "narration": "Here's what you'll learn in this lesson — three things. One: resource blocks — where Terraform creates and manages real infrastructure. Two: locals — compute names once, and reuse them everywhere. Three: the random provider — a suffix saved in state, stable across every run.",
+   "audio": "audio/S002.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S003",
+   "type": "CONCEPT",
+   "heading": "Where this lab fits",
+   "points": [
+    "Lab 2 of the Foundations section",
+    "Lab 1 proved Terraform's identity",
+    "Now Terraform creates its first real resources"
+   ],
+   "narration": "This is lab two of the Foundations section. Lab one proved who Terraform is. This lab is what Terraform can do with that identity: create something real. We start small, with a resource group and a storage account, the foundation almost every Azure project is built on.",
+   "audio": "audio/S003.mp3"
+  },
+  {
+   "id": "S004",
+   "type": "CONCEPT",
+   "heading": "Storage account naming rules",
+   "points": [
+    "Globally unique across ALL of Azure",
+    "3–24 characters, lowercase letters and numbers only",
+    "We let Terraform generate the unique part"
+   ],
+   "narration": "Before writing code, one rule to know. Storage account names must be globally unique across all of Azure, between three and twenty four characters, lowercase letters and numbers only. Nobody can guarantee that by hand, so we'll let Terraform generate the unique part for us, with a random suffix.",
+   "audio": "audio/S004.mp3"
+  },
+  {
+   "id": "S005",
+   "type": "CONCEPT",
+   "heading": "Where to find this lab",
+   "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-01-foundations\n          └── 02-storage-account\n              ├── README.md\n              ├── main.tf\n              └── terraform.tf\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-01-foundations/02-storage-account",
+   "narration": "You can find this lab in the course GitHub repository under Section 1, Foundations. The direct link is in the video description. The lab is three small files: main dot T F holds the entire configuration, terraform dot T F pins the providers, and the README explains what you'll see in the Azure portal afterwards.",
+   "audio": "audio/S005.mp3"
+  },
+  {
+   "id": "S006",
+   "type": "CODE",
+   "source_file": "terraform.tf",
+   "start_line": 1,
+   "end_line": 15,
+   "highlight_lines": [
+    10,
+    11,
+    12,
+    13
+   ],
+   "asset": "assets/code/lab02-01-terraform-block.png",
+   "narration": "The terraform dot T F file follows the same pattern you learned in lab one: a minimum Terraform version, and the Azure R M provider pinned near version three point seventy. One thing is new. We also require the random provider, version three point six or newer. That's the provider that will generate our unique name suffix, and Terraform downloads both providers automatically during init.",
+   "audio": "audio/S006.mp3"
+  },
+  {
+   "id": "S007",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 8,
+   "end_line": 19,
+   "highlight_lines": [
+    10,
+    11,
+    17,
+    18
+   ],
+   "asset": "assets/code/lab02-02-locals.png",
+   "narration": "Inside main dot T F, the locals block holds derived values: names we compute once and reuse. We fix the region, East U S, and the resource group name. Then the interesting part. The storage account name must be lowercase, so we wrap it in the lower function, and we append a random suffix to make it globally unique. Define a name here, and every resource below follows automatically.",
+   "audio": "audio/S007.mp3"
+  },
+  {
+   "id": "S008",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 24,
+   "end_line": 31,
+   "highlight_lines": [
+    27,
+    28,
+    29,
+    30
+   ],
+   "asset": "assets/code/lab02-03-random-string.png",
+   "narration": "Here is the source of that suffix. The random string resource generates six characters, no uppercase, no special characters. The key word is stateful. Terraform saves this value in its state file, so it's generated once, then reused on every plan and apply. If we hashed a timestamp instead, the name would change on every run, and Terraform would try to destroy and recreate the storage account each time.",
+   "audio": "audio/S008.mp3"
+  },
+  {
+   "id": "S009",
+   "type": "DIAGRAM",
+   "caption": "How the pieces connect",
+   "asset": "assets/diagrams/lab02-resource-flow.svg",
+   "steps": [
+    {
+     "narration": "Here's how the pieces connect.",
+     "nodes": [],
+     "edges": []
+    },
+    {
+     "narration": "The random string produces the suffix and saves it in state.",
+     "nodes": [
+      "random"
+     ]
+    },
+    {
+     "narration": "Locals combine it into the storage account name.",
+     "nodes": [
+      "locals"
+     ],
+     "edges": [
+      "random-locals"
+     ]
+    },
+    {
+     "narration": "The resource group is created first.",
+     "nodes": [
+      "rg"
+     ]
+    },
+    {
+     "narration": "The storage account references its name and location. That reference is what tells Terraform the order: resource group before storage account.",
+     "nodes": [
+      "st"
+     ],
+     "edges": [
+      "rg-st"
+     ]
+    },
+    {
+     "narration": "And everything lands inside your Azure subscription.",
+     "nodes": [
+      "azure"
+     ],
+     "edges": [
+      "st-azure"
+     ]
+    }
+   ],
+   "narration": "Here's how the pieces connect. The random string produces the suffix and saves it in state. Locals combine it into the storage account name. The resource group is created first, and the storage account references its name and location. That reference is what tells Terraform the order: resource group before storage account. And everything lands inside your Azure subscription.",
+   "audio": "audio/S009.mp3",
+   "step_audio": [
+    "audio/S009.step1.mp3",
+    "audio/S009.step2.mp3",
+    "audio/S009.step3.mp3",
+    "audio/S009.step4.mp3",
+    "audio/S009.step5.mp3",
+    "audio/S009.step6.mp3"
+   ]
+  },
+  {
+   "id": "S010",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 33,
+   "end_line": 38,
+   "highlight_lines": [
+    35,
+    36,
+    37,
+    38
+   ],
+   "asset": "assets/code/lab02-04-resource-group.png",
+   "narration": "Now the first resource block. A resource group is a logical container for everything else in this lab. And almost every Azure config starts with one. The resource type is azurerm resource group, and this, its local name, is what we use to reference it elsewhere. We give it the name and the region straight from locals.",
+   "audio": "audio/S010.mp3"
+  },
+  {
+   "id": "S011",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 40,
+   "end_line": 50,
+   "highlight_lines": [
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49
+   ],
+   "asset": "assets/code/lab02-05-storage-account.png",
+   "narration": "And the storage account itself. Notice the two references: the resource group name and location come from the resource group we just defined. That reference is how Terraform knows the dependency, and creates them in the right order. Account tier Standard means disk based and cost effective. Replication type L R S keeps three copies in one data center, the cheapest option. We also enforce T L S version one point two, and keep every blob private by default.",
+   "audio": "audio/S011.mp3"
+  },
+  {
+   "id": "S012",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 52,
+   "end_line": 60,
+   "highlight_lines": [
+    53,
+    54,
+    58,
+    59
+   ],
+   "asset": "assets/code/lab02-06-outputs.png",
+   "narration": "Finally, two outputs, just like lab one. After apply, Terraform prints the storage account name, and its primary blob endpoint. The name proves the random suffix worked. And the endpoint URL is handy to paste into a browser, or to hand to a later lab that uploads blobs.",
+   "audio": "audio/S012.mp3"
+  },
+  {
+   "id": "S013",
+   "type": "TERMINAL",
+   "asset": "assets/terminal/lab02-apply.svg",
+   "narration": "Time to run it. Terraform init now downloads two providers: Azure R M and random. Terraform plan shows exactly what will be created: one random string, one resource group, one storage account. Terraform apply creates all three, and both outputs print, including the globally unique name Terraform chose. What you see on screen is an illustrative view of what that looks like.",
+   "audio": "audio/S013.mp3"
+  },
+  {
+   "id": "S014",
+   "type": "CONCEPT",
+   "heading": "Common pitfall",
+   "points": [
+    "Timestamp-based suffixes change every run → Terraform replaces the resource",
+    "Changing name or account_tier forces destroy + recreate — Terraform asks first"
+   ],
+   "narration": "Two pitfalls to avoid in this lab. One: timestamp-based suffixes change every run — Terraform replaces the resource. If the unique suffix comes from something that moves, like a timestamp, every plan produces a new name, and Terraform will destroy and recreate the storage account. The fix is exactly what this lab does: a random string saved in state. Two: changing the name or the account tier forces a destroy and recreate — Terraform asks first. The same caution applies to settings like the account tier: some changes can only be applied by replacing the whole resource, so Terraform will ask before doing it.",
+   "audio": "audio/S014.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S015",
+   "type": "RECAP",
+   "points": [
+    "resource blocks create and manage real infrastructure",
+    "locals compute names once — one place to change them",
+    "random_string is stateful: the suffix never changes between runs",
+    "Storage account names: globally unique, 3–24 chars, lowercase + numbers",
+    "References create dependencies: resource group before storage account"
+   ],
+   "narration": "Quick recap — five things. One: resource blocks create and manage real infrastructure. Two: locals compute names once, in one place to change them. Three: the random string is stateful — the suffix never changes between runs. Four: storage account names are globally unique, three to twenty four characters, lowercase letters and numbers. Five: references create dependencies — the resource group comes before the storage account.",
+   "audio": "audio/S015.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S016",
+   "type": "NEXT",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure.",
+   "audio": "audio/S016.mp3"
+  },
+  {
+   "id": "S017",
+   "type": "CONCEPT",
+   "heading": "Thanks for watching",
+   "narration": "Thanks for watching. If this helped, the full lab, along with every lab in this course, is in the GitHub repository linked below. If you'd like more lessons like this one, give the video a like, share it with a friend who is learning Azure, and subscribe to the channel. It really helps the course grow. Thank you, and see you in the next lesson.",
+   "audio": "audio/S017.mp3",
+   "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-01-foundations/02-storage-account",
+   "centered": true
+  }
+ ]
+}

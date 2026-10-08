@@ -1,0 +1,215 @@
+{
+ "title": "The Variable Definition File",
+ "lesson_label": "Azure Foundations — Lab 19",
+ "scenes": [
+  {
+   "id": "S001",
+   "type": "TITLE",
+   "title": "The Variable Definition File",
+   "narration": "Lab 18's variables all had defaults. But production configurations usually refuse to guess: variables declared with no default must be supplied — and the standard supplier is a file. This lesson is terraform dot t f vars, the definition file Terraform loads automatically.",
+   "audio": "audio/S001.mp3"
+  },
+  {
+   "id": "S002",
+   "type": "CONCEPT",
+   "heading": "What you'll learn",
+   "points": [
+    "Variables without defaults are required — Terraform prompts or errors",
+    "terraform.tfvars is auto-loaded by name on every plan/apply",
+    "-var-file selects alternate files (prod.tfvars, staging.tfvars)",
+    "One declaration, many value files — environments without copies"
+   ],
+   "narration": "Here's what you'll learn. One: variables without defaults are required — Terraform prompts, or errors. Two: t f vars is auto-loaded by name on every plan and apply. Three: var dash file selects alternate files — prod, staging. Four: one declaration, many value files — environments without copies.",
+   "audio": "audio/S002.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S003",
+   "type": "CONCEPT",
+   "heading": "Where this lab fits",
+   "points": [
+    "Lab 19 of the Foundations section",
+    "Lab 18 validated the inputs; this lab decides where their values live",
+    "*.auto.tfvars and TF_VAR_/-var exist too — the file is the default source"
+   ],
+   "narration": "This is lab nineteen. Last lesson made the inputs strict — validation rejecting bad values. Today's question: where do good values come from? Terraform's answer is a file it loads by convention, plus a flag for everything else.",
+   "audio": "audio/S003.mp3"
+  },
+  {
+   "id": "S004",
+   "type": "CONCEPT",
+   "heading": "Auto-loading by name",
+   "points": [
+    "terraform.tfvars (and terraform.tfvars.json) loads automatically",
+    "*.auto.tfvars loads too — ordered by filename",
+    "-var-file=prod.tfvars adds any file, on demand",
+    "No default + no value = Terraform prompts interactively (or errors in CI)"
+   ],
+   "narration": "The convention is the feature. Name the file terraform dot t f vars, and Terraform loads it on every plan and apply — no flags, no scripts. Any file ending in dot auto dot t f vars loads too. Need a different environment? Keep a prod t f vars and pass var dash file. And if a required variable has no value anywhere, Terraform stops and asks. The declaration stays in code; the values stay in data.",
+   "audio": "audio/S004.mp3"
+  },
+  {
+   "id": "S005",
+   "type": "CONCEPT",
+   "heading": "Where to find this lab",
+   "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-01-foundations\n          └── 19-variable-definition-file\n              ├── README.md\n              ├── main.tf\n              ├── terraform.tf\n              ├── variables.tf\n              └── terraform.tfvars\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-01-foundations/19-variable-definition-file",
+   "narration": "As always, the lab is in the course GitHub repository under Section 1, Foundations, with the link in the description. Main dot t f declares three variables with no defaults — and terraform dot t f vars is where the values live.",
+   "audio": "audio/S005.mp3"
+  },
+  {
+   "id": "S006",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 9,
+   "end_line": 12,
+   "highlight_lines": [
+    10,
+    11,
+    12
+   ],
+   "asset": "assets/code/19-01-declared.png",
+   "narration": "Three variables, and notice what's missing: no type keyword beyond the bare minimum, and no defaults anywhere. Location, name prefix, tier — declared and required. Terraform will not invent values for these. The configuration refuses to run until someone supplies them.",
+   "audio": "audio/S006.mp3"
+  },
+  {
+   "id": "S007",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 23,
+   "end_line": 36,
+   "highlight_lines": [
+    24,
+    25,
+    26,
+    31,
+    34
+   ],
+   "asset": "assets/code/19-02-consume.png",
+   "narration": "The consumption is familiar from lab eighteen: the storage account's name assembles the prefix with a random suffix, and the tier flows straight from the variable. The only difference is upstream — nothing here has a fallback. Every value in this block came from outside.",
+   "audio": "audio/S007.mp3"
+  },
+  {
+   "id": "S008",
+   "type": "CODE",
+   "source_file": "terraform.tfvars",
+   "start_line": 1,
+   "end_line": 6,
+   "highlight_lines": [
+    4,
+    5,
+    6
+   ],
+   "asset": "assets/code/19-03-tfvars.png",
+   "narration": "And here's the outside: terraform dot t f vars. Three assignments — one per variable, matching names exactly. No flags needed: Terraform loads this file by name, automatically, on every run. Rename it and it stops loading — the name is the contract.",
+   "audio": "audio/S008.mp3"
+  },
+  {
+   "id": "S009",
+   "type": "DIAGRAM",
+   "caption": "The definition file feeds the run",
+   "asset": "assets/diagrams/19-tfvars-autoload.svg",
+   "narration": "The data flow, drawn out: the definition file is picked up by name, its values land in the required variables, and the resources consume them — no defaults involved anywhere.",
+   "steps": [
+    {
+     "narration": "The data flow, drawn out.",
+     "nodes": [],
+     "edges": []
+    },
+    {
+     "narration": "Terraform dot t f vars is auto-loaded by name on every run.",
+     "nodes": [
+      "tfv"
+     ],
+     "edges": []
+    },
+    {
+     "narration": "Its values land in the three required variables — location, name prefix, tier.",
+     "nodes": [
+      "tfv",
+      "vars"
+     ],
+     "edges": [
+      "tfv-vars"
+     ]
+    },
+    {
+     "narration": "And they flow straight into the build: the region to the group, the prefix and tier to the storage account.",
+     "nodes": [
+      "vars",
+      "rg",
+      "st"
+     ],
+     "edges": [
+      "vars-rg",
+      "vars-st"
+     ]
+    },
+    {
+     "narration": "Code declares; data supplies. Swap the file, and the same code builds a different environment.",
+     "nodes": [
+      "tfv",
+      "vars",
+      "rg",
+      "st"
+     ],
+     "edges": [
+      "tfv-vars",
+      "vars-rg",
+      "vars-st"
+     ]
+    }
+   ],
+   "audio": "audio/S009.mp3"
+  },
+  {
+   "id": "S010",
+   "type": "TERMINAL",
+   "asset": "assets/terminal/lab19-apply.svg",
+   "narration": "Two runs, one configuration. The apply picked up terraform dot t f vars automatically — no flags at all. Then the same code with a different file: var dash file, prod t f vars, and the plan targets a different region, a different prefix, a different tier. Nothing edited. Environments are files, not copies of the code.",
+   "audio": "audio/S010.mp3"
+  },
+  {
+   "id": "S011",
+   "type": "CONCEPT",
+   "heading": "Common pitfall — mistaking the example file for the real one",
+   "points": [
+    "Only terraform.tfvars auto-loads — terraform.tfvars.example does not",
+    "No default + missing value = an interactive prompt (or a hard error in CI)",
+    "-var-file can be passed multiple times — later files win",
+    "Values on the command line (-var) beat every file"
+   ],
+   "narration": "Here are the pitfalls in this lab. One: only terraform dot t f vars auto-loads — the example file does not. The dot example suffix means Terraform ignores it completely; copy it, rename it, and fill it in. Two: no default and a missing value means an interactive prompt — or a hard error in c i. In c i there's no one to answer the prompt, so the missing variable stops the run — which is exactly why the file convention matters. Three: a var file flag can be passed multiple times — later files win. That lets you layer a base file with an environment override. Four: values on the command line beat every file. The var flag has the highest precedence of all.",
+   "audio": "audio/S011.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S012",
+   "type": "RECAP",
+   "points": [
+    "No default = required variable — Terraform prompts or errors",
+    "terraform.tfvars auto-loads by name on every plan/apply",
+    "-var-file swaps in environment files (prod.tfvars)",
+    "Precedence: -var beats -var-file beats auto-loaded files",
+    "Code declares; data supplies — environments are files, not copies"
+   ],
+   "narration": "Quick recap — five things. One: no default means a required variable — Terraform prompts, or errors. Two: terraform dot t f vars auto-loads by name on every plan and apply. Three: the var file flag swaps in environment files, like prod dot t f vars. Four: precedence — a var flag beats a var file, which beats auto-loaded files. Five: code declares, data supplies — environments are files, not copies.",
+   "audio": "audio/S012.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S013",
+   "type": "NEXT",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure.",
+   "audio": "audio/S013.mp3"
+  },
+  {
+   "id": "S014",
+   "type": "CONCEPT",
+   "heading": "Thanks for watching",
+   "narration": "Thanks for watching. If this helped, the full lab, along with every lab in this course, is in the GitHub repository linked below. If you'd like more lessons like this one, give the video a like, share it with a friend who is learning Azure, and subscribe to the channel. It really helps the course grow. Thank you, and see you in the next lesson.",
+   "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-01-foundations/19-variable-definition-file",
+   "centered": true,
+   "audio": "audio/S014.mp3"
+  }
+ ]
+}

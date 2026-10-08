@@ -1,0 +1,67 @@
+{
+  "layers": [
+    [
+      "vars",
+      "locals",
+      "rg"
+    ],
+    [
+      "vnets",
+      "subnets"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": "vars",
+      "label": "vars: regions + tiers (matrix axes)"
+    },
+    {
+      "id": "locals",
+      "label": "locals: region_cidr → nested → flat"
+    },
+    {
+      "id": "rg",
+      "label": "rg-flatten"
+    },
+    {
+      "id": "vnets",
+      "label": "vnet-regionA + vnet-regionB (for_each toset)"
+    },
+    {
+      "id": "subnets",
+      "label": "snet-<tier> ×4 (for_each flat map)"
+    }
+  ],
+  "edges": [
+    {
+      "id": "vars-locals",
+      "from": "vars",
+      "to": "locals",
+      "label": "axes"
+    },
+    {
+      "id": "locals-vnets",
+      "from": "locals",
+      "to": "vnets",
+      "label": "region cidr"
+    },
+    {
+      "id": "rg-vnets",
+      "from": "rg",
+      "to": "vnets",
+      "label": "reference"
+    },
+    {
+      "id": "locals-subnets",
+      "from": "locals",
+      "to": "subnets",
+      "label": "flat map"
+    },
+    {
+      "id": "vnets-subnets",
+      "from": "vnets",
+      "to": "subnets",
+      "label": "[each.value.region]"
+    }
+  ]
+}

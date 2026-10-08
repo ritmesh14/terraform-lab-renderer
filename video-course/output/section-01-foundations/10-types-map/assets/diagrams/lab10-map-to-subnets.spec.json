@@ -1,0 +1,59 @@
+{
+  "nodes": [
+    {
+      "id": "map",
+      "label": "local.subnets\nmap(object): web / app / data"
+    },
+    {
+      "id": "fe",
+      "label": "for_each = local.subnets"
+    },
+    {
+      "id": "web",
+      "label": "azurerm_subnet.this[\"web\"]\nsnet-web 10.60.1.0/24"
+    },
+    {
+      "id": "app",
+      "label": "azurerm_subnet.this[\"app\"]\nsnet-app 10.60.2.0/24"
+    },
+    {
+      "id": "data",
+      "label": "azurerm_subnet.this[\"data\"]\nsnet-data 10.60.3.0/24"
+    }
+  ],
+  "edges": [
+    {
+      "from": "map",
+      "to": "fe",
+      "label": "iterate keys"
+    },
+    {
+      "from": "fe",
+      "to": "web",
+      "label": "each.key = web"
+    },
+    {
+      "from": "fe",
+      "to": "app",
+      "label": "each.key = app"
+    },
+    {
+      "from": "fe",
+      "to": "data",
+      "label": "each.key = data"
+    }
+  ],
+  "layers": [
+    [
+      "map"
+    ],
+    [
+      "fe"
+    ],
+    [
+      "web",
+      "app",
+      "data"
+    ]
+  ]
+}

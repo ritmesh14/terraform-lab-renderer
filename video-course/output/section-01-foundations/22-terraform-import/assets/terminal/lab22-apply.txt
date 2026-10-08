@@ -1,0 +1,6 @@
+$ terraform apply -auto-approve -no-color
+azurerm_storage_account.adopted: Importing [id=/subscriptions/<guid>/resourceGroups/rg-import-demo/providers/Microsoft.Storage/storageAccounts/stimportdemo123]
+azurerm_storage_account.adopted: Import complete after 1s [id=<guid>]
+azurerm_storage_account.adopted: Refreshing state... [id=<guid>]
+
+Apply complete! Resources: 1 imported, 0 added, 0 changed, 0 destroyed.

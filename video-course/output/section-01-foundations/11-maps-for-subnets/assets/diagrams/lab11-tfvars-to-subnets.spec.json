@@ -1,0 +1,69 @@
+{
+  "nodes": [
+    {
+      "id": "tfv",
+      "label": "terraform.tfvars\nweb / app / data"
+    },
+    {
+      "id": "var",
+      "label": "variable \"subnets\"\nmap(object): prefix + nsg"
+    },
+    {
+      "id": "fe",
+      "label": "for_each = var.subnets"
+    },
+    {
+      "id": "web",
+      "label": "azurerm_subnet.this[\"web\"]\nsnet-web 10.70.1.0/24"
+    },
+    {
+      "id": "app",
+      "label": "azurerm_subnet.this[\"app\"]\nsnet-app 10.70.2.0/24"
+    },
+    {
+      "id": "data",
+      "label": "azurerm_subnet.this[\"data\"]\nsnet-data 10.70.3.0/24"
+    }
+  ],
+  "edges": [
+    {
+      "from": "tfv",
+      "to": "var",
+      "label": "auto-loaded"
+    },
+    {
+      "from": "var",
+      "to": "fe",
+      "label": "iterate keys"
+    },
+    {
+      "from": "fe",
+      "to": "web",
+      "label": "each.key = web"
+    },
+    {
+      "from": "fe",
+      "to": "app",
+      "label": "each.key = app"
+    },
+    {
+      "from": "fe",
+      "to": "data",
+      "label": "each.key = data"
+    }
+  ],
+  "layers": [
+    [
+      "tfv",
+      "var"
+    ],
+    [
+      "fe"
+    ],
+    [
+      "web",
+      "app",
+      "data"
+    ]
+  ]
+}

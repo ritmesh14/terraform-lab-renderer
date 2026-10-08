@@ -1,0 +1,10 @@
+{
+  "mode": "illustrative",
+  "command": "terraform state list",
+  "output_file": "lab29-state-list.txt",
+  "highlight": [
+    "file[\"app.json\"]",
+    "file[\"note.txt\"]",
+    "file[\"readme.md\"]"
+  ]
+}

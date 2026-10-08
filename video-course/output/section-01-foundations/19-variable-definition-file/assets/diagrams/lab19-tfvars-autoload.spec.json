@@ -1,0 +1,49 @@
+{
+  "nodes": [
+    {
+      "id": "tfv",
+      "label": "terraform.tfvars\nauto-loaded by name"
+    },
+    {
+      "id": "vars",
+      "label": "variable \"location\" / \"name_prefix\" / \"tier\"\nno defaults — required"
+    },
+    {
+      "id": "rg",
+      "label": "azurerm_resource_group.this\nlocation from var"
+    },
+    {
+      "id": "st",
+      "label": "azurerm_storage_account.this\nprefix + tier from vars"
+    }
+  ],
+  "edges": [
+    {
+      "from": "tfv",
+      "to": "vars",
+      "label": "values"
+    },
+    {
+      "from": "vars",
+      "to": "rg",
+      "label": "var.location"
+    },
+    {
+      "from": "vars",
+      "to": "st",
+      "label": "prefix + tier"
+    }
+  ],
+  "layers": [
+    [
+      "tfv"
+    ],
+    [
+      "vars"
+    ],
+    [
+      "rg",
+      "st"
+    ]
+  ]
+}

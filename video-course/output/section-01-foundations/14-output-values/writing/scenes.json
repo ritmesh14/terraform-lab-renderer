@@ -1,0 +1,220 @@
+{
+ "title": "Output Values",
+ "lesson_label": "Azure Foundations — Lab 14",
+ "scenes": [
+  {
+   "id": "S001",
+   "type": "TITLE",
+   "title": "Output Values",
+   "narration": "Every lab so far has ended the same way: values you only learn after apply — a resource I D, a private I P, an address Azure chose. This lesson makes those exports the subject: the output block, in its three costumes.",
+   "audio": "audio/S001.mp3"
+  },
+  {
+   "id": "S002",
+   "type": "CONCEPT",
+   "heading": "What you'll learn",
+   "points": [
+    "output blocks: plain, described, and sensitive",
+    "Outputs are the configuration's public API after apply",
+    "terraform output <name> reads a value back on demand",
+    "What sensitive masks — and what it doesn't"
+   ],
+   "narration": "Here's what you'll learn. One: output blocks — plain, described, and sensitive. Two: outputs are the configuration's public API after apply. Three: terraform output, followed by a name, reads a value back on demand. Four: what sensitive masks — and what it doesn't.",
+   "audio": "audio/S002.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S003",
+   "type": "CONCEPT",
+   "heading": "Where this lab fits",
+   "points": [
+    "Lab 14 of the Foundations section",
+    "Outputs have appeared since Lab 4 — now the full treatment",
+    "Computed values like Lab 13's private IP are exactly what outputs are for"
+   ],
+   "narration": "This is lab fourteen. We've used outputs casually since lab four — a subnet I D, a private I P. Today they're the subject: how to declare them, how to read them back, and how to keep a secret from printing itself into your terminal.",
+   "audio": "audio/S003.mp3"
+  },
+  {
+   "id": "S004",
+   "type": "CONCEPT",
+   "heading": "Outputs are the configuration's API",
+   "points": [
+    "output blocks expose values after apply — to you, scripts, other configs",
+    "description documents what the value is and why it exists",
+    "sensitive = true masks the value in plan/apply logs",
+    "terraform output <name> reads one; terraform output reads all"
+   ],
+   "narration": "Think of outputs as the configuration's public interface. Everything inside — resources, attributes, computed addresses — is private until you declare an output for it. A description tells the next reader what the value means. Sensitive marks values that must not print in plain text. And after apply, the terraform output command is how you — or a script, or another configuration — read them back.",
+   "audio": "audio/S004.mp3"
+  },
+  {
+   "id": "S005",
+   "type": "CONCEPT",
+   "heading": "Where to find this lab",
+   "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-01-foundations\n          └── 14-output-values\n              ├── README.md\n              ├── main.tf\n              ├── outputs.tf\n              └── terraform.tf\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-01-foundations/14-output-values",
+   "narration": "As always, the lab is in the course GitHub repository under Section 1, Foundations, with the link in the description. The interesting file this time is outputs dot t f — main dot t f just builds a storage account to expose.",
+   "audio": "audio/S005.mp3"
+  },
+  {
+   "id": "S006",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 21,
+   "end_line": 34,
+   "highlight_lines": [
+    28,
+    29,
+    30,
+    31,
+    32,
+    33
+   ],
+   "asset": "assets/code/14-01-storage.png",
+   "narration": "The subject of our outputs: a storage account. Its name embeds a random suffix from the stateful random string you met in lab five — stable across plans. Standard tier, L R S replication. Deliberately ordinary, because the lesson lives in outputs dot t f.",
+   "audio": "audio/S006.mp3"
+  },
+  {
+   "id": "S007",
+   "type": "CODE",
+   "source_file": "outputs.tf",
+   "start_line": 1,
+   "end_line": 12,
+   "highlight_lines": [
+    4,
+    5,
+    6,
+    7,
+    10,
+    11
+   ],
+   "asset": "assets/code/14-02-plain.png",
+   "narration": "The first two outputs. The storage account's name — with a description, which changes nothing at runtime but tells the next reader what the value is. And the blob endpoint, a U R L you can paste straight into a browser. Plain outputs like these print in full after every apply.",
+   "audio": "audio/S007.mp3"
+  },
+  {
+   "id": "S008",
+   "type": "CODE",
+   "source_file": "outputs.tf",
+   "start_line": 14,
+   "end_line": 18,
+   "highlight_lines": [
+    15,
+    16,
+    17
+   ],
+   "asset": "assets/code/14-03-sensitive.png",
+   "narration": "The third output is different: sensitive equals true. This is the account's primary access key — a real secret. With that one flag, Terraform masks the value in every plan and apply log. The value still exists and still flows to whoever reads the output. It just refuses to print itself in plain text.",
+   "audio": "audio/S008.mp3"
+  },
+  {
+   "id": "S009",
+   "type": "DIAGRAM",
+   "caption": "One storage account, three outputs — one masked",
+   "asset": "assets/diagrams/14-outputs-flow.svg",
+   "narration": "Drawn out: one storage account exposing three outputs. The name with its description, the blob endpoint, and the access key — marked sensitive, so it flows but never prints in plain text.",
+   "steps": [
+    {
+     "narration": "The exports, drawn out.",
+     "nodes": [],
+     "edges": []
+    },
+    {
+     "narration": "The account's name, with a description for the next reader.",
+     "nodes": [
+      "st",
+      "o1"
+     ],
+     "edges": [
+      "st-o1"
+     ]
+    },
+    {
+     "narration": "The blob endpoint — a U R L ready to paste.",
+     "nodes": [
+      "st",
+      "o2"
+     ],
+     "edges": [
+      "st-o2"
+     ]
+    },
+    {
+     "narration": "And the access key, marked sensitive: it flows, but it never prints in plain text.",
+     "nodes": [
+      "st",
+      "o3"
+     ],
+     "edges": [
+      "st-o3"
+     ]
+    },
+    {
+     "narration": "One storage account, three outputs — and one rule: mask what's secret.",
+     "nodes": [
+      "st",
+      "o1",
+      "o2",
+      "o3"
+     ],
+     "edges": [
+      "st-o1",
+      "st-o2",
+      "st-o3"
+     ]
+    }
+   ],
+   "audio": "audio/S009.mp3"
+  },
+  {
+   "id": "S010",
+   "type": "TERMINAL",
+   "asset": "assets/terminal/lab14-apply.svg",
+   "narration": "Apply time, and look at the outputs block. Two values print in full — the name and the blob endpoint. The access key doesn't: it shows as sensitive, masked by the flag we set. The value isn't gone. Ask for it by name, and terraform output hands it over. Masked in logs, available on demand.",
+   "audio": "audio/S010.mp3"
+  },
+  {
+   "id": "S011",
+   "type": "CONCEPT",
+   "heading": "Common pitfall — trusting sensitive too much",
+   "points": [
+    "sensitive masks logs only — the value still sits in state, in plain text",
+    "Don't output secrets that no downstream consumer needs",
+    "terraform output <name> prints the real value on demand — by design",
+    "State-file protection is a separate concern, not this flag's job"
+   ],
+   "narration": "Here are the pitfalls in this lab. One: sensitive masks logs only — the value still sits in state, in plain text. The flag protects plan and apply output, nothing more. Two: don't output secrets that no downstream consumer needs. Expose only what someone downstream actually uses. Three: terraform output, followed by a name, prints the real value on demand — by design. So build the habit of treating the state file as the sensitive artifact it is. Four: state-file protection is a separate concern — not this flag's job. Marking something sensitive doesn't secure it; it just keeps it out of the log.",
+   "audio": "audio/S011.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S012",
+   "type": "RECAP",
+   "points": [
+    "output blocks expose values after apply — the configuration's API",
+    "description documents; sensitive masks in logs",
+    "terraform output <name> reads values back on demand",
+    "Computed values (Azure's choices) are prime output candidates",
+    "Masked is not encrypted — state is still plain text"
+   ],
+   "narration": "Quick recap — five things. One: output blocks expose values after apply — the configuration's public interface. Two: description documents; sensitive masks in logs. Three: terraform output, followed by a name, reads values back on demand. Four: computed values — Azure's choices — are prime output candidates. Five: masked is not encrypted — state is still plain text.",
+   "audio": "audio/S012.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S013",
+   "type": "NEXT",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure.",
+   "audio": "audio/S013.mp3"
+  },
+  {
+   "id": "S014",
+   "type": "CONCEPT",
+   "heading": "Thanks for watching",
+   "narration": "Thanks for watching. If this helped, the full lab, along with every lab in this course, is in the GitHub repository linked below. If you'd like more lessons like this one, give the video a like, share it with a friend who is learning Azure, and subscribe to the channel. It really helps the course grow. Thank you, and see you in the next lesson.",
+   "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-01-foundations/14-output-values",
+   "centered": true,
+   "audio": "audio/S014.mp3"
+  }
+ ]
+}

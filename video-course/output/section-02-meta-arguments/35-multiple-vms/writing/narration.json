@@ -1,0 +1,74 @@
+{
+ "episode": "35-multiple-vms",
+ "source": "writing/scenes.json",
+ "scenes": [
+  {
+   "id": "S001",
+   "narration": "Welcome back. Labs 28 to 34 were for_each country — names and keys everywhere. This is Lab 35, and count returns for its classic idiom: two resources sharing one count, paired by index. Two NICs, two VMs, and VM number one uses NIC number one. We'll also meet the full anatomy of a Linux VM block — three nested blocks you'll see in every VM lab from here on. Let's build it."
+  },
+  {
+   "id": "S002",
+   "narration": "Three things in this lesson. One: two resources — NICs and VMs — sharing the same count, so their instances pair up by index. Two: count dot index threading through the dependency — the VM reaches into the NIC list with the very same index. Three: the infrastructure around it — a required sensitive variable for the SSH key, and the three nested blocks every Linux VM carries."
+  },
+  {
+   "id": "S003",
+   "narration": "Placement. The last labs paired copies by key — subnet web to NSG web, by name. This lab shows the count version: pairing by position. It works, and it's everywhere in real code — but it has a weakness we'll name plainly in the pitfall scene. This is also the first virtual machine in section 2, so the VM block's nested anatomy gets a proper walkthrough — it returns in every compute lab ahead."
+  },
+  {
+   "id": "S004",
+   "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 35-multiple-vms. The direct link is in the video description. Main dot T F holds everything — variables included — and terraform dot T F pins the providers."
+  },
+  {
+   "id": "S005",
+   "narration": "Two files matter here, and the first is terraform dot T F. It pins the tooling: Terraform 1.5 or newer, and the azurerm provider around version 3.70 — nothing else, because this lab needs no extras. The provider block at the bottom is the bridge to Azure; the empty features block enables the provider's default behaviours. That's the whole file — every interesting line lives in main dot T F."
+  },
+  {
+   "id": "S006",
+   "narration": "Three variables set the stage. vm count is a number with a default of two — the knob that sizes both fan-outs. Admin username defaults to azureadmin — one name reused in the SSH key block further down. And admin SSH key is required — no default — and marked sensitive. Terraform prompts for it, or you pass it with dash var; sensitive keeps the value out of the plan and apply output. A one-line locals block gives the resource group its name — and we're ready to build."
+  },
+  {
+   "id": "S007",
+   "narration": "The network base: resource group, virtual network on 10.190 slash 16, and one subnet — snet web on 10.190.1.0 slash 24. Nothing counted here — the networking is shared by every VM."
+  },
+  {
+   "id": "S008",
+   "narration": "The first counted resource: the NIC block, count equals var dot vm count. With the default two, Terraform expands this into two instances — web[0] and web[1]. Their names carry the index: nic dash vm dash dollar-brace count dot index — nic-vm-0 and nic-vm-1. Each attaches to the same subnet with a dynamic private IP."
+  },
+  {
+   "id": "S009",
+   "narration": "One expression drives both fan-outs: count equals var dot vm count. The NIC block expands first — instance zero and instance one, named from count dot index. And the VM block expands with the same count — VM i reaches into the NIC list with the same index, so VM zero gets NIC zero, VM one gets NIC one. Position is the pairing."
+  },
+  {
+   "id": "S010",
+   "narration": "The VM block carries the same count — var dot vm count again — so it expands to exactly as many instances as the NIC block did. And here is the idiom this lab exists for: network interface ids takes a LIST containing one element — azurerm_network_interface dot web, bracket, count dot index, dot id. Instance zero reads NIC zero; instance one reads NIC one. The same index on both sides is the whole pairing. The first nested block: admin SSH key — username and public key, the key coming from the sensitive variable. Nested blocks live inside the resource and repeat per instance. Then os disk — ReadWrite caching on standard SSD — and source image reference: publisher, offer, SKU, version pinning Ubuntu 22.04. These three nested blocks are the anatomy of every Linux VM from here on."
+  },
+  {
+   "id": "S011",
+   "narration": "Put the two idioms side by side. Count pairs by position: the VM asks for NIC bracket count dot index — whatever sits at that position. for_each pairs by key: the association asked for subnet bracket each dot key — whatever carries that name. The difference shows when the collection changes. Keys are stable: remove app and web still means web. Positions shift: change vm count from two to three and every address stays numbered zero, one, two — but remove the FIRST nic and every VM's pairing slides by one. Same lesson as labs 26 and 27, now with consequences that reach across resources."
+  },
+  {
+   "id": "S012",
+   "narration": "Here's how the pieces connect. The variables set the knobs: vm count, username, and the sensitive SSH key. The resource group groups everything in Azure. The virtual network and subnet hold 10.190.1.0 slash 24. The NICs: count expands one block into two, named from count.index. The VMs: the same count — and each VM grabs its NIC by index: bracket count dot index inside the list. Everything lands inside your Azure subscription."
+  },
+  {
+   "id": "S013",
+   "narration": "Here's the plan — terraform plan, an illustrative view. Resource group, VNet, subnet, then the counted pairs: NIC bracket zero and bracket one, VM bracket zero and bracket one. Look inside VM zero — the admin SSH key's public key reads sensitive value, redacted because the variable is marked sensitive. Seven to add, zero to destroy."
+  },
+  {
+   "id": "S014",
+   "narration": "Three pitfalls. One: the fragility we named earlier — index pairing slides. Remove the first NIC and every VM suddenly pairs with the wrong one; for_each by key has no such failure mode. Two: sensitive equals true hides the key from plan and apply output — it does NOT encrypt state; the value sits in the state file in plain text, so protect the file. Three: this config creates no public IP — these VMs are reachable only from inside the network; if you want to SSH in, you'll need to add a path — which is exactly what later labs do."
+  },
+  {
+   "id": "S015",
+   "narration": "Quick recap — five things. One: NICs and VMs share the same count, driven by one variable. Two: count dot index names both sides — nic dash vm dash N, vm dash web dash N. Three: the pairing itself is one expression — VM i reads NIC bracket count dot index dot id. Four: the SSH key variable is required and sensitive — no default, prompted at apply, hidden in output. Five: every VM carries three nested blocks — admin SSH key, os disk, source image reference — the anatomy you'll see in every compute lab ahead. Count pairing: simple, and now you know exactly when it bends."
+  },
+  {
+   "id": "S016",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+  },
+  {
+   "id": "S017",
+   "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+  }
+ ]
+}

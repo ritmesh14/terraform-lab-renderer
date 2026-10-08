@@ -1,0 +1,10 @@
+{
+  "mode": "illustrative",
+  "command": "terraform output",
+  "output_file": "lab46-output.txt",
+  "highlight": [
+    "bastion_dns",
+    "vm_name",
+    "Connect"
+  ]
+}

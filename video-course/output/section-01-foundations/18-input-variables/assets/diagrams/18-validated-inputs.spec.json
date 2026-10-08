@@ -1,0 +1,18 @@
+{
+  "layers": [
+    ["loc", "pfx", "tier"],
+    ["rg", "st"]
+  ],
+  "nodes": [
+    {"id": "loc", "label": "variable location"},
+    {"id": "pfx", "label": "variable name_prefix"},
+    {"id": "tier", "label": "variable tier"},
+    {"id": "rg", "label": "rg-vars-foundation"},
+    {"id": "st", "label": "stvar<suffix>"}
+  ],
+  "edges": [
+    {"from": "loc", "to": "rg", "label": "var.location"},
+    {"from": "pfx", "to": "st", "label": "prefix + suffix"},
+    {"from": "tier", "to": "st", "label": "account_tier"}
+  ]
+}

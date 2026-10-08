@@ -1,0 +1,7 @@
+# Python packages needed by the deterministic CI media job.
+# Every dependency below is REQUIRED — the pipeline must never silently fall
+# back to a lower-quality parser or provider because a package is missing.
+python-hcl2      # terraform parsing (regex fallback = reduced confidence only)
+edge-tts         # canonical FREE narration (streaming word boundaries)
+requests         # optional MiniMax provider only
+playwright       # Shiki code screenshots

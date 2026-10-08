@@ -1,0 +1,17 @@
+{
+  "layers": [
+    ["st"],
+    ["o1", "o2", "o3"]
+  ],
+  "nodes": [
+    {"id": "st", "label": "stout<suffix>"},
+    {"id": "o1", "label": "storage_account_name"},
+    {"id": "o2", "label": "primary_blob_endpoint"},
+    {"id": "o3", "label": "primary_access_key"}
+  ],
+  "edges": [
+    {"from": "st", "to": "o1", "label": ".name + desc"},
+    {"from": "st", "to": "o2", "label": "blob endpoint"},
+    {"from": "st", "to": "o3", "label": "sensitive"}
+  ]
+}

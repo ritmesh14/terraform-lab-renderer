@@ -1,0 +1,61 @@
+{
+  "nodes": [
+    {
+      "id": "rg",
+      "label": "azurerm_resource_group.this\nrg-separes-foundation"
+    },
+    {
+      "id": "vnet",
+      "label": "azurerm_virtual_network.this\nvnet-separes 10.80.0.0/16\nno inline subnets"
+    },
+    {
+      "id": "web",
+      "label": "azurerm_subnet.web\nsnet-web 10.80.1.0/24"
+    },
+    {
+      "id": "app",
+      "label": "azurerm_subnet.app\nsnet-app 10.80.2.0/24"
+    },
+    {
+      "id": "out",
+      "label": "output.web_subnet_id\nthe handle for a NIC"
+    }
+  ],
+  "edges": [
+    {
+      "from": "rg",
+      "to": "vnet",
+      "label": "resource_group_name"
+    },
+    {
+      "from": "vnet",
+      "to": "web",
+      "label": "virtual_network_name"
+    },
+    {
+      "from": "vnet",
+      "to": "app",
+      "label": "virtual_network_name"
+    },
+    {
+      "from": "web",
+      "to": "out",
+      "label": ".id"
+    }
+  ],
+  "layers": [
+    [
+      "rg"
+    ],
+    [
+      "vnet"
+    ],
+    [
+      "web",
+      "app"
+    ],
+    [
+      "out"
+    ]
+  ]
+}

@@ -1,0 +1,8 @@
+terraform output subnet_keys
+
+subnet_keys = [
+  "regionA-app",
+  "regionA-web",
+  "regionB-app",
+  "regionB-web",
+]

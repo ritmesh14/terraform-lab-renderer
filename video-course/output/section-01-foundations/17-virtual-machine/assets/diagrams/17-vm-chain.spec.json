@@ -1,0 +1,26 @@
+{
+  "layers": [
+    ["vars"],
+    ["rg"],
+    ["vnet"],
+    ["sub", "pip"],
+    ["nic"],
+    ["vm"]
+  ],
+  "nodes": [
+    {"id": "vars", "label": "admin credentials"},
+    {"id": "rg", "label": "rg-vm-foundation"},
+    {"id": "vnet", "label": "vnet-vm"},
+    {"id": "sub", "label": "snet-web"},
+    {"id": "pip", "label": "pip-vm-01"},
+    {"id": "nic", "label": "nic-vm-01"},
+    {"id": "vm", "label": "vm-web-01 B1s"}
+  ],
+  "edges": [
+    {"from": "rg", "to": "vnet", "label": "resource_group_name"},
+    {"from": "vnet", "to": "sub", "label": "virtual_network_name"},
+    {"from": "sub", "to": "nic", "label": "subnet_id"},
+    {"from": "pip", "to": "nic", "label": "public_ip_address_id"},
+    {"from": "nic", "to": "vm", "label": "network_interface_ids"}
+  ]
+}

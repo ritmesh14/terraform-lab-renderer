@@ -1,0 +1,85 @@
+﻿# Local Terraform state files
+*.tfstate
+*.tfstate.*
+*.tfplan
+
+# Crash logs
+crash.log
+crash.*.log
+
+# Sensitive variable files
+*.auto.tfvars
+*.auto.tfvars.json
+*tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.json
+
+# Terraform directories
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate.backup
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Azure credentials
+*.publishsettings
+*credentials*.json
+*.azureauth
+
+# Private keys / certificates
+*.pem
+*.ppk
+*.key
+id_rsa
+id_rsa.pub
+*_rsa
+
+# Env files
+.env
+.env.*
+
+# Azure CLI service principal JSON (often named *sp*.json)
+*sp*.json
+
+# ---- Video-course production (CI) ---------------------------------------
+# Secrets
+video-course/.env
+
+# Python
+__pycache__/
+*.pyc
+
+# Node / Remotion
+video-course/remotion/node_modules/
+video-course/remotion/public/episodes/
+
+# Per-episode generated heavy outputs (CI regenerates them; writing/ is synced)
+video-course/output/**/source/
+video-course/output/**/audio/
+video-course/output/**/timing/
+video-course/output/**/captions/
+video-course/output/**/preview/
+video-course/output/**/final/
+video-course/output/**/validation/
+video-course/output/**/render-props.json
+# assets/: rendered outputs ignored; authored specs + fixtures re-included
+video-course/output/**/assets/code/
+video-course/output/**/assets/portal/
+video-course/output/**/assets/screenshots/
+video-course/output/**/assets/diagrams/*
+!video-course/output/**/assets/diagrams/*.spec.json
+video-course/output/**/assets/terminal/*
+!video-course/output/**/assets/terminal/*.spec.json
+!video-course/output/**/assets/terminal/*.txt
+
+# Video files
+*.mp4
+*.mp3
+
+.claude/

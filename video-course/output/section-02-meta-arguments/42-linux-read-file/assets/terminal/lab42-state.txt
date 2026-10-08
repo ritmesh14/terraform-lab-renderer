@@ -1,0 +1,7 @@
+terraform state list
+
+azurerm_linux_virtual_machine.web
+azurerm_network_interface.web
+azurerm_resource_group.this
+azurerm_subnet.web
+azurerm_virtual_network.this

@@ -1,0 +1,66 @@
+{
+ "episode": "08-split-config-files",
+ "source": "writing/scenes.json",
+ "scenes": [
+  {
+   "id": "S001",
+   "narration": "Until now, every lab fit in one file. Real projects don't. In this lesson we take the same configuration and split it across four files, and learn the one rule that makes that safe: Terraform merges every dot T F file in the folder into a single configuration."
+  },
+  {
+   "id": "S002",
+   "narration": "Here's what you'll learn. One: Terraform loads every dot t f file in a directory as one configuration. Two: the conventional split — terraform dot t f, locals dot t f, main dot t f, outputs dot t f. Three: references work across files with no imports. Four: file names are for humans — Terraform doesn't care."
+  },
+  {
+   "id": "S003",
+   "narration": "This is lab eight, and the resources are the same as lab seven: a resource group and a virtual network with shared tags. Nothing about the infrastructure changes. What changes is the organization: four small files instead of one big one. And from here on, this is the layout the course uses."
+  },
+  {
+   "id": "S004",
+   "narration": "The rule is almost disappointingly simple. When Terraform runs, it reads every dot T F file in the folder and stitches them into one configuration in memory. There is no include statement, no import, and no ordering between files. The conventional layout exists so humans can find things: terraform dot T F for version and provider pins, locals dot T F for derived values, main dot T F for the resources, and outputs dot T F for what comes back. Any team that reads your code later will thank you for following it."
+  },
+  {
+   "id": "S005",
+   "narration": "This lab is in the course GitHub repository under Section 1, Foundations, link in the description. Four files this time, and that's the whole lesson: same infrastructure, better organized."
+  },
+  {
+   "id": "S006",
+   "narration": "File one: terraform dot T F. The version pin and the provider block you've been reading since lab one, now in their own file. Nothing changed semantically. This block just lives here instead of the top of main dot T F."
+  },
+  {
+   "id": "S007",
+   "narration": "File two: locals dot T F. The same locals pattern from last lab, interpolated name and common tags, in a file of their own. And here's the key line for this whole lesson: main dot T F will reference these values with no special connection between the files. No import. They're in the same configuration, that's all that matters."
+  },
+  {
+   "id": "S008",
+   "narration": "File three: main dot T F, now just the resources. Look at the references: local dot rg name, local dot common tags, local dot project. None of those are defined in this file. They come from locals dot T F, and Terraform resolves them as if everything sat together, because effectively it does. The resources themselves are unchanged from lab seven."
+  },
+  {
+   "id": "S009",
+   "narration": "File four: outputs dot T F, with the two outputs you've seen before: the network's I D and its name. Same merge rule applies. An output doesn't need to know which file the virtual network lives in, only its address in the configuration."
+  },
+  {
+   "id": "S010",
+   "narration": "Here's the mental model. On disk, four files. In memory, one configuration. Terraform merges locals dot T F, main dot T F, outputs dot T F, and terraform dot T F into a single graph, then plans from the graph. That's why references cross file lines for free, and why the names of the files carry zero meaning to Terraform."
+  },
+  {
+   "id": "S011",
+   "narration": "The proof is in the run. Four files on disk, but the plan reads like one file: group, network, done. Terraform never mentions the split, because to it, there is no split."
+  },
+  {
+   "id": "S012",
+   "narration": "Here are the pitfalls in this lab. One: defining the same local in two files is a duplicate definition error. Because all files share one namespace, splitting files changes nothing about uniqueness. Two: two resources with the same address in different files — error too. Even in different files, two resources with the same type and name collide. Three: the merge rule cuts both ways — split files share one namespace. Merging is about organization, not isolation. Four: the convention — each block type gets one obvious home. That's exactly what the conventional layout in this lab demonstrates."
+  },
+  {
+   "id": "S013",
+   "narration": "Quick recap — five things. One: Terraform merges every dot t f file in the folder into one configuration. Two: the conventional split — terraform dot t f, locals dot t f, main dot t f, outputs dot t f. Three: references cross files freely — no imports exist in Terraform. Four: file names are human organization, not Terraform structure. Five: one namespace still means one definition per name."
+  },
+  {
+   "id": "S014",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+  },
+  {
+   "id": "S015",
+   "narration": "Thanks for watching. If this helped, the full lab, along with every lab in this course, is in the GitHub repository linked below. If you'd like more lessons like this one, give the video a like, share it with a friend who is learning Azure, and subscribe to the channel. It really helps the course grow. Thank you, and see you in the next lesson."
+  }
+ ]
+}

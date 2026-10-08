@@ -1,0 +1,8 @@
+terraform output subnet_ids
+
+subnet_ids = {
+  "app"  = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-multi-subnets/providers/Microsoft.Network/virtualNetworks/vnet-multi-subnets/subnets/snet-app"
+  "data" = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-multi-subnets/providers/Microsoft.Network/virtualNetworks/vnet-multi-subnets/subnets/snet-data"
+  "mgmt" = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-multi-subnets/providers/Microsoft.Network/virtualNetworks/vnet-multi-subnets/subnets/snet-mgmt"
+  "web"  = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-multi-subnets/providers/Microsoft.Network/virtualNetworks/vnet-multi-subnets/subnets/snet-web"
+}

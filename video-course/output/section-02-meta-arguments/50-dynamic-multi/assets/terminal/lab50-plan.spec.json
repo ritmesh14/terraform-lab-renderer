@@ -1,0 +1,11 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan",
+  "output_file": "lab50-plan.txt",
+  "highlight": [
+    "\"nsg-dynamic-multi\"",
+    "\"172.22.0.10\"",
+    "\"172.22.0.11\"",
+    "Plan: 5 to add"
+  ]
+}

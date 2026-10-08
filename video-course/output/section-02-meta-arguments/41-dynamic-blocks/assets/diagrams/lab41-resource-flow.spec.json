@@ -1,0 +1,48 @@
+{
+  "layers": [
+    [
+      "rg",
+      "vars",
+      "nsg",
+      "out"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": "vars",
+      "label": "variable: rules (list of rule objects)"
+    },
+    {
+      "id": "rg",
+      "label": "rg-dynamic"
+    },
+    {
+      "id": "nsg",
+      "label": "nsg-dynamic (dynamic security_rule blocks)"
+    },
+    {
+      "id": "out",
+      "label": "output: rule_names"
+    }
+  ],
+  "edges": [
+    {
+      "id": "vars-nsg",
+      "from": "vars",
+      "to": "nsg",
+      "label": "for_each"
+    },
+    {
+      "id": "nsg-out",
+      "from": "nsg",
+      "to": "out",
+      "label": "names"
+    },
+    {
+      "id": "vars-out",
+      "from": "vars",
+      "to": "out",
+      "label": "[for r in var.rules]"
+    }
+  ]
+}

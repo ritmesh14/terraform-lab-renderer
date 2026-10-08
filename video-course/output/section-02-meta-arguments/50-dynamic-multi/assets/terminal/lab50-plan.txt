@@ -1,0 +1,60 @@
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # azurerm_resource_group.this will be created
+  + resource "azurerm_resource_group" "this" {
+      + name     = "rg-dynamic-multi"
+      + location = "eastus"
+    }
+
+  # azurerm_virtual_network.this will be created
+  + resource "azurerm_virtual_network" "this" {
+      + name          = "vnet-dynamic-multi"
+      + address_space = ["172.22.0.0/20"]
+    }
+
+  # azurerm_subnet.web will be created
+  + resource "azurerm_subnet" "web" {
+      + name             = "snet-web"
+      + address_prefixes = ["172.22.0.0/26"]
+    }
+
+  # azurerm_network_security_group.web will be created
+  + resource "azurerm_network_security_group" "web" {
+      + name = "nsg-dynamic-multi"
+
+      + security_rule {
+          + name                     = "Allow-SSH"
+          + priority                 = 200
+          + destination_port_range   = "22"
+        }
+
+      + security_rule {
+          + name                     = "Allow-HTTPS"
+          + priority                 = 210
+          + destination_port_range   = "443"
+        }
+    }
+
+  # azurerm_network_interface.web will be created
+  + resource "azurerm_network_interface" "web" {
+      + name = "nic-dynamic-multi"
+
+      + ip_configuration {
+          + name                          = "ipconfig-1"
+          + private_ip_address_allocation = "Static"
+          + private_ip_address            = "172.22.0.10"
+          + primary                       = true
+        }
+
+      + ip_configuration {
+          + name                          = "ipconfig-2"
+          + private_ip_address_allocation = "Static"
+          + private_ip_address            = "172.22.0.11"
+        }
+    }
+
+Plan: 5 to add, 0 to change, 0 to destroy.

@@ -1,0 +1,8 @@
+terraform state list
+
+azurerm_resource_group.this
+azurerm_storage_account.this
+azurerm_storage_container.stage["dev"]
+azurerm_storage_container.stage["prod"]
+azurerm_storage_container.stage["stg"]
+random_string.suffix

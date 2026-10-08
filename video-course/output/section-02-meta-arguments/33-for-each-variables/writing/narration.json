@@ -1,0 +1,78 @@
+{
+ "episode": "33-for-each-variables",
+ "source": "writing/scenes.json",
+ "scenes": [
+  {
+   "id": "S001",
+   "narration": "Welcome back. Every fan-out so far was written into the code. This is Lab 33, and the collection moves out of the source: a typed map variable, filled from a tfvars file, drives for_each. And then a filter — one for expression keeps only the tiers that actually want an NSG. Same code, different input, different result. Let's build it."
+  },
+  {
+   "id": "S002",
+   "narration": "Three things in this lesson. One: map of object — a variable whose type says every value must carry a prefix and a boolean; Terraform rejects anything else. Two: for_each over var dot subnets — the code doesn't know how many subnets exist; the input decides. Three: a filtered for_each — a for expression with an if clause that keeps only the entries where nsg is true."
+  },
+  {
+   "id": "S003",
+   "narration": "Placement. Until now every collection lived in the code — a toset, a locals map, a computed map. This lab moves the collection into an input variable, typed strictly, supplied by whoever runs Terraform. That's the hand-off point: configuration becomes data. The next lab takes one map and drives three different resources with it, keys in lockstep."
+  },
+  {
+   "id": "S004",
+   "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 33-for-each-variables. The direct link is in the video description. Three files matter: main dot T F, terraform dot T F for the providers, and terraform dot tfvars — the file that supplies the map."
+  },
+  {
+   "id": "S005",
+   "narration": "Two files matter here, and the first is terraform dot T F. It pins the tooling: Terraform 1.5 or newer, and the azurerm provider around version 3.70 — nothing else, because this lab needs no extras. The provider block at the bottom is the bridge to Azure; the empty features block enables the provider's default behaviours. That's the whole file — every interesting line lives in main dot T F."
+  },
+  {
+   "id": "S006",
+   "narration": "The variable's type is the interesting part: map, of object — and the object's shape is spelled out in braces: a prefix, which is a string, and nsg, which is a boolean. That type is a contract. Whoever fills this map must give every entry exactly those two fields — miss one, or sneak in a third, and Terraform refuses the value at plan time, before anything is touched."
+  },
+  {
+   "id": "S007",
+   "narration": "Here's the caller's side — terraform dot tfvars. The map holds three tiers: web, app, and data. Web and app set nsg true; data sets it false. That one boolean is about to decide which tiers get firewalls. Notice what this means for reuse: adding a tier is now an edit to a data file, not to code. The main dot T F we're about to read never changes when the deployment grows."
+  },
+  {
+   "id": "S008",
+   "narration": "The resource group is the usual container — rg dash foreach dash vars. The virtual network keeps the familiar /16 umbrella — 10.170 slash 16 — wide enough for every subnet the caller might add."
+  },
+  {
+   "id": "S009",
+   "narration": "The subnet block's for_each is the shortest one yet: var dot subnets, straight from input to fan-out. One subnet per key — web, app, data. Each dot key names the subnet — snet dash web and so on — and each dot value is the object from the map, so each dot value dot prefix is that tier's CIDR, caller-supplied."
+  },
+  {
+   "id": "S010",
+   "narration": "The collection is the variable's map — three entries, each carrying its own prefix and its own nsg flag. for_each expands one block into one instance per key — the addresses are the caller's tier names, not numbers. Names follow keys: snet web, snet app, snet data. Nothing about this fan-out is written in the source — it's all in the tfvars."
+  },
+  {
+   "id": "S011",
+   "narration": "Now the filter. The NSG block's for_each is not the raw variable — it's a for expression over it, with an if at the end: keep k and v only if v dot nsg is true. The condition does the selecting. Trace it: web passes — nsg true. App passes. Data fails — nsg false — and drops out of the map entirely. The NSG resource never even sees a data key. That's the pattern to remember: the same input feeds two resources, and a filter decides which entries each one acts on. One map, two different fan-outs."
+  },
+  {
+   "id": "S012",
+   "narration": "Same map, same three entries — but this time the for expression carries an if clause. The filter evaluates v dot nsg per entry: web and app are true and kept; data is false and dropped. So the NSG fan-out creates exactly two instances — nsg bracket web, nsg bracket app — and data gets no firewall, exactly as the caller declared."
+  },
+  {
+   "id": "S013",
+   "narration": "Here's how the pieces connect. The tfvars file supplies the map — caller-owned data. The variable receives it, and the type contract checks every entry. The resource group groups everything in Azure. The subnets: for_each over the full map — every tier gets a subnet with its own prefix. The NSGs: for_each over the FILTERED map — only tiers where nsg is true get a firewall. Everything lands inside your Azure subscription."
+  },
+  {
+   "id": "S014",
+   "narration": "Here's the plan — terraform plan, an illustrative view. The resource group, the VNet, three keyed subnets — app, data, web — and then only TWO NSGs: nsg app and nsg web. No nsg data anywhere, because the filter dropped it. Six to add, zero to destroy."
+  },
+  {
+   "id": "S015",
+   "narration": "Three pitfalls. One: this variable has no default — run plan without a tfvars or dash-var and Terraform stops and asks for the map; that's the type contract doing its job. Two: the keys are identities — rename data to database in the tfvars and Terraform destroys snet data and creates snet database; keys are permanent. Three: notice what's code and what's data — the filter lives in main dot T F, but flipping nsg true on the data tier is a one-line tfvars edit; the next apply simply adds the missing NSG."
+  },
+  {
+   "id": "S016",
+   "narration": "Quick recap — five things. One: map of object gives the variable a strict shape — prefix and nsg on every entry. Two: for_each reads the variable directly, so the caller decides how many subnets exist. Three: each dot value is the entry's object — dot prefix for the CIDR, dot nsg for the flag. Four: a for expression with an if builds the filtered map for the NSGs. Five: one input now feeds two fan-outs — three subnets, two NSGs, and the difference is one boolean per entry. Configuration became data."
+  },
+  {
+   "id": "S017",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+  },
+  {
+   "id": "S018",
+   "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+  }
+ ]
+}

@@ -1,0 +1,12 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan",
+  "output_file": "lab37-plan.txt",
+  "highlight": [
+    "\"vm-az-1\"",
+    "\"vm-az-2\"",
+    "\"vm-az-3\"",
+    "zone                  = \"1\"",
+    "Plan: 9 to add"
+  ]
+}

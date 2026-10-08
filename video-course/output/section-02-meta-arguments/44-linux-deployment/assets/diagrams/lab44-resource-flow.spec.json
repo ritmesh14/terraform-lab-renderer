@@ -1,0 +1,83 @@
+{
+  "layers": [
+    [
+      "rg",
+      "vnet",
+      "nsg",
+      "locals"
+    ],
+    [
+      "pip",
+      "nic",
+      "vm"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": "locals",
+      "label": "locals.tf — ssh key from file, rg name"
+    },
+    {
+      "id": "rg",
+      "label": "rg-linux-deploy"
+    },
+    {
+      "id": "vnet",
+      "label": "vnet-deploy + snet-web"
+    },
+    {
+      "id": "nsg",
+      "label": "nsg-deploy (Allow-SSH, unassociated)"
+    },
+    {
+      "id": "pip",
+      "label": "pip-deploy (Static/Standard)"
+    },
+    {
+      "id": "nic",
+      "label": "nic-deploy (subnet + public IP)"
+    },
+    {
+      "id": "vm",
+      "label": "vm-deploy (SSH key from file)"
+    }
+  ],
+  "edges": [
+    {
+      "id": "rg-vnet",
+      "from": "rg",
+      "to": "vnet",
+      "label": "reference"
+    },
+    {
+      "id": "rg-pip",
+      "from": "rg",
+      "to": "pip",
+      "label": "reference"
+    },
+    {
+      "id": "vnet-nic",
+      "from": "vnet",
+      "to": "nic",
+      "label": "subnet"
+    },
+    {
+      "id": "pip-nic",
+      "from": "pip",
+      "to": "nic",
+      "label": "ip_configuration"
+    },
+    {
+      "id": "nic-vm",
+      "from": "nic",
+      "to": "vm",
+      "label": "network_interface_ids"
+    },
+    {
+      "id": "locals-vm",
+      "from": "locals",
+      "to": "vm",
+      "label": "ssh key"
+    }
+  ]
+}

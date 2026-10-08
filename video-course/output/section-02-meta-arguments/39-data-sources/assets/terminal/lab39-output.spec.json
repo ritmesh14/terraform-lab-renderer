@@ -1,0 +1,9 @@
+{
+  "mode": "illustrative",
+  "command": "terraform output",
+  "output_file": "lab39-output.txt",
+  "highlight": [
+    "rg_location",
+    "rg_tags"
+  ]
+}

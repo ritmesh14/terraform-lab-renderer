@@ -1,0 +1,547 @@
+{
+  "title": "One Map, Three Resources: Keys in Lockstep",
+  "lesson_label": "Terraform Meta-arguments — Lab 34",
+  "scenes": [
+    {
+      "id": "S001",
+      "type": "TITLE",
+      "title": "One Map, Three Resources: Keys in Lockstep",
+      "lesson_label": "Terraform Meta-arguments — Lab 34",
+      "audio": "audio/S001.mp3",
+      "narration": "Welcome back. Lab 33 fed one map to two fan-outs. This is Lab 34, and we push the idea to its conclusion: one map of tier objects drives THREE resources — subnets, NSGs, and the associations between them — all marching on the same keys. The trick that holds it together is a key lookup: this, bracket, each dot key. Let's build it."
+    },
+    {
+      "id": "S002",
+      "type": "CONCEPT",
+      "heading": "What you'll learn",
+      "numbered": true,
+      "audio": "audio/S002.mp3",
+      "points": [
+        "A map of objects — one entry per tier, every field that tier needs",
+        "Three resources iterating the SAME map — keys stay in lockstep",
+        "Cross-lookup by key: azurerm_subnet.this[each.key]"
+      ],
+      "narration": "Three things in this lesson. One: a map of objects where each entry carries everything its tier needs — a prefix and a port. Two: three different resources all iterating that same map, so their instance keys stay in lockstep — web everywhere, app everywhere. Three: the cross-lookup — inside one resource, reaching into another by the same key: azurerm_subnet dot this, bracket, each dot key."
+    },
+    {
+      "id": "S003",
+      "type": "CONCEPT",
+      "heading": "Where this lab fits",
+      "audio": "audio/S003.mp3",
+      "points": [
+        "Lab 33: one input map, two fan-outs (subnets + filtered NSGs)",
+        "This lab: one locals map, three fan-outs — plus a key-based pairing",
+        "The association needs BOTH endpoints — the key lookup wires it"
+      ],
+      "narration": "Placement. Last lab one map fed two fan-outs, and a filter split them. Here the map is back in locals and nothing is filtered — every tier gets a subnet AND an NSG AND an association, all from one entry. The new mechanic is pairing: the association resource needs one subnet and one NSG per tier, and it finds both by looking them up with its own key."
+    },
+    {
+      "id": "S004",
+      "type": "CONCEPT",
+      "heading": "Where to find this lab",
+      "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-02-meta-arguments\n          └── 34-network-security-groups\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-02-meta-arguments/34-network-security-groups",
+      "audio": "audio/S004.mp3",
+      "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 34-network-security-groups. The direct link is in the video description. Main dot T F holds everything; terraform dot T F pins the providers."
+    },
+    {
+      "id": "S005",
+      "type": "CODE",
+      "source_file": "terraform.tf",
+      "start_line": 1,
+      "end_line": 19,
+      "highlight_lines": [
+        6,
+        8,
+        10,
+        17,
+        18
+      ],
+      "asset": "assets/code/lab34-providers.png",
+      "audio": "audio/S005.mp3",
+      "narration": "Two files matter here, and the first is terraform dot T F. It pins the tooling: Terraform 1.5 or newer, and the azurerm provider around version 3.70 — nothing else, because this lab needs no extras. The provider block at the bottom is the bridge to Azure; the empty features block enables the provider's default behaviours. That's the whole file — every interesting line lives in main dot T F."
+    },
+    {
+      "id": "S006",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 7,
+      "end_line": 15,
+      "highlight_lines": [
+        11,
+        12,
+        13,
+        14
+      ],
+      "asset": "assets/code/lab34-locals.png",
+      "audio": "audio/S006.mp3",
+      "steps": [
+        {
+          "narration": "One map rules the whole lab: locals dot tiers. Each key is a tier name; each value is an object with the two things that tier needs — a CIDR prefix and an inbound port.",
+          "active_lines": [
+            11,
+            12,
+            13,
+            14
+          ],
+          "active_tokens": [
+            "tiers = {",
+            "port = 443",
+            "port = 8080"
+          ]
+        },
+        {
+          "narration": "This is the single source of truth. Three resources downstream will read this same map — add a tier here and all three fan out together; nothing else in the file needs to change.",
+          "active_lines": [
+            9,
+            10,
+            11
+          ],
+          "active_tokens": [
+            "locals"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S006.step1.mp3",
+        "audio/S006.step2.mp3"
+      ]
+    },
+    {
+      "id": "S007",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 17,
+      "end_line": 29,
+      "highlight_lines": [
+        19,
+        25,
+        28
+      ],
+      "asset": "assets/code/lab34-rg-vnet.png",
+      "audio": "audio/S007.mp3",
+      "steps": [
+        {
+          "narration": "The resource group is the usual container — rg dash nsgs dash meta.",
+          "active_lines": [
+            18,
+            19,
+            20,
+            21
+          ],
+          "active_tokens": [
+            "azurerm_resource_group"
+          ]
+        },
+        {
+          "narration": "The virtual network spreads 10.180 slash 16 — the /24s the tiers will carve from it (10.180.1 and 10.180.2) both fit.",
+          "active_lines": [
+            24,
+            25,
+            26,
+            27,
+            28,
+            29
+          ],
+          "active_tokens": [
+            "10.180.0.0/16"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S007.step1.mp3",
+        "audio/S007.step2.mp3"
+      ]
+    },
+    {
+      "id": "S008",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 31,
+      "end_line": 38,
+      "highlight_lines": [
+        33,
+        34,
+        37
+      ],
+      "asset": "assets/code/lab34-subnets.png",
+      "audio": "audio/S008.mp3",
+      "steps": [
+        {
+          "narration": "Fan-out one: the subnet block iterates local dot tiers. Keys web and app become snet dash web and snet dash app.",
+          "active_lines": [
+            33,
+            34
+          ],
+          "active_tokens": [
+            "local.tiers",
+            "each.key"
+          ]
+        },
+        {
+          "narration": "Each dot value is the tier's object — so each dot value dot prefix drops this tier's own CIDR into address_prefixes. The map did the deciding.",
+          "active_lines": [
+            37
+          ],
+          "active_tokens": [
+            "each.value.prefix"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S008.step1.mp3",
+        "audio/S008.step2.mp3"
+      ]
+    },
+    {
+      "id": "S009",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 40,
+      "end_line": 58,
+      "highlight_lines": [
+        42,
+        43,
+        54
+      ],
+      "asset": "assets/code/lab34-nsg.png",
+      "audio": "audio/S009.mp3",
+      "steps": [
+        {
+          "narration": "Fan-out two: the NSG block iterates the SAME map. Same keys, so the NSG instances line up with the subnets — nsg bracket web beside subnet bracket web.",
+          "active_lines": [
+            42,
+            43
+          ],
+          "active_tokens": [
+            "local.tiers",
+            "nsg-${each.key}"
+          ]
+        },
+        {
+          "narration": "Inside, one security rule per NSG — and its destination port comes from the map: tostring, each dot value dot port. Web allows 443, app allows 8080 — same code, different values.",
+          "active_lines": [
+            54
+          ],
+          "active_tokens": [
+            "tostring(each.value.port)"
+          ]
+        },
+        {
+          "narration": "Why tostring? The port in the map is a number; destination_port_range is a string attribute. Terraform refuses to guess the conversion — tostring makes it explicit, and the plan passes.",
+          "active_lines": [
+            54
+          ],
+          "active_tokens": [
+            "tostring("
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S009.step1.mp3",
+        "audio/S009.step2.mp3",
+        "audio/S009.step3.mp3"
+      ]
+    },
+    {
+      "id": "S010",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 60,
+      "end_line": 67,
+      "highlight_lines": [
+        64,
+        65,
+        66
+      ],
+      "asset": "assets/code/lab34-association.png",
+      "audio": "audio/S010.mp3",
+      "steps": [
+        {
+          "narration": "Fan-out three: the association iterates the same map a third time. One association per tier — the glue that binds an NSG to a subnet.",
+          "active_lines": [
+            64
+          ],
+          "active_tokens": [
+            "local.tiers"
+          ]
+        },
+        {
+          "narration": "And here's the pairing trick: both endpoints are looked up BY KEY. azurerm_subnet dot this, bracket, each dot key — the subnet whose key matches this association's tier. Same expression for the NSG. Web's association gets web's subnet and web's NSG — automatically.",
+          "active_lines": [
+            65,
+            66
+          ],
+          "active_tokens": [
+            "azurerm_subnet.this[each.key]",
+            "azurerm_network_security_group.this[each.key]"
+          ]
+        },
+        {
+          "narration": "No indexes, no counting, no ordering — the shared key is the contract. Add a third tier to the map and all three resources grow by one instance each, already wired together.",
+          "active_lines": [
+            63,
+            64,
+            65,
+            66,
+            67
+          ],
+          "active_tokens": [
+            "for_each"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S010.step1.mp3",
+        "audio/S010.step2.mp3",
+        "audio/S010.step3.mp3"
+      ]
+    },
+    {
+      "id": "S011",
+      "type": "FOR_EACH_MAP",
+      "title": "One map, three fan-outs, one key lookup",
+      "expression": "for_each = local.tiers  →  azurerm_subnet.this[each.key]",
+      "audio": "audio/S011.mp3",
+      "stages": [
+        {
+          "id": "map",
+          "label": "The map (locals.tiers)",
+          "kind": "expression",
+          "items": [
+            {
+              "key": "m0",
+              "text": "web → { prefix: \"10.180.1.0/24\", port: 443 }"
+            },
+            {
+              "key": "m1",
+              "text": "app → { prefix: \"10.180.2.0/24\", port: 8080 }"
+            }
+          ]
+        },
+        {
+          "id": "snet",
+          "label": "Subnets",
+          "kind": "instances",
+          "items": [
+            {
+              "key": "s0",
+              "text": "azurerm_subnet.this[\"web\"]"
+            },
+            {
+              "key": "s1",
+              "text": "azurerm_subnet.this[\"app\"]"
+            }
+          ]
+        },
+        {
+          "id": "nsg",
+          "label": "NSGs",
+          "kind": "instances",
+          "items": [
+            {
+              "key": "g0",
+              "text": "azurerm_network_security_group.this[\"web\"]"
+            },
+            {
+              "key": "g1",
+              "text": "azurerm_network_security_group.this[\"app\"]"
+            }
+          ]
+        },
+        {
+          "id": "assoc",
+          "label": "Associations (key lookup)",
+          "kind": "instances",
+          "items": [
+            {
+              "key": "a0",
+              "text": "assoc[\"web\"] → snet[\"web\"] + nsg[\"web\"]"
+            },
+            {
+              "key": "a1",
+              "text": "assoc[\"app\"] → snet[\"app\"] + nsg[\"app\"]"
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "narration": "Everything starts from one map: two tiers, each with a prefix and a port.",
+          "focus": {
+            "stages": [
+              "map"
+            ]
+          }
+        },
+        {
+          "narration": "Fan-out one: for_each over the map gives one subnet per tier — keyed web and app.",
+          "focus": {
+            "stages": [
+              "snet"
+            ]
+          }
+        },
+        {
+          "narration": "Fan-out two: the NSG block iterates the same map — same keys, one NSG per tier, each allowing its own port.",
+          "focus": {
+            "stages": [
+              "nsg"
+            ]
+          }
+        },
+        {
+          "narration": "Fan-out three: the association also iterates the map, and its two endpoints are found by key lookup — bracket each dot key on both sides. The key is the pairing.",
+          "focus": {
+            "stages": [
+              "assoc"
+            ],
+            "items": [
+              "a0"
+            ]
+          }
+        }
+      ],
+      "step_audio": [
+        "audio/S011.step1.mp3",
+        "audio/S011.step2.mp3",
+        "audio/S011.step3.mp3",
+        "audio/S011.step4.mp3"
+      ]
+    },
+    {
+      "id": "S012",
+      "type": "DIAGRAM",
+      "caption": "How the pieces connect",
+      "asset": "assets/diagrams/lab34-resource-flow.svg",
+      "audio": "audio/S012.mp3",
+      "steps": [
+        {
+          "narration": "Here's how the pieces connect.",
+          "nodes": [],
+          "edges": []
+        },
+        {
+          "narration": "Locals hold the tiers map — the single source of truth.",
+          "nodes": [
+            "locals"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The resource group groups everything in Azure.",
+          "nodes": [
+            "rg"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The virtual network spreads the 10.180 slash 16 space.",
+          "nodes": [
+            "vnet"
+          ],
+          "edges": [
+            "rg-vnet"
+          ]
+        },
+        {
+          "narration": "The subnets: for_each over the map — one per tier, each with its own CIDR.",
+          "nodes": [
+            "subnets"
+          ],
+          "edges": [
+            "locals-subnets",
+            "vnet-subnets"
+          ]
+        },
+        {
+          "narration": "The NSGs: for_each over the same map — one per tier, each allowing its tier's port via tostring.",
+          "nodes": [
+            "nsgs"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "And the associations: for_each again, wiring each NSG to its subnet by key lookup — bracket each dot key on both sides.",
+          "nodes": [
+            "assoc"
+          ],
+          "edges": [
+            "subnets-assoc",
+            "nsgs-assoc"
+          ]
+        },
+        {
+          "narration": "Everything lands inside your Azure subscription.",
+          "nodes": [],
+          "edges": []
+        }
+      ],
+      "step_audio": [
+        "audio/S012.step1.mp3",
+        "audio/S012.step2.mp3",
+        "audio/S012.step3.mp3",
+        "audio/S012.step4.mp3",
+        "audio/S012.step5.mp3",
+        "audio/S012.step6.mp3",
+        "audio/S012.step7.mp3",
+        "audio/S012.step8.mp3"
+      ]
+    },
+    {
+      "id": "S013",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab34-plan.svg",
+      "audio": "audio/S013.mp3",
+      "narration": "Here's the plan — terraform plan, an illustrative view. The resource group, the VNet, two keyed subnets, two keyed NSGs, and two keyed associations — every resource carrying the same bracket web and bracket app addresses. Seven to add, zero to destroy. One map in the source; three families of copies in the plan."
+    },
+    {
+      "id": "S014",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab34-state-list.svg",
+      "audio": "audio/S014.mp3",
+      "narration": "And state confirms the lockstep — terraform state list, an illustrative view. Read the addresses top to bottom: subnet web, subnet app, NSG web, NSG app, association web, association app. The same two keys repeat across three resource types — that's what one map buying three fan-outs looks like in state."
+    },
+    {
+      "id": "S015",
+      "type": "CONCEPT",
+      "heading": "Common pitfall",
+      "numbered": true,
+      "audio": "audio/S015.mp3",
+      "points": [
+        "Every key in the lookup must exist in BOTH maps — or plan errors",
+        "tostring() is required: a number can't drop into a string attribute",
+        "Keep ONE map as the source of truth — don't copy keys per resource"
+      ],
+      "narration": "Three pitfalls. One: the key lookup is strict — if the association asks for a key the subnet map doesn't have, Terraform fails the plan with a missing-key error. Keep every consumer on the same map and the keys can't drift. Two: tostring isn't optional styling — a number port into a string attribute is a type error; the explicit call is Terraform telling you types matter. Three: the design rule — one map, one source of truth. The moment you write a second map with 'the same keys', they will drift apart; add the tier once and let every resource follow."
+    },
+    {
+      "id": "S016",
+      "type": "RECAP",
+      "numbered": true,
+      "audio": "audio/S016.mp3",
+      "points": [
+        "One map of objects — prefix and port per tier — drives everything",
+        "Three resources for_each over the SAME map: keys in lockstep",
+        "each.value.prefix and tostring(each.value.port) read the entry",
+        "azurerm_subnet.this[each.key] — pairing by key, not by index",
+        "Add a tier to the map: all three resources grow together"
+      ],
+      "narration": "Quick recap — five things. One: a single map of objects holds everything each tier needs. Two: three resources iterate that same map, so their instance keys stay in lockstep. Three: each dot value dot prefix and tostring of each dot value dot port read the entry's fields — tostring because the port is a number. Four: the association pairs endpoints by key — bracket each dot key on both sides, no indexes anywhere. Five: add a tier to the map and all three families grow together, already wired. One map, three resources, keys in lockstep."
+    },
+    {
+      "id": "S017",
+      "type": "NEXT",
+      "audio": "audio/S017.mp3",
+      "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+    },
+    {
+      "id": "S018",
+      "type": "CONCEPT",
+      "heading": "Thanks for watching",
+      "centered": true,
+      "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-02-meta-arguments/34-network-security-groups",
+      "audio": "audio/S018.mp3",
+      "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+    }
+  ]
+}

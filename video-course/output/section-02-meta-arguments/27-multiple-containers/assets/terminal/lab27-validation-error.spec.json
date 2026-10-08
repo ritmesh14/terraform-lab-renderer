@@ -1,0 +1,9 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan -var=container_count=11",
+  "output_file": "lab27-validation-error.txt",
+  "highlight": [
+    "Error: Invalid value for variable",
+    "Keep between 1 and 10."
+  ]
+}

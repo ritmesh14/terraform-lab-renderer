@@ -1,0 +1,14 @@
+$ terraform apply -auto-approve -no-color
+random_string.suffix: Creating...
+random_string.suffix: Creation complete after 0s [id=<guid>]
+azurerm_resource_group.this: Creating...
+azurerm_resource_group.this: Creation complete after 2s [id=/subscriptions/<guid>/resourceGroups/rg-output-foundation]
+azurerm_storage_account.this: Creating...
+azurerm_storage_account.this: Creation complete after 12s [id=<guid>]
+Apply complete! Resources: 3 added, 0 changed, 0 destroyed.
+Outputs:
+primary_access_key = <sensitive>
+primary_blob_endpoint = "https://stoutk3mx9p.blob.core.windows.net/"
+storage_account_name = "stoutk3mx9p"
+$ terraform output primary_access_key
+"<base64-key>"

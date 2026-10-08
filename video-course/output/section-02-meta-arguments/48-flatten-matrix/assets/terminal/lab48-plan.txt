@@ -1,0 +1,49 @@
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # azurerm_resource_group.this will be created
+  + resource "azurerm_resource_group" "this" {
+      + name     = "rg-flatten"
+      + location = "eastus"
+    }
+
+  # azurerm_virtual_network.this["regionA"] will be created
+  + resource "azurerm_virtual_network" "this" {
+      + name          = "vnet-regionA"
+      + address_space = ["172.20.0.0/20"]
+    }
+
+  # azurerm_virtual_network.this["regionB"] will be created
+  + resource "azurerm_virtual_network" "this" {
+      + name          = "vnet-regionB"
+      + address_space = ["172.21.0.0/20"]
+    }
+
+  # azurerm_subnet.this["regionA-web"] will be created
+  + resource "azurerm_subnet" "this" {
+      + name             = "snet-web"
+      + address_prefixes = ["172.20.0.0/26"]
+    }
+
+  # azurerm_subnet.this["regionA-app"] will be created
+  + resource "azurerm_subnet" "this" {
+      + name             = "snet-app"
+      + address_prefixes = ["172.20.0.64/26"]
+    }
+
+  # azurerm_subnet.this["regionB-web"] will be created
+  + resource "azurerm_subnet" "this" {
+      + name             = "snet-web"
+      + address_prefixes = ["172.21.0.0/26"]
+    }
+
+  # azurerm_subnet.this["regionB-app"] will be created
+  + resource "azurerm_subnet" "this" {
+      + name             = "snet-app"
+      + address_prefixes = ["172.21.0.64/26"]
+    }
+
+Plan: 7 to add, 0 to change, 0 to destroy.

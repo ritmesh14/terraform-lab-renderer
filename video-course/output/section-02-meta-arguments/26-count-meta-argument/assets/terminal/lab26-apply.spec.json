@@ -1,0 +1,10 @@
+{
+  "mode": "illustrative",
+  "command": "terraform apply",
+  "output_file": "lab26-apply.txt",
+  "highlight": [
+    "Apply complete",
+    "container_names",
+    "data-2"
+  ]
+}

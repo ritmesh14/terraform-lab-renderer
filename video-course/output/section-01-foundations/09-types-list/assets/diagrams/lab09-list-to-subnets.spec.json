@@ -1,0 +1,13 @@
+{
+  "nodes": [
+    {"id": "list", "label": "local.subnet_prefixes\nlist(string): 3 CIDRs"},
+    {"id": "for", "label": "for-expression\n-> list of objects\n{name, prefix}"},
+    {"id": "dyn", "label": "dynamic \"subnet\"\nfor_each (by name)"},
+    {"id": "vnet", "label": "azurerm_virtual_network.this\n3 subnets"}
+  ],
+  "edges": [
+    {"from": "list", "to": "for", "label": "iterate (i, p)"},
+    {"from": "for", "to": "dyn", "label": "map keyed by name"},
+    {"from": "dyn", "to": "vnet", "label": "one block per entry"}
+  ]
+}

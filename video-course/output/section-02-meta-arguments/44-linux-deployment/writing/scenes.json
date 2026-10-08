@@ -1,0 +1,429 @@
+{
+  "title": "Full Deployment: Public IP + NSG End to End",
+  "lesson_label": "Terraform Meta-arguments — Lab 44",
+  "scenes": [
+    {
+      "id": "S001",
+      "type": "TITLE",
+      "title": "Full Deployment: Public IP + NSG End to End",
+      "lesson_label": "Terraform Meta-arguments — Lab 44",
+      "audio": "audio/S001.mp3",
+      "narration": "Welcome back. Lab 43 restructured the files; this is Lab 44, and we DEPLOY that structure end to end — with the two pieces every reachable server needs: a static public IP and an SSH rule. At the end of this lab, you can SSH into a machine Terraform built from scratch. Let's build it."
+    },
+    {
+      "id": "S002",
+      "type": "CONCEPT",
+      "heading": "What you'll learn",
+      "numbered": true,
+      "audio": "audio/S002.mp3",
+      "points": [
+        "Deploy the full restructured stack end to end",
+        "Static public IP + NSG with an Allow-SSH rule",
+        "SSH in from the internet: ssh azureadmin@<public_ip>"
+      ],
+      "narration": "Three things in this lesson. One: the full stack, deployed — resource group through VM, the lab-43 shape made real. Two: the reachability pair — a static, standard public IP, and an NSG carrying an Allow-SSH rule on port 22. Three: the payoff — terraform output gives you the IP, and you SSH in with the key that was read from id_rsa dot pub."
+    },
+    {
+      "id": "S003",
+      "type": "CONCEPT",
+      "heading": "Where this lab fits",
+      "audio": "audio/S003.mp3",
+      "points": [
+        "Lab 43: structured files; lab 42: private IP only — no way in",
+        "This lab: the first VM you can SSH into from the internet",
+        "The NSG here is scaffolding — see the pitfall scene"
+      ],
+      "narration": "Placement. Every VM so far — labs 35, 37, 40, 42 — had private IPs only; there was no way in from outside. This lab adds the path in: public IP on the NIC, SSH opened. One honest note up front, straight from the README: the NSG in this lab is created but left UNASSOCIATED — with no NSG attached, Azure filters nothing at all, so SSH works; making the rule load-bearing comes later. Scaffolding now, wiring soon."
+    },
+    {
+      "id": "S004",
+      "type": "CONCEPT",
+      "heading": "Where to find this lab",
+      "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-02-meta-arguments\n          └── 44-linux-deployment\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-02-meta-arguments/44-linux-deployment",
+      "audio": "audio/S004.mp3",
+      "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 44-linux-deployment. The direct link is in the video description. The stack spans main dot T F, locals dot T F and outputs dot T F."
+    },
+    {
+      "id": "S005",
+      "type": "CODE",
+      "source_file": "terraform.tf",
+      "start_line": 1,
+      "end_line": 19,
+      "highlight_lines": [
+        6,
+        8,
+        10,
+        17,
+        18
+      ],
+      "asset": "assets/code/lab44-providers.png",
+      "audio": "audio/S005.mp3",
+      "narration": "Terraform dot T F pins the tooling: Terraform 1.5 or newer, and the azurerm provider around version 3.70 — no extra providers this time. The provider block at the bottom bridges to Azure; the empty features block enables the provider's defaults."
+    },
+    {
+      "id": "S006",
+      "type": "CODE",
+      "source_file": "locals.tf",
+      "start_line": 3,
+      "end_line": 6,
+      "highlight_lines": [
+        4,
+        5
+      ],
+      "asset": "assets/code/lab44-locals.png",
+      "audio": "audio/S006.mp3",
+      "steps": [
+        {
+          "narration": "locals dot T F carries two values over from the restructure: the SSH key read from disk — same ternary as labs 42 and 43 — and the resource group name.",
+          "active_lines": [
+            3,
+            4,
+            5
+          ],
+          "active_tokens": [
+            "ssh_pubkey",
+            "fileexists(\"id_rsa.pub\")",
+            "rg-linux-deploy"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S006.step1.mp3"
+      ]
+    },
+    {
+      "id": "S007",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 3,
+      "end_line": 22,
+      "highlight_lines": [
+        4,
+        10,
+        13,
+        21
+      ],
+      "asset": "assets/code/lab44-network.png",
+      "audio": "audio/S007.mp3",
+      "steps": [
+        {
+          "narration": "The network base in main dot T F: resource group from local dot rg, VNet on 10.250 slash 16, subnet snet web on 10.250.1 slash 24. The lab-43 shape, deployed.",
+          "active_lines": [
+            4,
+            10,
+            13,
+            21
+          ],
+          "active_tokens": [
+            "local.rg",
+            "10.250.0.0/16",
+            "10.250.1.0/24"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S007.step1.mp3"
+      ]
+    },
+    {
+      "id": "S008",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 25,
+      "end_line": 40,
+      "highlight_lines": [
+        26,
+        30,
+        36
+      ],
+      "asset": "assets/code/lab44-nsg.png",
+      "audio": "audio/S008.mp3",
+      "steps": [
+        {
+          "narration": "The NSG with one rule: allow SSH. Name Allow dash SSH, priority 200, inbound TCP, destination port 22. The comment repeats the production advice: tighten the source address prefix to YOUR IP — a star means the whole internet.",
+          "active_lines": [
+            25,
+            26,
+            30,
+            36
+          ],
+          "active_tokens": [
+            "nsg-deploy",
+            "Allow-SSH",
+            "destination_port_range"
+          ]
+        },
+        {
+          "narration": "And the README's honest note: this NSG is never associated with the subnet — no subnet or NIC references it in this lab. With nothing attached, Azure filters no traffic at all, so SSH works; attaching the NSG — making the rule load-bearing — is deliberately left for later.",
+          "active_lines": [
+            25,
+            26
+          ],
+          "active_tokens": [
+            "azurerm_network_security_group"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S008.step1.mp3",
+        "audio/S008.step2.mp3"
+      ]
+    },
+    {
+      "id": "S009",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 43,
+      "end_line": 62,
+      "highlight_lines": [
+        44,
+        47,
+        60
+      ],
+      "asset": "assets/code/lab44-pip-nic.png",
+      "audio": "audio/S009.mp3",
+      "steps": [
+        {
+          "narration": "The public IP: pip dash deploy, static allocation on the standard SKU — the address survives reboots and redeploys, which is exactly what you want for an SSH target you'll type by hand.",
+          "active_lines": [
+            44,
+            47,
+            48
+          ],
+          "active_tokens": [
+            "pip-deploy",
+            "allocation_method",
+            "sku"
+          ]
+        },
+        {
+          "narration": "And the NIC binds BOTH: the subnet for the private side, and — inside ip configuration — public ip address id equals azurerm public ip dot web dot id. The pattern from lab 40, now load-bearing: this is the line that makes the VM reachable.",
+          "active_lines": [
+            56,
+            58,
+            60
+          ],
+          "active_tokens": [
+            "ip_configuration {",
+            "public_ip_address_id"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S009.step1.mp3",
+        "audio/S009.step2.mp3"
+      ]
+    },
+    {
+      "id": "S010",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 65,
+      "end_line": 86,
+      "highlight_lines": [
+        66,
+        72,
+        74
+      ],
+      "asset": "assets/code/lab44-vm.png",
+      "audio": "audio/S010.mp3",
+      "steps": [
+        {
+          "narration": "The VM: vm dash deploy, standard burstable size, admin username azureadmin, NIC from the block above — the lab-43 anatomy unchanged.",
+          "active_lines": [
+            66,
+            71
+          ],
+          "active_tokens": [
+            "vm-deploy",
+            "azurerm_network_interface.web.id"
+          ]
+        },
+        {
+          "narration": "And the key: public key equals local dot ssh pubkey — the file content read in locals dot T F. THIS is the key half that lets you in; the private half is the id_rsa file that never left your machine.",
+          "active_lines": [
+            72,
+            73,
+            74
+          ],
+          "active_tokens": [
+            "admin_ssh_key {",
+            "local.ssh_pubkey"
+          ]
+        },
+        {
+          "narration": "Below: os disk on standard SSD, Ubuntu 22.04 image — and the output at the bottom prints the public IP, unknown until apply completes.",
+          "active_lines": [
+            76,
+            80
+          ],
+          "active_tokens": [
+            "os_disk {",
+            "source_image_reference {"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S010.step1.mp3",
+        "audio/S010.step2.mp3",
+        "audio/S010.step3.mp3"
+      ]
+    },
+    {
+      "id": "S011",
+      "type": "CODE",
+      "source_file": "outputs.tf",
+      "start_line": 1,
+      "end_line": 2,
+      "highlight_lines": [
+        2
+      ],
+      "asset": "assets/code/lab44-outputs.png",
+      "audio": "audio/S011.mp3",
+      "steps": [
+        {
+          "narration": "The whole outputs file: one line. The public IP is known after apply — Azure assigns it — so it prints only when the deployment is done. That value is your SSH target.",
+          "active_lines": [
+            1,
+            2
+          ],
+          "active_tokens": [
+            "output \"public_ip\""
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S011.step1.mp3"
+      ]
+    },
+    {
+      "id": "S012",
+      "type": "DIAGRAM",
+      "caption": "How the pieces connect",
+      "asset": "assets/diagrams/lab44-resource-flow.svg",
+      "audio": "audio/S012.mp3",
+      "steps": [
+        {
+          "narration": "Here's how the pieces connect.",
+          "nodes": [],
+          "edges": []
+        },
+        {
+          "narration": "Locals read the SSH key from disk and name the resource group.",
+          "nodes": [
+            "locals"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The network: VNet and subnet at 10.250.1.0 slash 24.",
+          "nodes": [
+            "vnet"
+          ],
+          "edges": [
+            "rg-vnet"
+          ]
+        },
+        {
+          "narration": "The NSG with the Allow-SSH rule — created but unassociated in this lab.",
+          "nodes": [
+            "nsg"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The public IP — static, standard — attaches inside the NIC's ip configuration.",
+          "nodes": [
+            "pip",
+            "nic"
+          ],
+          "edges": [
+            "rg-pip",
+            "pip-nic",
+            "vnet-nic"
+          ]
+        },
+        {
+          "narration": "And the VM: NIC attached, SSH key from the file read — reachable from the internet at that public IP.",
+          "nodes": [
+            "vm"
+          ],
+          "edges": [
+            "nic-vm",
+            "locals-vm"
+          ]
+        },
+        {
+          "narration": "Everything lands inside your Azure subscription.",
+          "nodes": [],
+          "edges": []
+        }
+      ],
+      "step_audio": [
+        "audio/S012.step1.mp3",
+        "audio/S012.step2.mp3",
+        "audio/S012.step3.mp3",
+        "audio/S012.step4.mp3",
+        "audio/S012.step5.mp3",
+        "audio/S012.step6.mp3",
+        "audio/S012.step7.mp3"
+      ]
+    },
+    {
+      "id": "S013",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab44-plan.svg",
+      "audio": "audio/S013.mp3",
+      "narration": "Here's the plan — terraform plan, an illustrative view. Resource group, VNet, subnet, NSG, public IP, NIC, VM — seven to add, zero to destroy. The SSH key shows redacted as a sensitive value in this illustrative view."
+    },
+    {
+      "id": "S014",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab44-output.svg",
+      "audio": "audio/S014.mp3",
+      "narration": "And after apply — terraform output public ip, an illustrative view. The address is assigned by Azure; ssh azureadmin at that address, with the id_rsa private key on your machine, lands you on the VM."
+    },
+    {
+      "id": "S015",
+      "type": "CONCEPT",
+      "heading": "Common pitfall",
+      "numbered": true,
+      "audio": "audio/S015.mp3",
+      "points": [
+        "The NSG is created but NOT associated — no filtering until it's attached",
+        "source_address_prefix \"*\" means SSH open to the whole internet",
+        "A static public IP is stable — and a fixed, scanable target"
+      ],
+      "narration": "Three pitfalls. One: the unassociated NSG — it exists, its rule says allow SSH, but nothing references it, so no filtering happens at all. The VM is reachable because NOTHING is filtering, not because the rule worked. Attach it and the rule becomes load-bearing. Two: the rule's source address prefix is a star — SSH open to the entire internet. Real deployments tighten it to your IP; the comment in the lab says exactly that. Three: the static public IP is convenient — and permanent. It's a scanable target that survives reboots; treat it as exposure, not just a convenience."
+    },
+    {
+      "id": "S016",
+      "type": "RECAP",
+      "numbered": true,
+      "audio": "audio/S016.mp3",
+      "points": [
+        "The lab-43 stack deployed end to end — 7 resources, one apply",
+        "pip-deploy: Static / Standard — survives reboots, stable SSH target",
+        "public_ip_address_id in the NIC's ip_configuration (lab 40 pattern)",
+        "NSG Allow-SSH rule created but unassociated (later lab wires it)",
+        "ssh azureadmin@<public_ip> — key read from id_rsa.pub at plan time"
+      ],
+      "narration": "Quick recap — five things. One: the full stack deployed — seven resources, one apply. Two: the public IP is static on the standard SKU — a stable SSH target. Three: it attaches inside the NIC's ip configuration — the lab-40 pattern, now load-bearing. Four: the NSG with its Allow-SSH rule exists but is deliberately unassociated — remember that no filtering happens until it's wired. Five: the key that opened the door was read from id_rsa dot pub at plan time. Terraform built a server you can reach."
+    },
+    {
+      "id": "S017",
+      "type": "NEXT",
+      "audio": "audio/S017.mp3",
+      "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+    },
+    {
+      "id": "S018",
+      "type": "CONCEPT",
+      "heading": "Thanks for watching",
+      "centered": true,
+      "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-02-meta-arguments/44-linux-deployment",
+      "audio": "audio/S018.mp3",
+      "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+    }
+  ]
+}

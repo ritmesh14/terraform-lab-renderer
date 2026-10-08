@@ -1,0 +1,10 @@
+{
+  "mode": "illustrative",
+  "command": "terraform output rule_names",
+  "output_file": "lab41-output.txt",
+  "highlight": [
+    "rule_names",
+    "\"Allow-HTTP\"",
+    "\"Allow-HTTPS\""
+  ]
+}

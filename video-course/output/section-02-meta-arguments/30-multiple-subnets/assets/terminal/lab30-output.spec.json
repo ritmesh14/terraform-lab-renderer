@@ -1,0 +1,10 @@
+{
+  "mode": "illustrative",
+  "command": "terraform output subnet_ids",
+  "output_file": "lab30-output.txt",
+  "highlight": [
+    "\"app\"",
+    "\"web\"",
+    "subnets/snet-"
+  ]
+}

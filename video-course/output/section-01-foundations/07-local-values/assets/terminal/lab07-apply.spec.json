@@ -1,0 +1,5 @@
+{
+  "command": "terraform apply -auto-approve",
+  "output_file": "lab07-apply.txt",
+  "highlight": ["Apply complete", "tier", "tags"]
+}

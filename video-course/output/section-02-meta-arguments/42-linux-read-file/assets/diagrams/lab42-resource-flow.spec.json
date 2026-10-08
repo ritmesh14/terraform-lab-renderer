@@ -1,0 +1,66 @@
+{
+  "layers": [
+    [
+      "rg",
+      "vnet",
+      "subnet",
+      "locals"
+    ],
+    [
+      "nic",
+      "vm"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": "locals",
+      "label": "locals: ssh_pubkey = file() or fallback"
+    },
+    {
+      "id": "rg",
+      "label": "rg-linux-readfile"
+    },
+    {
+      "id": "vnet",
+      "label": "vnet-linux-readfile + snet-web"
+    },
+    {
+      "id": "subnet",
+      "label": "snet-web (10.230.1.0/24)"
+    },
+    {
+      "id": "nic",
+      "label": "nic-readfile (dynamic private IP)"
+    },
+    {
+      "id": "vm",
+      "label": "vm-readfile (key from file)"
+    }
+  ],
+  "edges": [
+    {
+      "id": "rg-vnet",
+      "from": "rg",
+      "to": "vnet",
+      "label": "reference"
+    },
+    {
+      "id": "vnet-subnet",
+      "from": "vnet",
+      "to": "subnet",
+      "label": "subnet"
+    },
+    {
+      "id": "subnet-nic",
+      "from": "subnet",
+      "to": "nic",
+      "label": "subnet_id"
+    },
+    {
+      "id": "nic-vm",
+      "from": "nic",
+      "to": "vm",
+      "label": "network_interface_ids"
+    }
+  ]
+}

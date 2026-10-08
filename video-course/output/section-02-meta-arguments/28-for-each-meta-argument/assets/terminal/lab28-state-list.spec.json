@@ -1,0 +1,10 @@
+{
+  "mode": "illustrative",
+  "command": "terraform state list",
+  "output_file": "lab28-state-list.txt",
+  "highlight": [
+    "stage[\"dev\"]",
+    "stage[\"prod\"]",
+    "stage[\"stg\"]"
+  ]
+}

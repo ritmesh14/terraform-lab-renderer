@@ -1,0 +1,4 @@
+mysql_admin_password = "ChangeMe12345!"
+existing_server_name = "mysql-xxxxxxxxxxxx"
+existing_rg_name     = "rg-mysql"
+client_ip            = "203.0.113.10"

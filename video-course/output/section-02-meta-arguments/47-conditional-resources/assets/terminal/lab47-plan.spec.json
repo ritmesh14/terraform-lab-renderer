@@ -1,0 +1,10 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan",
+  "output_file": "lab47-plan.txt",
+  "highlight": [
+    "\"nsg-conditional\"",
+    "web[0]",
+    "Plan: 5 to add"
+  ]
+}

@@ -1,0 +1,78 @@
+{
+ "episode": "44-linux-deployment",
+ "source": "writing/scenes.json",
+ "scenes": [
+  {
+   "id": "S001",
+   "narration": "Welcome back. Lab 43 restructured the files; this is Lab 44, and we DEPLOY that structure end to end — with the two pieces every reachable server needs: a static public IP and an SSH rule. At the end of this lab, you can SSH into a machine Terraform built from scratch. Let's build it."
+  },
+  {
+   "id": "S002",
+   "narration": "Three things in this lesson. One: the full stack, deployed — resource group through VM, the lab-43 shape made real. Two: the reachability pair — a static, standard public IP, and an NSG carrying an Allow-SSH rule on port 22. Three: the payoff — terraform output gives you the IP, and you SSH in with the key that was read from id_rsa dot pub."
+  },
+  {
+   "id": "S003",
+   "narration": "Placement. Every VM so far — labs 35, 37, 40, 42 — had private IPs only; there was no way in from outside. This lab adds the path in: public IP on the NIC, SSH opened. One honest note up front, straight from the README: the NSG in this lab is created but left UNASSOCIATED — with no NSG attached, Azure filters nothing at all, so SSH works; making the rule load-bearing comes later. Scaffolding now, wiring soon."
+  },
+  {
+   "id": "S004",
+   "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 44-linux-deployment. The direct link is in the video description. The stack spans main dot T F, locals dot T F and outputs dot T F."
+  },
+  {
+   "id": "S005",
+   "narration": "Terraform dot T F pins the tooling: Terraform 1.5 or newer, and the azurerm provider around version 3.70 — no extra providers this time. The provider block at the bottom bridges to Azure; the empty features block enables the provider's defaults."
+  },
+  {
+   "id": "S006",
+   "narration": "locals dot T F carries two values over from the restructure: the SSH key read from disk — same ternary as labs 42 and 43 — and the resource group name."
+  },
+  {
+   "id": "S007",
+   "narration": "The network base in main dot T F: resource group from local dot rg, VNet on 10.250 slash 16, subnet snet web on 10.250.1 slash 24. The lab-43 shape, deployed."
+  },
+  {
+   "id": "S008",
+   "narration": "The NSG with one rule: allow SSH. Name Allow dash SSH, priority 200, inbound TCP, destination port 22. The comment repeats the production advice: tighten the source address prefix to YOUR IP — a star means the whole internet. And the README's honest note: this NSG is never associated with the subnet — no subnet or NIC references it in this lab. With nothing attached, Azure filters no traffic at all, so SSH works; attaching the NSG — making the rule load-bearing — is deliberately left for later."
+  },
+  {
+   "id": "S009",
+   "narration": "The public IP: pip dash deploy, static allocation on the standard SKU — the address survives reboots and redeploys, which is exactly what you want for an SSH target you'll type by hand. And the NIC binds BOTH: the subnet for the private side, and — inside ip configuration — public ip address id equals azurerm public ip dot web dot id. The pattern from lab 40, now load-bearing: this is the line that makes the VM reachable."
+  },
+  {
+   "id": "S010",
+   "narration": "The VM: vm dash deploy, standard burstable size, admin username azureadmin, NIC from the block above — the lab-43 anatomy unchanged. And the key: public key equals local dot ssh pubkey — the file content read in locals dot T F. THIS is the key half that lets you in; the private half is the id_rsa file that never left your machine. Below: os disk on standard SSD, Ubuntu 22.04 image — and the output at the bottom prints the public IP, unknown until apply completes."
+  },
+  {
+   "id": "S011",
+   "narration": "The whole outputs file: one line. The public IP is known after apply — Azure assigns it — so it prints only when the deployment is done. That value is your SSH target."
+  },
+  {
+   "id": "S012",
+   "narration": "Here's how the pieces connect. Locals read the SSH key from disk and name the resource group. The network: VNet and subnet at 10.250.1.0 slash 24. The NSG with the Allow-SSH rule — created but unassociated in this lab. The public IP — static, standard — attaches inside the NIC's ip configuration. And the VM: NIC attached, SSH key from the file read — reachable from the internet at that public IP. Everything lands inside your Azure subscription."
+  },
+  {
+   "id": "S013",
+   "narration": "Here's the plan — terraform plan, an illustrative view. Resource group, VNet, subnet, NSG, public IP, NIC, VM — seven to add, zero to destroy. The SSH key shows redacted as a sensitive value in this illustrative view."
+  },
+  {
+   "id": "S014",
+   "narration": "And after apply — terraform output public ip, an illustrative view. The address is assigned by Azure; ssh azureadmin at that address, with the id_rsa private key on your machine, lands you on the VM."
+  },
+  {
+   "id": "S015",
+   "narration": "Three pitfalls. One: the unassociated NSG — it exists, its rule says allow SSH, but nothing references it, so no filtering happens at all. The VM is reachable because NOTHING is filtering, not because the rule worked. Attach it and the rule becomes load-bearing. Two: the rule's source address prefix is a star — SSH open to the entire internet. Real deployments tighten it to your IP; the comment in the lab says exactly that. Three: the static public IP is convenient — and permanent. It's a scanable target that survives reboots; treat it as exposure, not just a convenience."
+  },
+  {
+   "id": "S016",
+   "narration": "Quick recap — five things. One: the full stack deployed — seven resources, one apply. Two: the public IP is static on the standard SKU — a stable SSH target. Three: it attaches inside the NIC's ip configuration — the lab-40 pattern, now load-bearing. Four: the NSG with its Allow-SSH rule exists but is deliberately unassociated — remember that no filtering happens until it's wired. Five: the key that opened the door was read from id_rsa dot pub at plan time. Terraform built a server you can reach."
+  },
+  {
+   "id": "S017",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+  },
+  {
+   "id": "S018",
+   "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+  }
+ ]
+}

@@ -1,0 +1,29 @@
+{
+  "terms": {
+    "Azure": "Microsoft Azure",
+    "HCL": "H C L",
+    "CLI": "C L I",
+    "API": "A P I",
+    "VM": "V M",
+    "VNet": "V Net",
+    "NSG": "N S G",
+    "NIC": "nick",
+    "AKS": "A K S",
+    "ACI": "A C I",
+    "RBAC": "R back",
+    "CI/CD": "C I, C D",
+    "YAML": "yam-ul",
+    "JSON": "Jason",
+    "AzureRM": "Azure R M",
+    "azurerm": "Azure R M",
+    "tfstate": "T F state",
+    "CIDR": "cider",
+    "for_each": "for each",
+    "main.tf": "main dot T F",
+    "variables.tf": "variables dot T F",
+    "outputs.tf": "outputs dot T F",
+    "terraform.tf": "Terraform dot T F",
+    "backend.tf": "backend dot T F"
+  },
+  "notes": "Affects SPOKEN narration only. Never alter what appears on screen."
+}

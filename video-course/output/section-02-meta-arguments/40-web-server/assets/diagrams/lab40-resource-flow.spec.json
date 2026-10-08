@@ -1,0 +1,81 @@
+{
+ "layers": [
+  [
+   "rg",
+   "vnet",
+   "nsg",
+   "pip",
+   "nic",
+   "locals",
+   "vm"
+  ]
+ ],
+ "nodes": [
+  {
+   "id": "locals",
+   "label": "locals: cloud_init heredoc (<<-EOT)"
+  },
+  {
+   "id": "rg",
+   "label": "rg-webserver"
+  },
+  {
+   "id": "vnet",
+   "label": "vnet-webserver + snet-web"
+  },
+  {
+   "id": "nsg",
+   "label": "nsg-webserver (Allow-HTTP, unassociated)"
+  },
+  {
+   "id": "pip",
+   "label": "pip-webserver (Static/Standard)"
+  },
+  {
+   "id": "nic",
+   "label": "nic-webserver (public_ip_address_id)"
+  },
+  {
+   "id": "vm",
+   "label": "vm-webserver (custom_data = base64encode)"
+  }
+ ],
+ "edges": [
+  {
+   "id": "rg-vnet",
+   "from": "rg",
+   "to": "vnet",
+   "label": "reference"
+  },
+  {
+   "id": "rg-pip",
+   "from": "rg",
+   "to": "pip",
+   "label": "reference"
+  },
+  {
+   "id": "pip-nic",
+   "from": "pip",
+   "to": "nic",
+   "label": "ip_configuration"
+  },
+  {
+   "id": "vnet-nic",
+   "from": "vnet",
+   "to": "nic",
+   "label": "subnet"
+  },
+  {
+   "id": "nic-vm",
+   "from": "nic",
+   "to": "vm",
+   "label": "network_interface_ids"
+  },
+  {
+   "id": "locals-vm",
+   "from": "locals",
+   "to": "vm",
+   "label": "base64encode"
+  }
+ ]
+}

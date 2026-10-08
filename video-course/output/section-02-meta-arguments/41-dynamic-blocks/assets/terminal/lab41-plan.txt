@@ -1,0 +1,31 @@
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # azurerm_resource_group.this will be created
+  + resource "azurerm_resource_group" "this" {
+      + name     = "rg-dynamic"
+      + location = "eastus"
+    }
+
+  # azurerm_network_security_group.this will be created
+  + resource "azurerm_network_security_group" "this" {
+      + name                = "nsg-dynamic"
+      + location            = "eastus"
+
+      + security_rule {
+          + name                     = "Allow-HTTP"
+          + priority                 = 200
+          + destination_port_range   = "80"
+        }
+
+      + security_rule {
+          + name                     = "Allow-HTTPS"
+          + priority                 = 210
+          + destination_port_range   = "443"
+        }
+    }
+
+Plan: 2 to add, 0 to change, 0 to destroy.

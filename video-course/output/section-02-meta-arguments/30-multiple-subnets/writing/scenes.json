@@ -1,0 +1,526 @@
+{
+  "title": "Carving the Network: Subnets from a Map",
+  "lesson_label": "Terraform Meta-arguments — Lab 30",
+  "scenes": [
+    {
+      "id": "S001",
+      "type": "TITLE",
+      "title": "Carving the Network: Subnets from a Map",
+      "lesson_label": "Terraform Meta-arguments — Lab 30",
+      "audio": "audio/S001.mp3",
+      "narration": "Welcome back to the course. for_each has walked a set and a map of blobs — this is Lab 30, and it's the pattern you'll reuse on almost every Azure network: one virtual network, and four subnets carved out of it by a single for_each over a map. Plus the for expression that turns the instances back into a clean output. Let's build it."
+    },
+    {
+      "id": "S002",
+      "type": "CONCEPT",
+      "heading": "What you'll learn",
+      "numbered": true,
+      "audio": "audio/S002.mp3",
+      "points": [
+        "for_each over a map of tier → CIDR",
+        "each.key names the subnet; each.value sizes it",
+        "The for expression — reshaping a map for an output"
+      ],
+      "narration": "Here's what you'll learn — three things. One: for_each over a map of tier to C I D R — the most-reused networking pattern in Terraform. Two: how each dot key and each dot value split the work — the key names the subnet, the value sizes it. Three: the for expression — a compact loop that reshapes the for_each map into exactly the output shape you want."
+    },
+    {
+      "id": "S003",
+      "type": "CONCEPT",
+      "heading": "Where this lab fits",
+      "audio": "audio/S003.mp3",
+      "points": [
+        "Labs 28–29: for_each over a set, then a map of blobs",
+        "This lab: the production pattern — one VNet, subnets from a map",
+        "Adding a tier = adding one map line"
+      ],
+      "narration": "This is the fifth lab of Section 2, Meta-arguments. Labs 28 and 29 built the for_each foundation — first over a set, then over a map where values carry config. This lab applies it to the pattern you'll meet in almost every real Azure project: one virtual network, and every subnet defined as one line in a map. Add a tier to the map, and the network grows — no new resource blocks."
+    },
+    {
+      "id": "S004",
+      "type": "CONCEPT",
+      "heading": "Where to find this lab",
+      "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-02-meta-arguments\n          └── 30-multiple-subnets\n              ├── README.md\n              ├── main.tf\n              └── terraform.tf\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-02-meta-arguments/30-multiple-subnets",
+      "audio": "audio/S004.mp3",
+      "narration": "You can find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 30-multiple-subnets. The direct link is in the video description. Two files matter in this lesson: main dot T F holds the whole configuration, and terraform dot T F pins the provider."
+    },
+    {
+      "id": "S005",
+      "type": "CONCEPT",
+      "heading": "The mental model: one plot of land, fenced lots",
+      "audio": "audio/S005.mp3",
+      "points": [
+        "The VNet is the land — one big /16 address space",
+        "Subnets are fenced lots carved out of it",
+        "The locals map is the plot plan: name and size per lot"
+      ],
+      "narration": "Here's the mental model. Picture one plot of land — that's the virtual network, with its big slash sixteen address space. Subnets are the fenced lots carved out of that land — web, app, data, mgmt. And the locals map is the plot plan: each line says a lot's name and its size. Terraform is the surveyor — it reads the plan once and fences every lot. Change the plan, and the next apply re-fences the land."
+    },
+    {
+      "id": "S006",
+      "type": "CODE",
+      "source_file": "terraform.tf",
+      "start_line": 1,
+      "end_line": 19,
+      "highlight_lines": [
+        5,
+        7,
+        8,
+        17
+      ],
+      "asset": "assets/code/lab30-providers.png",
+      "audio": "audio/S006.mp3",
+      "narration": "Terraform dot T F pins the tooling: Terraform 1.5 or newer and the azurerm provider around version 3.70 — this lab needs no random provider, since subnet names come straight from the map. The provider block at the bottom is the bridge to Azure; the empty features block enables the provider's default behaviours."
+    },
+    {
+      "id": "S007",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 7,
+      "end_line": 15,
+      "highlight_lines": [
+        7,
+        9
+      ],
+      "asset": "assets/code/lab30-locals.png",
+      "audio": "audio/S007.mp3",
+      "steps": [
+        {
+          "narration": "The whole fan-out is one locals map. Subnets maps tier names to C I D R blocks — each entry becomes one subnet.",
+          "active_lines": [
+            7,
+            8,
+            9
+          ],
+          "active_tokens": [
+            "subnets"
+          ]
+        },
+        {
+          "narration": "Read the entries: web gets ten dot one-fifty dot one dot zero slash twenty-four, app the two, data the three, mgmt the four. Four tiers, four lines — that's the entire network design.",
+          "active_lines": [
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "active_tokens": [
+            "10.150.1.0/24"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S007.step1.mp3",
+        "audio/S007.step2.mp3"
+      ]
+    },
+    {
+      "id": "S008",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 17,
+      "end_line": 30,
+      "highlight_lines": [
+        18,
+        25
+      ],
+      "asset": "assets/code/lab30-rg-vnet.png",
+      "audio": "audio/S008.mp3",
+      "steps": [
+        {
+          "narration": "The resource group gets a fixed name — rg dash multi dash subnets.",
+          "active_lines": [
+            18,
+            19,
+            20,
+            21
+          ],
+          "active_tokens": [
+            "azurerm_resource_group"
+          ]
+        },
+        {
+          "narration": "Then the virtual network: one big slash sixteen space, ten dot one-fifty dot zero dot zero slash sixteen. It references the group for its location and name — so the group is always created first.",
+          "active_lines": [
+            25,
+            26,
+            27,
+            28,
+            29,
+            30
+          ],
+          "active_tokens": [
+            "azurerm_virtual_network"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S008.step1.mp3",
+        "audio/S008.step2.mp3"
+      ]
+    },
+    {
+      "id": "S009",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 32,
+      "end_line": 39,
+      "highlight_lines": [
+        33,
+        34,
+        35,
+        38
+      ],
+      "asset": "assets/code/lab30-subnet-block.png",
+      "audio": "audio/S009.mp3",
+      "steps": [
+        {
+          "narration": "And the fan-out: one subnet block, for_each equals local dot subnets. Four map entries — four subnets, all inside the one VNet.",
+          "active_lines": [
+            33,
+            34
+          ],
+          "active_tokens": [
+            "for_each"
+          ]
+        },
+        {
+          "narration": "The name builds from the key: s-n-e-t dash, then each dot key — snet dash web, snet dash app, snet dash data, snet dash mgmt. The key labels the tier; the prefix keeps them consistent.",
+          "active_lines": [
+            35
+          ],
+          "active_tokens": [
+            "snet-${each.key}"
+          ]
+        },
+        {
+          "narration": "And the size comes from the value: address_prefixes takes a list, so each dot value — the C I D R string — goes inside brackets. That's the one line people forget: it's a list of prefixes, not a single string.",
+          "active_lines": [
+            36,
+            37,
+            38
+          ],
+          "active_tokens": [
+            "[each.value]"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S009.step1.mp3",
+        "audio/S009.step2.mp3",
+        "audio/S009.step3.mp3"
+      ]
+    },
+    {
+      "id": "S010",
+      "type": "FOR_EACH_MAP",
+      "title": "One map, one block, four subnets",
+      "expression": "for_each = local.subnets",
+      "audio": "audio/S010.mp3",
+      "stages": [
+        {
+          "id": "coll",
+          "label": "The map (subnets)",
+          "kind": "expression",
+          "items": [
+            {
+              "key": "c0",
+              "text": "web → 10.150.1.0/24"
+            },
+            {
+              "key": "c1",
+              "text": "app → 10.150.2.0/24"
+            },
+            {
+              "key": "c2",
+              "text": "data → 10.150.3.0/24"
+            },
+            {
+              "key": "c3",
+              "text": "mgmt → 10.150.4.0/24"
+            }
+          ]
+        },
+        {
+          "id": "block",
+          "label": "One block",
+          "kind": "expression",
+          "items": [
+            {
+              "key": "block",
+              "text": "resource \"azurerm_subnet\" \"this\""
+            }
+          ]
+        },
+        {
+          "id": "inst",
+          "label": "Instances (state)",
+          "kind": "instances",
+          "items": [
+            {
+              "key": "i0",
+              "text": "azurerm_subnet.this[\"web\"]"
+            },
+            {
+              "key": "i1",
+              "text": "azurerm_subnet.this[\"app\"]"
+            },
+            {
+              "key": "i2",
+              "text": "azurerm_subnet.this[\"data\"]"
+            },
+            {
+              "key": "i3",
+              "text": "azurerm_subnet.this[\"mgmt\"]"
+            }
+          ]
+        },
+        {
+          "id": "names",
+          "label": "Names",
+          "kind": "output",
+          "items": [
+            {
+              "key": "n0",
+              "text": "snet-web"
+            },
+            {
+              "key": "n1",
+              "text": "snet-app"
+            },
+            {
+              "key": "n2",
+              "text": "snet-data"
+            },
+            {
+              "key": "n3",
+              "text": "snet-mgmt"
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "narration": "The collection is the map — four tiers, each with its own C I D R. The keys will name the subnets; the values will size them.",
+          "focus": {
+            "stages": [
+              "coll"
+            ]
+          }
+        },
+        {
+          "narration": "for_each walks the map and expands the one block into one instance per key — four subnets from a single resource block.",
+          "focus": {
+            "stages": [
+              "block",
+              "inst"
+            ]
+          }
+        },
+        {
+          "narration": "For each instance, each dot key lands in the name — s-n-e-t dash web and friends — and each dot value becomes the address prefix.",
+          "focus": {
+            "stages": [
+              "inst",
+              "names"
+            ],
+            "items": [
+              "i0",
+              "n0"
+            ]
+          }
+        },
+        {
+          "narration": "The state addresses are the tier names: this in brackets, quote, web, quote. Need the management subnet's ID later? this in brackets mgmt — no counting positions.",
+          "focus": {
+            "stages": [
+              "inst"
+            ]
+          }
+        }
+      ],
+      "step_audio": [
+        "audio/S010.step1.mp3",
+        "audio/S010.step2.mp3",
+        "audio/S010.step3.mp3",
+        "audio/S010.step4.mp3"
+      ]
+    },
+    {
+      "id": "S011",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 41,
+      "end_line": 45,
+      "highlight_lines": [
+        43,
+        44
+      ],
+      "asset": "assets/code/lab30-output.png",
+      "audio": "audio/S011.mp3",
+      "steps": [
+        {
+          "narration": "The output is a for expression. Read it as: for each key k and subnet s in the for_each map, produce k, arrow, s dot id. Old key in, new value out.",
+          "active_lines": [
+            43,
+            44
+          ],
+          "active_tokens": [
+            "for k, s in"
+          ]
+        },
+        {
+          "narration": "The result is a reshaped map: web maps to that subnet's full Azure ID, app to its own, and so on. Same keys as the locals map — different values: real resource IDs instead of C I D Rs.",
+          "active_lines": [
+            44
+          ],
+          "active_tokens": [
+            "k => s.id"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S011.step1.mp3",
+        "audio/S011.step2.mp3"
+      ]
+    },
+    {
+      "id": "S012",
+      "type": "CONCEPT",
+      "heading": "The for expression, in one minute",
+      "audio": "audio/S012.mp3",
+      "points": [
+        "{ for k, v in collection : k => expr } builds a map",
+        "The key stays; the value is whatever expr computes",
+        "Here: subnet key → its full Azure resource ID"
+      ],
+      "narration": "A one-minute tour of the for expression, since it appears right in the output. The general shape: curly for, a key and a value name, in a collection, colon, key arrow expression. Terraform walks the collection once per element; the key usually stays the same, and the expression decides the new value. Here the collection is the for_each map, and the expression is s dot id — so tier names in, full Azure resource IDs out. You'll meet this expression again when outputs need reshaping."
+    },
+    {
+      "id": "S013",
+      "type": "DIAGRAM",
+      "caption": "How the pieces connect",
+      "asset": "assets/diagrams/lab30-resource-flow.svg",
+      "audio": "audio/S013.mp3",
+      "steps": [
+        {
+          "narration": "Here's how the pieces connect.",
+          "nodes": [],
+          "edges": []
+        },
+        {
+          "narration": "Locals hold the subnets map — the plot plan.",
+          "nodes": [
+            "locals"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The resource group groups everything in Azure.",
+          "nodes": [
+            "rg"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The virtual network references the group, and owns the big slash sixteen space the subnets will carve from.",
+          "nodes": [
+            "vnet"
+          ],
+          "edges": [
+            "rg-vnet"
+          ]
+        },
+        {
+          "narration": "And the subnets: for_each walks the map — one subnet per tier, each fenced out of the VNet's space.",
+          "nodes": [
+            "subnets"
+          ],
+          "edges": [
+            "locals-subnets",
+            "vnet-subnets"
+          ]
+        },
+        {
+          "narration": "The for expression in the output reshapes the map: tier names in, full subnet IDs out.",
+          "nodes": [
+            "out"
+          ],
+          "edges": [
+            "subnets-out"
+          ]
+        },
+        {
+          "narration": "Everything lands inside your Azure subscription.",
+          "nodes": [],
+          "edges": []
+        }
+      ],
+      "step_audio": [
+        "audio/S013.step1.mp3",
+        "audio/S013.step2.mp3",
+        "audio/S013.step3.mp3",
+        "audio/S013.step4.mp3",
+        "audio/S013.step5.mp3",
+        "audio/S013.step6.mp3",
+        "audio/S013.step7.mp3"
+      ]
+    },
+    {
+      "id": "S014",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab30-plan.svg",
+      "audio": "audio/S014.mp3",
+      "narration": "Here's the plan — terraform plan, an illustrative view. Six to add: the resource group, the virtual network, and four subnets — this in brackets app, brackets data, brackets mgmt, brackets web. One subnet block in the code; four carved subnets in the plan. Add a fifth tier to the map, and this plan grows by exactly one entry."
+    },
+    {
+      "id": "S015",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab30-output.svg",
+      "audio": "audio/S015.mp3",
+      "narration": "And here's the output after apply — terraform output subnet underscore ids, an illustrative view. The for expression did its reshaping: tier names on the left, full Azure subnet IDs on the right. Downstream modules or configs can now say: give me the web subnet — and read it straight from this map by name."
+    },
+    {
+      "id": "S016",
+      "type": "CONCEPT",
+      "heading": "Common pitfall",
+      "numbered": true,
+      "audio": "audio/S016.mp3",
+      "points": [
+        "address_prefixes is a LIST — wrap each.value in brackets",
+        "Subnets wait for the VNet — the reference orders creation",
+        "CIDRs must not overlap and must sit inside the VNet's space"
+      ],
+      "narration": "One pitfall to understand before you carve networks. One: address prefixes is a list — write each dot value alone and the plan fails a type check; it must be bracket, each dot value, bracket. Two: subnets depend on their VNet — here the reference to the VNet's name handles that ordering for you; break the reference and Terraform might race the network. Three: the C I D Rs are your contract — each must sit inside the VNet's slash sixteen, and none may overlap another. Azure rejects collisions at apply time, after the plan already looked green."
+    },
+    {
+      "id": "S017",
+      "type": "RECAP",
+      "numbered": true,
+      "audio": "audio/S017.mp3",
+      "points": [
+        "for_each = local.subnets — one subnet per map entry",
+        "each.key names it (snet-web); each.value sizes it",
+        "The state address is the tier: this[\"web\"]",
+        "The for expression reshapes the map into key → id",
+        "Adding a tier is adding one map line"
+      ],
+      "narration": "Quick recap — five things. One: for_each equals local dot subnets — one subnet per map entry. Two: each dot key names the subnet, each dot value sizes it. Three: the state address is the tier name — this bracket web — readable and stable. Four: the for expression reshaped the instances into a clean map of tier to full I D. Five: adding a tier is adding one line to the map. One plot of land — fenced exactly as the plan says."
+    },
+    {
+      "id": "S018",
+      "type": "NEXT",
+      "audio": "audio/S018.mp3",
+      "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+    },
+    {
+      "id": "S019",
+      "type": "CONCEPT",
+      "heading": "Thanks for watching",
+      "centered": true,
+      "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-02-meta-arguments/30-multiple-subnets",
+      "audio": "audio/S019.mp3",
+      "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+    }
+  ]
+}

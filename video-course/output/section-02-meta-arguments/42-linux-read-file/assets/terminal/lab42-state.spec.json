@@ -1,0 +1,9 @@
+{
+  "mode": "illustrative",
+  "command": "terraform state list",
+  "output_file": "lab42-state.txt",
+  "highlight": [
+    "azurerm_linux_virtual_machine.web",
+    "azurerm_state_list_all"
+  ]
+}

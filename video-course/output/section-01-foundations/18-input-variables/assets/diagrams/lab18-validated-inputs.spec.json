@@ -1,0 +1,52 @@
+{
+  "nodes": [
+    {
+      "id": "loc",
+      "label": "variable \"location\"\nstring · default eastus"
+    },
+    {
+      "id": "pfx",
+      "label": "variable \"name_prefix\"\nvalidation: can(regex())"
+    },
+    {
+      "id": "tier",
+      "label": "variable \"tier\"\nvalidation: contains(...)"
+    },
+    {
+      "id": "rg",
+      "label": "azurerm_resource_group.this\nlocation from var"
+    },
+    {
+      "id": "st",
+      "label": "azurerm_storage_account.this\nname + tier from vars"
+    }
+  ],
+  "edges": [
+    {
+      "from": "loc",
+      "to": "rg",
+      "label": "var.location"
+    },
+    {
+      "from": "pfx",
+      "to": "st",
+      "label": "prefix + suffix"
+    },
+    {
+      "from": "tier",
+      "to": "st",
+      "label": "account_tier"
+    }
+  ],
+  "layers": [
+    [
+      "loc",
+      "pfx",
+      "tier"
+    ],
+    [
+      "rg",
+      "st"
+    ]
+  ]
+}

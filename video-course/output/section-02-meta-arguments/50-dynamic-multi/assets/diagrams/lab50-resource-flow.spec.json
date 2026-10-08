@@ -1,0 +1,72 @@
+{
+  "layers": [
+    [
+      "vars",
+      "rg",
+      "vnet"
+    ],
+    [
+      "nsg",
+      "nic",
+      "out"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": "vars",
+      "label": "vars: rules + ip_configs (two lists)"
+    },
+    {
+      "id": "rg",
+      "label": "rg-dynamic-multi"
+    },
+    {
+      "id": "vnet",
+      "label": "vnet-dynamic-multi + snet-web (/20 + /26)"
+    },
+    {
+      "id": "nsg",
+      "label": "nsg-dynamic-multi (dynamic security_rule)"
+    },
+    {
+      "id": "nic",
+      "label": "nic-dynamic-multi (dynamic ip_configuration, 2 static IPs)"
+    },
+    {
+      "id": "out",
+      "label": "outputs: rule_names, nic_ips"
+    }
+  ],
+  "edges": [
+    {
+      "id": "vars-nsg",
+      "from": "vars",
+      "to": "nsg",
+      "label": "for_each rules"
+    },
+    {
+      "id": "vars-nic",
+      "from": "vars",
+      "to": "nic",
+      "label": "for_each ip_configs"
+    },
+    {
+      "id": "rg-vnet",
+      "from": "rg",
+      "to": "vnet",
+      "label": "reference"
+    },
+    {
+      "id": "vnet-nic",
+      "from": "vnet",
+      "to": "nic",
+      "label": "subnet_id"
+    },
+    {
+      "id": "nic-out",
+      "from": "nic",
+      "to": "out",
+      "label": "private_ip_addresses"
+    }
+  ]
+}

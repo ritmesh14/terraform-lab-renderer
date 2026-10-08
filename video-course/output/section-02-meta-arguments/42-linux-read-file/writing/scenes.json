@@ -1,0 +1,359 @@
+{
+  "title": "Reading the Disk: file() and fileexists()",
+  "lesson_label": "Terraform Meta-arguments — Lab 42",
+  "scenes": [
+    {
+      "id": "S001",
+      "type": "TITLE",
+      "title": "Reading the Disk: file() and fileexists()",
+      "lesson_label": "Terraform Meta-arguments — Lab 42",
+      "audio": "audio/S001.mp3",
+      "narration": "Welcome back. Until now, every SSH key arrived as a typed variable. This is Lab 42, and the key comes from somewhere new: the filesystem. fileexists guards, file reads, and a ternary picks — so the lab works with your key when id_rsa dot pub is present, and falls back gracefully when it isn't. Let's build it."
+    },
+    {
+      "id": "S002",
+      "type": "CONCEPT",
+      "heading": "What you'll learn",
+      "numbered": true,
+      "audio": "audio/S002.mp3",
+      "points": [
+        "file(\"id_rsa.pub\") reads the lab folder AT PLAN TIME",
+        "fileexists() ? file() : fallback — the ternary guards a missing file",
+        "filebase64() and templatefile() — the same family, one step up"
+      ],
+      "narration": "Three things in this lesson. One: the file function — it reads a file from the module's folder at plan time, and its CONTENT becomes part of the configuration. Two: the guard — fileexists checks first, and the ternary operator picks between the real key and a placeholder, so a missing file is a graceful fallback instead of a hard error. Three: the wider family — filebase64 reads bytes, and templatefile injects values into a templated script; both are the same idea one step up."
+    },
+    {
+      "id": "S003",
+      "type": "CONCEPT",
+      "heading": "Where this lab fits",
+      "audio": "audio/S003.mp3",
+      "points": [
+        "Labs 35/40: the single-VM stack, key supplied as a sensitive VARIABLE",
+        "This lab: the same stack, key read from id_rsa.pub on disk",
+        "Lab 43 takes this exact VM and restructures the files"
+      ],
+      "narration": "Placement. The single-VM stack is familiar from labs 35 and 40 — VNet, subnet, NIC, VM. The change here is the key's source: instead of a required sensitive variable, it's read from a file on disk. And this exact configuration is the one lab 43 will restructure into multiple files — so the resource shape you see today is the one you'll split tomorrow."
+    },
+    {
+      "id": "S004",
+      "type": "CONCEPT",
+      "heading": "Where to find this lab",
+      "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-02-meta-arguments\n          └── 42-linux-read-file\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-02-meta-arguments/42-linux-read-file",
+      "audio": "audio/S004.mp3",
+      "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 42-linux-read-file. The direct link is in the video description. Main dot T F holds everything; terraform dot T F pins the providers."
+    },
+    {
+      "id": "S005",
+      "type": "CODE",
+      "source_file": "terraform.tf",
+      "start_line": 1,
+      "end_line": 19,
+      "highlight_lines": [
+        6,
+        8,
+        10,
+        17,
+        18
+      ],
+      "asset": "assets/code/lab42-providers.png",
+      "audio": "audio/S005.mp3",
+      "narration": "Terraform dot T F pins the tooling: Terraform 1.5 or newer, and the azurerm provider around version 3.70 — no extra providers this time. The provider block at the bottom bridges to Azure; the empty features block enables the provider's defaults."
+    },
+    {
+      "id": "S006",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 9,
+      "end_line": 13,
+      "highlight_lines": [
+        12
+      ],
+      "asset": "assets/code/lab42-locals.png",
+      "audio": "audio/S006.mp3",
+      "steps": [
+        {
+          "narration": "The guard: fileexists of id_rsa dot pub. True or false, evaluated at plan time — it protects against the file being absent, which would otherwise be a hard error that stops the plan.",
+          "active_lines": [
+            10,
+            11,
+            12
+          ],
+          "active_tokens": [
+            "fileexists(\"id_rsa.pub\")"
+          ]
+        },
+        {
+          "narration": "Then the ternary: question mark, and the two branches. If the file exists, file() reads its CONTENT — the whole key lands in local dot ssh pubkey. If not, the fallback placeholder string keeps the config valid; the VM deploys, just with a key nobody can log in with.",
+          "active_lines": [
+            12,
+            13
+          ],
+          "active_tokens": [
+            "file(\"id_rsa.pub\")",
+            "ssh-rsa AAAAB3"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S006.step1.mp3",
+        "audio/S006.step2.mp3"
+      ]
+    },
+    {
+      "id": "S007",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 16,
+      "end_line": 35,
+      "highlight_lines": [
+        17,
+        26,
+        34
+      ],
+      "asset": "assets/code/lab42-network.png",
+      "audio": "audio/S007.mp3",
+      "steps": [
+        {
+          "narration": "The network base is the standard single-VM shape: resource group rg dash linux dash readfile, VNet on 10.230 slash 16, subnet snet web on 10.230.1 slash 24.",
+          "active_lines": [
+            17,
+            26,
+            34
+          ],
+          "active_tokens": [
+            "rg-linux-readfile",
+            "10.230.0.0/16",
+            "10.230.1.0/24"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S007.step1.mp3"
+      ]
+    },
+    {
+      "id": "S008",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 38,
+      "end_line": 47,
+      "highlight_lines": [
+        39,
+        44
+      ],
+      "asset": "assets/code/lab42-nic.png",
+      "audio": "audio/S008.mp3",
+      "steps": [
+        {
+          "narration": "The NIC: nic dash readfile, dynamic private IP inside the subnet. One NIC, one VM — no fan-out this time; the lesson is the file read, not the meta-arguments.",
+          "active_lines": [
+            38,
+            39,
+            44
+          ],
+          "active_tokens": [
+            "nic-readfile",
+            "azurerm_subnet.web.id"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S008.step1.mp3"
+      ]
+    },
+    {
+      "id": "S009",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 50,
+      "end_line": 71,
+      "highlight_lines": [
+        51,
+        57,
+        59
+      ],
+      "asset": "assets/code/lab42-vm.png",
+      "audio": "audio/S009.mp3",
+      "steps": [
+        {
+          "narration": "The VM: vm dash readfile, standard burstable size, admin username azureadmin, NIC from the block above.",
+          "active_lines": [
+            51,
+            56
+          ],
+          "active_tokens": [
+            "vm-readfile",
+            "azurerm_network_interface.web.id"
+          ]
+        },
+        {
+          "narration": "And the line the lab exists for: public key equals local dot ssh pubkey. That value was read from disk at plan time — or fell back to the placeholder. The VM trusts whatever the ternary produced; the file is now part of the configuration.",
+          "active_lines": [
+            57,
+            58,
+            59
+          ],
+          "active_tokens": [
+            "admin_ssh_key {",
+            "local.ssh_pubkey"
+          ]
+        },
+        {
+          "narration": "Below, the two nested blocks you know by heart: os disk on standard SSD, and the Ubuntu 22.04 source image reference — identical to labs 35 through 40.",
+          "active_lines": [
+            61,
+            65
+          ],
+          "active_tokens": [
+            "os_disk {",
+            "source_image_reference {"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S009.step1.mp3",
+        "audio/S009.step2.mp3",
+        "audio/S009.step3.mp3"
+      ]
+    },
+    {
+      "id": "S010",
+      "type": "CONCEPT",
+      "heading": "file() reads at plan time",
+      "audio": "audio/S010.mp3",
+      "points": [
+        "The read happens on the machine running Terraform — not in Azure",
+        "The content is frozen into the plan: same file, same plan",
+        "Change id_rsa.pub and the VM is flagged for replacement"
+      ],
+      "narration": "Worth pausing on WHEN the read happens. File functions run on the machine running Terraform, at plan time — not inside Azure, not at apply. The content is hashed into the plan, so the same file always produces the same plan. And the flip side: edit id_rsa dot pub and Terraform sees a changed argument — the VM is flagged for replacement, exactly like custom_data in lab 40. The file isn't a reference; it's now part of the config."
+    },
+    {
+      "id": "S011",
+      "type": "DIAGRAM",
+      "caption": "How the pieces connect",
+      "asset": "assets/diagrams/lab42-resource-flow.svg",
+      "audio": "audio/S011.mp3",
+      "steps": [
+        {
+          "narration": "Here's how the pieces connect.",
+          "nodes": [],
+          "edges": []
+        },
+        {
+          "narration": "Locals read the key from id_rsa dot pub on disk — or fall back to the placeholder.",
+          "nodes": [
+            "locals"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The resource group groups everything in Azure.",
+          "nodes": [
+            "rg"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The network: VNet and subnet at 10.230.1.0 slash 24.",
+          "nodes": [
+            "vnet"
+          ],
+          "edges": [
+            "rg-vnet"
+          ]
+        },
+        {
+          "narration": "The NIC attaches to the subnet with a dynamic private IP.",
+          "nodes": [
+            "nic"
+          ],
+          "edges": [
+            "vnet-nic",
+            "subnet-nic"
+          ]
+        },
+        {
+          "narration": "And the VM: NIC attached, and its SSH key is the file content read in locals.",
+          "nodes": [
+            "vm"
+          ],
+          "edges": [
+            "nic-vm"
+          ]
+        },
+        {
+          "narration": "Everything lands inside your Azure subscription.",
+          "nodes": [],
+          "edges": []
+        }
+      ],
+      "step_audio": [
+        "audio/S011.step1.mp3",
+        "audio/S011.step2.mp3",
+        "audio/S011.step3.mp3",
+        "audio/S011.step4.mp3",
+        "audio/S011.step5.mp3",
+        "audio/S011.step6.mp3",
+        "audio/S011.step7.mp3"
+      ]
+    },
+    {
+      "id": "S012",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab42-plan.svg",
+      "audio": "audio/S012.mp3",
+      "narration": "Here's the plan — terraform plan, an illustrative view. Resource group, VNet, subnet, NIC, VM — five to add, zero to destroy. The SSH key in the plan came from the file read — plan time, not apply time."
+    },
+    {
+      "id": "S013",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab42-state.svg",
+      "audio": "audio/S013.mp3",
+      "narration": "And the state list — terraform state list, an illustrative view. Five resources, the complete single-VM stack. No outputs in this lab — the private IP and the key live in state, and the SSH target is your local id_rsa half."
+    },
+    {
+      "id": "S014",
+      "type": "CONCEPT",
+      "heading": "Common pitfall",
+      "numbered": true,
+      "audio": "audio/S014.mp3",
+      "points": [
+        "The path is relative to the module folder — running plan from elsewhere changes the lookup",
+        "The placeholder fallback deploys a key nobody can use — check which branch ran",
+        "Editing id_rsa.pub flags the VM for replacement — the content is in the config"
+      ],
+      "narration": "Three pitfalls. One: the path is relative to the module's working directory — run the plan from another folder and the lookup changes with you; that surprises everyone once. Two: the fallback is graceful, which cuts both ways — a VM running with the placeholder key accepts a private key nobody owns; if you can't SSH in, check WHICH branch of the ternary ran. Three: because the content becomes part of the config, replacing id_rsa dot pub isn't a harmless refresh — Terraform flags the VM for replacement on the next plan."
+    },
+    {
+      "id": "S015",
+      "type": "RECAP",
+      "numbered": true,
+      "audio": "audio/S015.mp3",
+      "points": [
+        "file(\"id_rsa.pub\") reads the lab folder at plan time",
+        "fileexists() guards the read; the ternary picks file vs fallback",
+        "The content lands in local.ssh_pubkey → admin_ssh_key.public_key",
+        "Same file → same plan; edit the file → VM flagged for replacement",
+        "filebase64() / templatefile() are the same family, one step up"
+      ],
+      "narration": "Quick recap — five things. One: file() reads a file from the module folder at plan time. Two: fileexists guards it, and the ternary picks the read or the placeholder — graceful, not fatal. Three: the content flows into the VM's SSH key through locals. Four: the read is frozen into the plan — changing the file flags the VM for replacement. Five: the family grows from here — filebase64 for bytes, templatefile for templated scripts. Terraform can now read your disk."
+    },
+    {
+      "id": "S016",
+      "type": "NEXT",
+      "audio": "audio/S016.mp3",
+      "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+    },
+    {
+      "id": "S017",
+      "type": "CONCEPT",
+      "heading": "Thanks for watching",
+      "centered": true,
+      "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-02-meta-arguments/42-linux-read-file",
+      "audio": "audio/S017.mp3",
+      "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+    }
+  ]
+}

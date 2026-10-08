@@ -1,0 +1,57 @@
+{
+  "nodes": [
+    {
+      "id": "tftf",
+      "label": "terraform.tf\npins + provider"
+    },
+    {
+      "id": "loc",
+      "label": "locals.tf\nnames + tags"
+    },
+    {
+      "id": "main",
+      "label": "main.tf\nresources"
+    },
+    {
+      "id": "out",
+      "label": "outputs.tf\nvnet_id, vnet_name"
+    },
+    {
+      "id": "cfg",
+      "label": "ONE configuration\nin memory"
+    }
+  ],
+  "edges": [
+    {
+      "from": "tftf",
+      "to": "cfg",
+      "label": "merged"
+    },
+    {
+      "from": "loc",
+      "to": "cfg",
+      "label": "merged"
+    },
+    {
+      "from": "main",
+      "to": "cfg",
+      "label": "merged"
+    },
+    {
+      "from": "out",
+      "to": "cfg",
+      "label": "merged"
+    }
+  ],
+  "layers": [
+    [
+      "tftf",
+      "loc",
+      "main",
+      "out"
+    ],
+    [
+      "cfg"
+    ]
+  ]
+}

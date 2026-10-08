@@ -1,0 +1,10 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan -var='rg_names=[\"rg-already-here\",\"rg-multi-subnets\"]'",
+  "output_file": "lab49-plan.txt",
+  "highlight": [
+    "data.azurerm_resource_group.each",
+    "<= data \"azurerm_resource_group\"",
+    "Plan: 0 to add"
+  ]
+}

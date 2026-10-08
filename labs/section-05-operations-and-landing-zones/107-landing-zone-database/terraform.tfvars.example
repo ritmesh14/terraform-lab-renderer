@@ -1,0 +1,2 @@
+sql_admin_password = "ChangeMe12345!"
+log_workspace_id   = "/subscriptions/.../providers/Microsoft.OperationalInsights/workspaces/log-lz-xxxxxxxx"

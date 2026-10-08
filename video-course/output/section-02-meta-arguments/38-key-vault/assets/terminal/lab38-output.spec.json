@@ -1,0 +1,9 @@
+{
+  "mode": "illustrative",
+  "command": "terraform output",
+  "output_file": "lab38-output.txt",
+  "highlight": [
+    "vault_name",
+    "(sensitive value)"
+  ]
+}

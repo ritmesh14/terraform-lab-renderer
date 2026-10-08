@@ -1,0 +1,13 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan",
+  "output_file": "lab32-plan.txt",
+  "highlight": [
+    "this[0]",
+    "this[1]",
+    "this[2]",
+    "\"pip-01\"",
+    "\"pip-03\"",
+    "Plan: 4 to add"
+  ]
+}

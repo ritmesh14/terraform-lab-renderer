@@ -1,0 +1,12 @@
+{
+  "resolution": { "width": 1920, "height": 1080 },
+  "fps": 30,
+  "codec": "h264",
+  "audio_codec": "aac",
+  "crf": 18,
+  "audio_bitrate": "128k",
+  "subtitles": "EXTERNAL_SRT_ONLY",
+  "subtitle_policy": "final/episode.srt is generated separately from final audio timing. Never burn-in, never embed as MP4 subtitle stream, never render via remotion-captions or any Remotion text overlay.",
+  "srt_style": { "max_lines": 2, "chars_per_line": [35, 45], "segment_sec": [1.5, 6] },
+  "notes": "CRF 18-20 quality-based H.264 keeps thin code text readable (never starve the bitrate); audio AAC 128-160k."
+}

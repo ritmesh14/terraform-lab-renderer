@@ -1,0 +1,220 @@
+{
+ "title": "The Network Interface",
+ "lesson_label": "Azure Foundations — Lab 13",
+ "scenes": [
+  {
+   "id": "S001",
+   "type": "TITLE",
+   "title": "The Network Interface",
+   "narration": "The last two lessons built networks — but nothing lives in them yet. This lesson adds the bridge between a network and a machine: the network interface, the N I C, the resource that will bind a virtual machine to its subnet in the coming V M labs.",
+   "audio": "audio/S001.mp3"
+  },
+  {
+   "id": "S002",
+   "type": "CONCEPT",
+   "heading": "What you'll learn",
+   "points": [
+    "azurerm_network_interface: a VM's network card in Azure",
+    "ip_configuration binds the NIC to a subnet by id",
+    "Dynamic private IP: Azure picks a free address from the subnet",
+    "Outputs: the NIC's id, and the private IP Azure chose"
+   ],
+   "narration": "Here's what you'll learn. One: azurerm network interface — a V M's network card in Azure. Two: the I P configuration block — binding the N I C to a subnet by I D. Three: dynamic private I P — Azure picks a free address from the subnet. Four: outputs — the N I C's I D, and the private I P Azure chose.",
+   "audio": "audio/S002.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S003",
+   "type": "CONCEPT",
+   "heading": "Where this lab fits",
+   "points": [
+    "Lab 13 of the Foundations section",
+    "Lab 12 ended with an output: the web subnet's id — a NIC consumes exactly that",
+    "The NIC is the bridge from network labs to the VM lab (Lab 17)"
+   ],
+   "narration": "This is lab thirteen, and it closes a loop. Last lesson ended with an output — a subnet I D waiting for a consumer. Here it is: the network interface, which takes that subnet I D and gives a future machine its place in the network.",
+   "audio": "audio/S003.mp3"
+  },
+  {
+   "id": "S004",
+   "type": "CONCEPT",
+   "heading": "What a NIC actually is",
+   "points": [
+    "An Azure VM never touches a subnet directly — it attaches through a NIC",
+    "A NIC lives in exactly one subnet, via its ip_configuration",
+    "subnet_id = a reference, not a copy — same dependency wiring as always",
+    "Dynamic allocation: the private IP is computed, Azure's choice"
+   ],
+   "narration": "A quick mental model. An Azure virtual machine never holds an address in a subnet directly — it's attached through a network interface. The N I C is the machine's network card: it lives in one subnet, carries at least one I P configuration, and holds the addresses. And the wiring should look familiar: subnet I D is a reference to last lab's resource, so Terraform orders the build automatically. Same dependency rule as every lesson.",
+   "audio": "audio/S004.mp3"
+  },
+  {
+   "id": "S005",
+   "type": "CONCEPT",
+   "heading": "Where to find this lab",
+   "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-01-foundations\n          └── 13-network-interface\n              ├── README.md\n              ├── main.tf\n              └── terraform.tf\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-01-foundations/13-network-interface",
+   "narration": "As always, the lab is in the course GitHub repository under Section 1, Foundations, with the link in the description. Readme, main dot t f, and terraform dot t f — one file of resources, one of plumbing.",
+   "audio": "audio/S005.mp3"
+  },
+  {
+   "id": "S006",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 14,
+   "end_line": 34,
+   "highlight_lines": [
+    29,
+    30,
+    31,
+    32,
+    33
+   ],
+   "asset": "assets/code/13-01-network.png",
+   "narration": "The network home first, and it's familiar on purpose: resource group, VNet with a ten ninety slash sixteen space, and the web subnet on ten ninety dot one dot zero slash twenty four — the standalone form from last lesson, kept identical so the new resource stands out.",
+   "audio": "audio/S006.mp3"
+  },
+  {
+   "id": "S007",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 36,
+   "end_line": 49,
+   "highlight_lines": [
+    44,
+    45,
+    46,
+    47
+   ],
+   "asset": "assets/code/13-02-nic.png",
+   "narration": "Here's the new resource: azurerm network interface. A name and a group, then one I P configuration block. Two fields do the work. Subnet I D references the subnet we just built — Terraform will create it first. And private I P address allocation says Dynamic: Azure picks any free address in the subnet's range. We don't choose it. We observe it.",
+   "audio": "audio/S007.mp3"
+  },
+  {
+   "id": "S008",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 51,
+   "end_line": 55,
+   "highlight_lines": [
+    53,
+    55
+   ],
+   "asset": "assets/code/13-03-outputs.png",
+   "narration": "Two outputs report the result. The N I C's I D — the handle a V M will attach to later — and the private I P, which is only known after creation, because Azure chose it. Computed values are exactly what outputs are for.",
+   "audio": "audio/S008.mp3"
+  },
+  {
+   "id": "S009",
+   "type": "DIAGRAM",
+   "caption": "The NIC binds a future VM to its subnet",
+   "asset": "assets/diagrams/13-nic-subnet.svg",
+   "narration": "The chain drawn out: VNet, subnet, then the N I C with its I P configuration. The subnet I D reference creates the order, and the dynamic private I P is Azure's pick from the subnet's range.",
+   "steps": [
+    {
+     "narration": "The chain, drawn out.",
+     "nodes": [],
+     "edges": []
+    },
+    {
+     "narration": "The subnet stands ready — the standalone resource from last lesson.",
+     "nodes": [
+      "rg",
+      "vnet",
+      "sub"
+     ],
+     "edges": [
+      "rg-vnet",
+      "vnet-sub"
+     ]
+    },
+    {
+     "narration": "The N I C lives in that subnet: subnet I D is a plain reference.",
+     "nodes": [
+      "sub",
+      "nic"
+     ],
+     "edges": [
+      "sub-nic"
+     ]
+    },
+    {
+     "narration": "Its I P configuration carries a Dynamic private I P — Azure's pick from the subnet's range.",
+     "nodes": [
+      "nic",
+      "ip"
+     ],
+     "edges": [
+      "nic-ip"
+     ]
+    },
+    {
+     "narration": "N I C now, V M later — this is the machine's doorway into the network.",
+     "nodes": [
+      "rg",
+      "vnet",
+      "sub",
+      "nic",
+      "ip"
+     ],
+     "edges": [
+      "rg-vnet",
+      "vnet-sub",
+      "sub-nic",
+      "nic-ip"
+     ]
+    }
+   ],
+   "audio": "audio/S009.mp3"
+  },
+  {
+   "id": "S010",
+   "type": "TERMINAL",
+   "asset": "assets/terminal/lab13-apply.svg",
+   "narration": "Apply time — four resources. The output answers the question the code couldn't: the private I P came back as an address in the subnet's range — Azure's pick, not ours. And the N I C's I D is exported, the handle the V M lab will reference when a machine finally appears.",
+   "audio": "audio/S010.mp3"
+  },
+  {
+   "id": "S011",
+   "type": "CONCEPT",
+   "heading": "Common pitfall — expecting to pick the private IP",
+   "points": [
+    "Dynamic allocation: the address is Azure's choice — read it, don't set it",
+    "It exists only after creation — capture it in an output",
+    "A NIC without a VM is valid: it's a real, standalone resource",
+    "Each ip_configuration binds the NIC to one subnet"
+   ],
+   "narration": "Here are the pitfalls in this lab. One: dynamic allocation means the address is Azure's choice — read it, don't set it. Azure hands out a free address from the subnet's range; today it picked the first available one. Two: it exists only after creation — capture it in an output. You can't know the address before apply, so the output is how you read it back. Three: a n i c without a v m is valid — it's a real, standalone resource. It can be created, addressed, and referenced on its own. Four: each i p configuration binds the n i c to one subnet. That reference is what places the n i c in your network — and the dependency comes for free. If you ever need a fixed address, that's a different allocation mode, and it belongs to a later lesson.",
+   "audio": "audio/S011.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S012",
+   "type": "RECAP",
+   "points": [
+    "A NIC is a VM's network card — and it lives in a subnet",
+    "ip_configuration.subnet_id references the subnet resource",
+    "Dynamic private IP: computed by Azure, exported via output",
+    "nic.id is the handle the VM (Lab 17) will attach to",
+    "Same dependency wiring: references, never depends_on"
+   ],
+   "narration": "Quick recap — five things. One: a n i c is a v m's network card — and it lives in a subnet. Two: the i p configuration's subnet i d references the subnet resource. Three: the dynamic private i p is computed by Azure and exported via an output. Four: the n i c's i d is the handle lab seventeen's v m will attach to. Five: same dependency wiring — references, never depends on.",
+   "audio": "audio/S012.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S013",
+   "type": "NEXT",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure.",
+   "audio": "audio/S013.mp3"
+  },
+  {
+   "id": "S014",
+   "type": "CONCEPT",
+   "heading": "Thanks for watching",
+   "narration": "Thanks for watching. If this helped, the full lab, along with every lab in this course, is in the GitHub repository linked below. If you'd like more lessons like this one, give the video a like, share it with a friend who is learning Azure, and subscribe to the channel. It really helps the course grow. Thank you, and see you in the next lesson.",
+   "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-01-foundations/13-network-interface",
+   "centered": true,
+   "audio": "audio/S014.mp3"
+  }
+ ]
+}

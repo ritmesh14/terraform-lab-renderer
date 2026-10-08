@@ -1,0 +1,599 @@
+{
+ "title": "Two Dynamic Blocks: NSG Rules + Multi-IP NIC",
+ "lesson_label": "Terraform Meta-arguments — Lab 50",
+ "scenes": [
+  {
+   "id": "S001",
+   "type": "TITLE",
+   "title": "Two Dynamic Blocks: NSG Rules + Multi-IP NIC",
+   "lesson_label": "Terraform Meta-arguments — Lab 50",
+   "audio": "audio/S001.mp3",
+   "narration": "Welcome back. Lab 41 gave you the dynamic block — one block, many copies. This is Lab 50, the section capstone, and it runs the pattern TWICE in one configuration: an NSG whose security rules come from a variable list, and a NIC whose ip configurations come from another — two static IPs on one machine. Extend either list, re-apply, and the anatomy follows the data. Let's build it."
+  },
+  {
+   "id": "S002",
+   "type": "CONCEPT",
+   "heading": "What you'll learn",
+   "numbered": true,
+   "audio": "audio/S002.mp3",
+   "points": [
+    "TWO dynamic blocks in one config — security_rule + ip_configuration",
+    "The iterator name comes from the block LABEL — security_rule.value, ip_configuration.value",
+    "Multi-IP NIC: Static allocation, explicit private_ip_address, one primary"
+   ],
+   "narration": "Three things in this lesson. One: the scale-up — two independent dynamic blocks in one configuration, each driven by its own variable list. Two: the addressing detail that trips everyone — inside content, the iterator is the BLOCK's label dot value, so security rule dot value on the NSG and ip configuration dot value on the NIC; not each dot value. Three: the multi-IP pattern — static allocation with explicit addresses, and exactly one configuration marked primary."
+  },
+  {
+   "id": "S003",
+   "type": "CONCEPT",
+   "heading": "Where this lab fits",
+   "audio": "audio/S003.mp3",
+   "points": [
+    "Lab 41: ONE dynamic block (NSG security_rule) — the pattern itself",
+    "This lab: the pattern at TWO levels + the section capstone",
+    "Labs 46–49 all feed in: flag-free fan-out, keyed values, caller-owned anatomy"
+   ],
+   "narration": "Placement. Lab 41 taught the dynamic block once, on one NSG. This lab runs it twice and adds the multi-IP NIC — and it's the section capstone: variables that own the anatomy, fan-outs you've built everywhere since lab 26, and the confidence to extend a resource without touching its code. After this, section two's meta-argument toolbox is complete."
+  },
+  {
+   "id": "S004",
+   "type": "CONCEPT",
+   "heading": "Where to find this lab",
+   "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-02-meta-arguments\n          └── 50-dynamic-multi\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-02-meta-arguments/50-dynamic-multi",
+   "audio": "audio/S004.mp3",
+   "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 50-dynamic-multi. The direct link is in the video description. One main dot T F — the terraform block is inline at the top."
+  },
+  {
+   "id": "S005",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 4,
+   "end_line": 18,
+   "highlight_lines": [
+    5,
+    9,
+    17
+   ],
+   "asset": "assets/code/lab50-providers.png",
+   "audio": "audio/S005.mp3",
+   "narration": "No separate terraform dot T F this time — the tooling block is inline at the top of main dot T F: Terraform 1.5 or newer, and the azurerm provider around version 3.70. The provider block below bridges to Azure; the empty features block enables the provider's defaults."
+  },
+  {
+   "id": "S006",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 23,
+   "end_line": 33,
+   "highlight_lines": [
+    23,
+    30,
+    31
+   ],
+   "asset": "assets/code/lab50-vars-rules.png",
+   "audio": "audio/S006.mp3",
+   "steps": [
+    {
+     "narration": "First list: rules — the lab-41 type contract again. Every entry must carry a name, a priority, and a port; Terraform checks the shape before anything runs.",
+     "active_lines": [
+      24,
+      25,
+      26,
+      27,
+      28
+     ],
+     "active_tokens": [
+      "list(object({",
+      "name     = string",
+      "priority = number",
+      "port     = number"
+     ]
+    },
+    {
+     "narration": "And the default ships two entries: Allow SSH on 22 with priority 200, Allow HTTPS on 443 with priority 210. Two entries — two security_rule blocks will be generated.",
+     "active_lines": [
+      29,
+      30,
+      31
+     ],
+     "active_tokens": [
+      "\"Allow-SSH\"",
+      "\"Allow-HTTPS\""
+     ]
+    }
+   ],
+   "step_audio": [
+    "audio/S006.step1.mp3",
+    "audio/S006.step2.mp3"
+   ]
+  },
+  {
+   "id": "S007",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 36,
+   "end_line": 46,
+   "highlight_lines": [
+    36,
+    43,
+    44
+   ],
+   "asset": "assets/code/lab50-vars-ips.png",
+   "audio": "audio/S007.mp3",
+   "steps": [
+    {
+     "narration": "Second list: ip configs — same contract style, but the fields are NIC-shaped: a name, a primary flag, and a static ip.",
+     "active_lines": [
+      37,
+      38,
+      39,
+      40,
+      41
+     ],
+     "active_tokens": [
+      "name      = string",
+      "primary   = bool",
+      "static_ip = string"
+     ]
+    },
+    {
+     "narration": "The default: ipconfig one — primary, on 172.22.0.10 — and ipconfig two, not primary, on 172.22.0.11. Two entries — two ip_configuration blocks, two addresses on one NIC.",
+     "active_lines": [
+      42,
+      43,
+      44
+     ],
+     "active_tokens": [
+      "ipconfig-1",
+      "ipconfig-2",
+      "172.22.0.10",
+      "172.22.0.11"
+     ]
+    }
+   ],
+   "step_audio": [
+    "audio/S007.step1.mp3",
+    "audio/S007.step2.mp3"
+   ]
+  },
+  {
+   "id": "S008",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 50,
+   "end_line": 54,
+   "highlight_lines": [
+    51,
+    52,
+    53
+   ],
+   "asset": "assets/code/lab50-locals.png",
+   "audio": "audio/S008.mp3",
+   "steps": [
+    {
+     "narration": "Locals, and the now-familiar smaller blocks: VNet on a /20, subnet on a /26 — sizes only have to nest, as lab 47 established.",
+     "active_lines": [
+      51,
+      52,
+      53
+     ],
+     "active_tokens": [
+      "rg-dynamic-multi",
+      "172.22.0.0/20",
+      "172.22.0.0/26"
+     ]
+    }
+   ],
+   "step_audio": [
+    "audio/S008.step1.mp3"
+   ]
+  },
+  {
+   "id": "S009",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 57,
+   "end_line": 76,
+   "highlight_lines": [
+    58,
+    64,
+    67,
+    72,
+    75
+   ],
+   "asset": "assets/code/lab50-network.png",
+   "audio": "audio/S009.mp3",
+   "steps": [
+    {
+     "narration": "The base: resource group from local dot rg — the locals set it to rg dash dynamic multi — and VNet vnet dash dynamic multi on the /20.",
+     "active_lines": [
+      58,
+      64,
+      67
+     ],
+     "active_tokens": [
+      "local.rg",
+      "vnet-dynamic-multi",
+      "local.vnet"
+     ]
+    },
+    {
+     "narration": "And the subnet: snet web on the /26 — the target the NIC's ip configurations will attach to.",
+     "active_lines": [
+      72,
+      75
+     ],
+     "active_tokens": [
+      "snet-web",
+      "local.snet"
+     ]
+    }
+   ],
+   "step_audio": [
+    "audio/S009.step1.mp3",
+    "audio/S009.step2.mp3"
+   ]
+  },
+  {
+   "id": "S010",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 79,
+   "end_line": 98,
+   "highlight_lines": [
+    80,
+    84,
+    85,
+    87,
+    93
+   ],
+   "asset": "assets/code/lab50-nsg.png",
+   "audio": "audio/S010.mp3",
+   "steps": [
+    {
+     "narration": "The NSG head looks ordinary: nsg dash dynamic multi, location and group from the resource group.",
+     "active_lines": [
+      79,
+      80
+     ],
+     "active_tokens": [
+      "azurerm_network_security_group",
+      "nsg-dynamic-multi"
+     ]
+    },
+    {
+     "narration": "And the FIRST dynamic — identical to lab 41's. Dynamic security rule, for each over the rules variable, and inside content the fields bind from security rule dot value — name, priority, and the port through tostring. One block, stamped twice.",
+     "active_lines": [
+      84,
+      85,
+      87,
+      93
+     ],
+     "active_tokens": [
+      "dynamic \"security_rule\" {",
+      "for_each = var.rules",
+      "security_rule.value.name",
+      "tostring(security_rule.value.port)"
+     ]
+    }
+   ],
+   "step_audio": [
+    "audio/S010.step1.mp3",
+    "audio/S010.step2.mp3"
+   ]
+  },
+  {
+   "id": "S011",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 101,
+   "end_line": 116,
+   "highlight_lines": [
+    102,
+    106,
+    107,
+    111,
+    112,
+    113
+   ],
+   "asset": "assets/code/lab50-nic.png",
+   "audio": "audio/S011.mp3",
+   "steps": [
+    {
+     "narration": "The NIC head: nic dash dynamic multi — same three header lines as the NSG.",
+     "active_lines": [
+      101,
+      102
+     ],
+     "active_tokens": [
+      "azurerm_network_interface",
+      "nic-dynamic-multi"
+     ]
+    },
+    {
+     "narration": "And the SECOND dynamic — different label, same shape. Dynamic ip configuration, for each over ip configs. Inside content: the name from ip configuration dot value, subnet id pointing at snet web, STATIC allocation with the explicit address from value dot static ip — and primary from the flag. Note the iterator: ip configuration dot value, because the block label scopes it — not each dot value.",
+     "active_lines": [
+      106,
+      107,
+      109,
+      111,
+      112,
+      113
+     ],
+     "active_tokens": [
+      "dynamic \"ip_configuration\" {",
+      "ip_configuration.value.name",
+      "private_ip_address_allocation = \"Static\"",
+      "ip_configuration.value.static_ip",
+      "ip_configuration.value.primary"
+     ]
+    }
+   ],
+   "step_audio": [
+    "audio/S011.step1.mp3",
+    "audio/S011.step2.mp3"
+   ]
+  },
+  {
+   "id": "S012",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 118,
+   "end_line": 122,
+   "highlight_lines": [
+    120,
+    122
+   ],
+   "asset": "assets/code/lab50-outputs.png",
+   "audio": "audio/S012.mp3",
+   "steps": [
+    {
+     "narration": "Two outputs. Rule names — a for expression over the rules variable, same as lab 41.",
+     "active_lines": [
+      120
+     ],
+     "active_tokens": [
+      "[for r in var.rules : r.name]"
+     ]
+    },
+    {
+     "narration": "And nic ips — the NIC's private ip addresses attribute, a provider-computed LIST. One address per generated ip configuration — proof, straight from state, that the dynamic block landed both.",
+     "active_lines": [
+      122
+     ],
+     "active_tokens": [
+      "azurerm_network_interface.web.private_ip_addresses"
+     ]
+    }
+   ],
+   "step_audio": [
+    "audio/S012.step1.mp3",
+    "audio/S012.step2.mp3"
+   ]
+  },
+  {
+   "id": "S013",
+   "type": "DYNAMIC_BLOCK",
+   "title": "Two dynamic blocks — one NSG, one NIC",
+   "expression": "dynamic \"security_rule\" + dynamic \"ip_configuration\"",
+   "audio": "audio/S013.mp3",
+   "stages": [
+    {
+     "id": "rules",
+     "label": "Dynamic #1 — the NSG",
+     "kind": "expression",
+     "items": [
+      {
+       "key": "r0",
+       "text": "dynamic \"security_rule\" { for_each = var.rules }"
+      }
+     ]
+    },
+    {
+     "id": "ips",
+     "label": "Dynamic #2 — the NIC",
+     "kind": "expression",
+     "items": [
+      {
+       "key": "i0",
+       "text": "dynamic \"ip_configuration\" { for_each = var.ip_configs }"
+      }
+     ]
+    },
+    {
+     "id": "blocks",
+     "label": "Generated nested blocks",
+     "kind": "instances",
+     "items": [
+      {
+       "key": "b0",
+       "text": "security_rule ×2 → nsg-dynamic-multi"
+      },
+      {
+       "key": "b1",
+       "text": "ip_configuration ×2 → nic-dynamic-multi"
+      }
+     ]
+    },
+    {
+     "id": "out",
+     "label": "What Azure gets",
+     "kind": "output",
+     "items": [
+      {
+       "key": "o0",
+       "text": "NSG: Allow-SSH (22) + Allow-HTTPS (443)"
+      },
+      {
+       "key": "o1",
+       "text": "NIC: 172.22.0.10 (primary) + 172.22.0.11"
+      }
+     ]
+    }
+   ],
+   "steps": [
+    {
+     "narration": "Dynamic number one sits on the NSG: security rule, driven by the rules list — two rule blocks by default.",
+     "focus": {
+      "stages": [
+       "rules"
+      ]
+     }
+    },
+    {
+     "narration": "Dynamic number two sits on the NIC — ip configuration over the ip configs list, with the static IP and primary flag as fields.",
+     "focus": {
+      "stages": [
+       "ips"
+      ]
+     }
+    },
+    {
+     "narration": "Together: two resources, four generated nested blocks — two rules on the NSG, two ip configurations on the NIC. Extend either list in tfvars, re-apply, and the anatomy follows the data. No code changes.",
+     "focus": {
+      "stages": [
+       "blocks",
+       "out"
+      ]
+     }
+    }
+   ],
+   "step_audio": [
+    "audio/S013.step1.mp3",
+    "audio/S013.step2.mp3",
+    "audio/S013.step3.mp3"
+   ]
+  },
+  {
+   "id": "S014",
+   "type": "DIAGRAM",
+   "caption": "How the pieces connect",
+   "asset": "assets/diagrams/lab50-resource-flow.svg",
+   "audio": "audio/S014.mp3",
+   "steps": [
+    {
+     "narration": "Here's how the pieces connect.",
+     "nodes": [],
+     "edges": []
+    },
+    {
+     "narration:": "",
+     "narration": "The two variables: rules and ip configs — the lists that own the anatomy.",
+     "nodes": [
+      "vars"
+     ],
+     "edges": []
+    },
+    {
+     "narration": "The network base: resource group, VNet, subnet.",
+     "nodes": [
+      "rg",
+      "vnet"
+     ],
+     "edges": [
+      "rg-vnet"
+     ]
+    },
+    {
+     "narration:": "",
+     "narration": "The NSG: dynamic security_rule — one block per rule in the list.",
+     "nodes": [
+      "nsg"
+     ],
+     "edges": [
+      "vars-nsg"
+     ]
+    },
+    {
+     "narration:": "",
+     "narration": "The NIC: dynamic ip_configuration — one block per entry, each with a static IP, attached to the subnet.",
+     "nodes": [
+      "nic"
+     ],
+     "edges": [
+      "vars-nic",
+      "vnet-nic"
+     ]
+    },
+    {
+     "narration": "Outputs report both: rule names from the variable, and the NIC's private IP list from state.",
+     "nodes": [
+      "out"
+     ],
+     "edges": [
+      "nic-out"
+     ]
+    },
+    {
+     "narration": "Everything lands inside your Azure subscription.",
+     "nodes": [],
+     "edges": []
+    }
+   ],
+   "step_audio": [
+    "audio/S014.step1.mp3",
+    "audio/S014.step2.mp3",
+    "audio/S014.step3.mp3",
+    "audio/S014.step4.mp3",
+    "audio/S014.step5.mp3",
+    "audio/S014.step6.mp3",
+    "audio/S014.step7.mp3"
+   ]
+  },
+  {
+   "id": "S015",
+   "type": "TERMINAL",
+   "asset": "assets/terminal/lab50-plan.svg",
+   "audio": "audio/S015.mp3",
+   "narration": "Here's the plan — terraform plan, an illustrative view. Five to add: resource group, VNet, subnet, NSG, NIC. Inside the NSG: two generated security rule blocks. Inside the NIC: two ip configurations with the static addresses. The plan reads exactly as if you'd hand-written all four."
+  },
+  {
+   "id": "S016",
+   "type": "TERMINAL",
+   "asset": "assets/terminal/lab50-output.svg",
+   "audio": "audio/S016.mp3",
+   "narration": "And the outputs — an illustrative view. Rule names: Allow SSH and Allow HTTPS. Nic ips: 172.22.0.10 and 172.22.0.11 — both addresses on one machine, one per generated ip configuration."
+  },
+  {
+   "id": "S017",
+   "type": "CONCEPT",
+   "heading": "Common pitfall",
+   "numbered": true,
+   "audio": "audio/S017.mp3",
+   "points": [
+    "The iterator is the BLOCK label's value — security_rule.value / ip_configuration.value, never each.value",
+    "Multi-IP NIC: exactly ONE ip_configuration has primary = true",
+    "Dynamic trades readability for flexibility — small fixed sets are clearer as plain blocks"
+   ],
+   "narration": "Three pitfalls. One: the iterator follows the block label — inside the NSG it's security rule dot value, inside the NIC it's ip configuration dot value; reaching for each dot value is the classic dynamic-block error. Two: multi-IP NICs — static allocation with an explicit address, and EXACTLY one configuration marked primary; Azure refuses zero or two. Three: judgment, straight from the README — dynamic blocks trade readability for flexibility. For a handful of fixed blocks, plain code is easier to debug; reach for dynamic when the count is genuinely caller-owned."
+  },
+  {
+   "id": "S018",
+   "type": "RECAP",
+   "numbered": true,
+   "audio": "audio/S018.mp3",
+   "points": [
+    "Two independent dynamic blocks — security_rule on the NSG, ip_configuration on the NIC",
+    "The iterator is the block label's value — security_rule.value / ip_configuration.value",
+    "Multi-IP NIC: Static + explicit private_ip_address, exactly one primary",
+    "nic_ips output reads private_ip_addresses — one address per generated config",
+    "Both lists are caller-owned: extend the variable, apply, the anatomy follows"
+   ],
+   "narration": "Quick recap — five things. One: two dynamic blocks in one configuration, each driven by its own list. Two: the iterator is the block label's value — scope it by the label, not each. Three: the multi-IP pattern — static, explicit address, one primary. Four: the nic ips output proves the fan-out straight from state. Five: both lists are caller-owned — the section's whole theme in one lab. That closes the meta-argument toolbox: count, for each, lifecycle, provider, dynamic, and everything between."
+  },
+  {
+   "id": "S019",
+   "type": "NEXT",
+   "audio": "audio/S019.mp3",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+  },
+  {
+   "id": "S020",
+   "type": "CONCEPT",
+   "heading": "Thanks for watching",
+   "centered": true,
+   "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-02-meta-arguments/50-dynamic-multi",
+   "audio": "audio/S020.mp3",
+   "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+  }
+ ]
+}

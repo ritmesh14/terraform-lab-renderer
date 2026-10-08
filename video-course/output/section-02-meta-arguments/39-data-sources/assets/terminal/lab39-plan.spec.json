@@ -1,0 +1,11 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan",
+  "output_file": "lab39-plan.txt",
+  "highlight": [
+    "data.azurerm_resource_group.existing: Reading",
+    "\"rg-already-here\"",
+    "\"stdatak2m9xq\"",
+    "Plan: 2 to add"
+  ]
+}

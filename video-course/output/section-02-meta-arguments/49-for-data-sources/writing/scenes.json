@@ -1,0 +1,326 @@
+{
+ "title": "Discovery: for_each over Data Sources",
+ "lesson_label": "Terraform Meta-arguments — Lab 49",
+ "scenes": [
+  {
+   "id": "S001",
+   "type": "TITLE",
+   "title": "Discovery: for_each over Data Sources",
+   "lesson_label": "Terraform Meta-arguments — Lab 49",
+   "audio": "audio/S001.mp3",
+   "narration": "Welcome back. Every fan-out so far created resources. This is Lab 49, and the fan-out READS instead: for_each over a data block. Point rg names at resource groups that already exist in your subscription, and Terraform opens one data source per name — read-only, discovering attributes you can feed to real work downstream. The governance pattern: discovery first, bulk action second. Let's look."
+  },
+  {
+   "id": "S002",
+   "type": "CONCEPT",
+   "heading": "What you'll learn",
+   "numbered": true,
+   "audio": "audio/S002.mp3",
+   "points": [
+    "data blocks fan out with for_each — one READ per name",
+    "Read-only: plan shows 0 to add, nothing to destroy",
+    "A wrong name fails at PLAN time — discovery is safe to explore"
+   ],
+   "narration": "Three things in this lesson. One: for_each works on data blocks exactly like resources — one data source per key, each reading a resource group that already exists. Two: the footprint — zero; this configuration creates and destroys nothing, and the plan proves it: zero to add, zero to destroy. Three: the safety property — data lookups happen before any change is proposed, so a name that doesn't exist fails the plan immediately, making discovery safe to explore."
+  },
+  {
+   "id": "S003",
+   "type": "CONCEPT",
+   "heading": "Where this lab fits",
+   "audio": "audio/S003.mp3",
+   "points": [
+    "Labs 28–48: for_each fans out RESOURCES you create",
+    "This lab: for_each fans out READS of what already exists",
+    "The next step in the pattern: feed discovered values to a bulk action"
+   ],
+   "narration": "Placement. Labs 28 through 48 used for_each to create — many VNets, many NICs, many nested blocks. This lab points the same meta-argument at data blocks: reading existing infrastructure instead of writing new. It's the discovery half of the governance pattern — find the groups, then a real bulk action like tagging or locks would consume the discovered values. This lab deliberately stops one step before that."
+  },
+  {
+   "id": "S004",
+   "type": "CONCEPT",
+   "heading": "Where to find this lab",
+   "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-02-meta-arguments\n          └── 49-for-data-sources\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-02-meta-arguments/49-for-data-sources",
+   "audio": "audio/S004.mp3",
+   "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 49-for-data-sources. The direct link is in the video description. One short main dot T F — there are no resources in this lab at all, only a variable, locals, data blocks and outputs."
+  },
+  {
+   "id": "S005",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 5,
+   "end_line": 19,
+   "highlight_lines": [
+    6,
+    10,
+    18
+   ],
+   "asset": "assets/code/lab49-providers.png",
+   "audio": "audio/S005.mp3",
+   "narration": "No separate terraform dot T F this time — the tooling block is inline at the top of main dot T F: Terraform 1.5 or newer, and the azurerm provider around version 3.70. The provider block below bridges to Azure; the empty features block enables the provider's defaults."
+  },
+  {
+   "id": "S006",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 24,
+   "end_line": 30,
+   "highlight_lines": [
+    26,
+    28,
+    29
+   ],
+   "asset": "assets/code/lab49-variable.png",
+   "audio": "audio/S006.mp3",
+   "steps": [
+    {
+     "narration": "The input: rg names, a SET of strings — defaulting to empty. The comments above record two honest facts: the list data source was removed in azurerm 3.x, so discovery is driven by the names you pass in; and an empty set is a no-op — nothing discovered, no data sources created.",
+     "active_lines": [
+      26,
+      28,
+      29
+     ],
+     "active_tokens": [
+      "rg_names",
+      "set(string)",
+      "default     = []"
+     ]
+    }
+   ],
+   "step_audio": [
+    "audio/S006.step1.mp3"
+   ]
+  },
+  {
+   "id": "S007",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 34,
+   "end_line": 39,
+   "highlight_lines": [
+    36,
+    37
+   ],
+   "asset": "assets/code/lab49-locals.png",
+   "audio": "audio/S007.mp3",
+   "steps": [
+    {
+     "narration": "Locals turn the set into a MAP: for each name in rg names, name maps to name. A set would already work for for_each — but an explicit map keeps keys and values visible for beginners, and gives the expression a home to grow into.",
+     "active_lines": [
+      36,
+      37,
+      38
+     ],
+     "active_tokens": [
+      "by_name",
+      "for name in var.rg_names : name => name"
+     ]
+    }
+   ],
+   "step_audio": [
+    "audio/S007.step1.mp3"
+   ]
+  },
+  {
+   "id": "S008",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 41,
+   "end_line": 45,
+   "highlight_lines": [
+    42,
+    43,
+    44
+   ],
+   "asset": "assets/code/lab49-data.png",
+   "audio": "audio/S008.mp3",
+   "steps": [
+    {
+     "narration": "The data block — for_each over the map, one read per name. Each instance is addressed data dot azurerm resource group dot each, bracket the name. And the name argument is each dot key — the instance's own key drives what it looks up.",
+     "active_lines": [
+      42,
+      43,
+      44
+     ],
+     "active_tokens": [
+      "data \"azurerm_resource_group\" \"each\"",
+      "for_each = local.by_name",
+      "each.key"
+     ]
+    }
+   ],
+   "step_audio": [
+    "audio/S008.step1.mp3"
+   ]
+  },
+  {
+   "id": "S009",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 47,
+   "end_line": 51,
+   "highlight_lines": [
+    49,
+    50,
+    51
+   ],
+   "asset": "assets/code/lab49-outputs.png",
+   "audio": "audio/S009.mp3",
+   "steps": [
+    {
+     "narration": "Three outputs summarize the discovery: how many groups — length of the map; which ones — the keys; and the ids — a for expression walking the data source map, collecting rg dot id from each instance.",
+     "active_lines": [
+      49,
+      50
+     ],
+     "active_tokens": [
+      "length(local.by_name)",
+      "keys(local.by_name)"
+     ]
+    },
+    {
+     "narration": "The ids line is the standard summarizer you'll reuse constantly: for rg in the data map, collect rg dot id. Fan out, then collect — discovery and report in four lines of config.",
+     "active_lines": [
+      51
+     ],
+     "active_tokens": [
+      "[for rg in data.azurerm_resource_group.each : rg.id]"
+     ]
+    }
+   ],
+   "step_audio": [
+    "audio/S009.step1.mp3",
+    "audio/S009.step2.mp3"
+   ]
+  },
+  {
+   "id": "S010",
+   "type": "CONCEPT",
+   "heading": "The discovery pattern",
+   "audio": "audio/S010.mp3",
+   "points": [
+    "data.azurerm_resource_group.each[\"<name>\"] — one instance per key",
+    "Read-only: Terraform plans no changes to discovered groups",
+    "Discovery → bulk action: feed the ids to tagging, locks, or RBAC"
+   ],
+   "narration": "Here's the pattern, named. The data fan-out gives you a map of live Azure objects, addressed by name — data dot azurerm resource group dot each, bracket the name. Terraform plans NO changes to what it reads — data is observation, not management. And the point of collecting the ids: a real governance config would feed them to a bulk action — apply tags to every discovered group, add locks, assign roles. Read, then act — this lab teaches the read half."
+  },
+  {
+   "id": "S011",
+   "type": "DIAGRAM",
+   "caption": "How the pieces connect",
+   "asset": "assets/diagrams/lab49-resource-flow.svg",
+   "audio": "audio/S011.mp3",
+   "steps": [
+    {
+     "narration": "Here's how the pieces connect.",
+     "nodes": [],
+     "edges": []
+    },
+    {
+     "narration": "The input: rg names — a set of names of groups that ALREADY exist.",
+     "nodes": [
+      "names"
+     ],
+     "edges": []
+    },
+    {
+     "narration": "Locals turn the set into the name-to-name map for for_each.",
+     "nodes": [
+      "locals"
+     ],
+     "edges": [
+      "names-locals"
+     ]
+    },
+    {
+     "narration:": "",
+     "narration": "The data blocks fan out — one read per key, each returning the live group's attributes.",
+     "nodes": [
+      "data"
+     ],
+     "edges": [
+      "locals-data"
+     ]
+    },
+    {
+     "narration": "Outputs summarize: the count, the names, and the collected ids.",
+     "nodes": [
+      "out"
+     ],
+     "edges": [
+      "data-out"
+     ]
+    },
+    {
+     "narration": "Nothing is created — this lab only reads and reports.",
+     "nodes": [],
+     "edges": []
+    }
+   ],
+   "step_audio": [
+    "audio/S011.step1.mp3",
+    "audio/S011.step2.mp3",
+    "audio/S011.step3.mp3",
+    "audio/S011.step4.mp3",
+    "audio/S011.step5.mp3",
+    "audio/S011.step6.mp3"
+   ]
+  },
+  {
+   "id": "S012",
+   "type": "TERMINAL",
+   "asset": "assets/terminal/lab49-plan.svg",
+   "audio": "audio/S012.mp3",
+   "narration": "Here's the plan — terraform plan with two names passed in, an illustrative view. Two data sources to read, marked with the data arrow — and the summary line says everything about this lab: zero to add, zero to change, zero to destroy. Pure discovery."
+  },
+  {
+   "id": "S013",
+   "type": "TERMINAL",
+   "asset": "assets/terminal/lab49-output.svg",
+   "audio": "audio/S013.mp3",
+   "narration": "And the output — terraform output discovered rg ids, an illustrative view. One full Azure resource ID per name — exactly the values a bulk action downstream would consume."
+  },
+  {
+   "id": "S014",
+   "type": "CONCEPT",
+   "heading": "Common pitfall",
+   "numbered": true,
+   "audio": "audio/S014.mp3",
+   "points": [
+    "Names must already exist — a wrong name fails at plan time (that's the safety)",
+    "Data re-reads LIVE state every plan/apply — attributes can drift between runs",
+    "This lab creates nothing — there is nothing to destroy, ever"
+   ],
+   "narration": "Three pitfalls. One: the names must exist — a typo fails the plan before any change is proposed; that's not a bug, it's the safety property that makes discovery safe. Two: data reads live Azure state on every plan and apply — attributes like tags can drift between runs, so outputs may change without any config change. Three: keep the footprint straight — this lab creates nothing, ever. If you find yourself adding resources here, you've left the discovery pattern behind."
+  },
+  {
+   "id": "S015",
+   "type": "RECAP",
+   "numbered": true,
+   "audio": "audio/S015.mp3",
+   "points": [
+    "for_each works on data blocks — one READ instance per key",
+    "data.azurerm_resource_group.each[\"<name>\"] — instances addressed by name",
+    "Read-only: plan shows 0 to add — data observes, it doesn't change",
+    "A wrong name fails at plan time — lookups happen before changes",
+    "[for rg in data... : rg.id] — the standard collect-after-fanout"
+   ],
+   "narration": "Quick recap — five things. One: for_each fans out data blocks just like resources — one read per key. Two: instances are addressed by name through the data map. Three: the footprint is zero — read-only, nothing to destroy. Four: a nonexistent name fails at plan time — discovery can't hurt anything. Five: the for expression that collects ids is the summarizer you'll reuse in every governance config. Terraform can now read as well as write."
+  },
+  {
+   "id": "S016",
+   "type": "NEXT",
+   "audio": "audio/S016.mp3",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+  },
+  {
+   "id": "S017",
+   "type": "CONCEPT",
+   "heading": "Thanks for watching",
+   "centered": true,
+   "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-02-meta-arguments/49-for-data-sources",
+   "audio": "audio/S017.mp3",
+   "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+  }
+ ]
+}

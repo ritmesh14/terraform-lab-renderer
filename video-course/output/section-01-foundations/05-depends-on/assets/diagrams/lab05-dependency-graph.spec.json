@@ -1,0 +1,49 @@
+{
+  "nodes": [
+    {
+      "id": "rand",
+      "label": "random_string.suffix"
+    },
+    {
+      "id": "rg",
+      "label": "azurerm_resource_group.this"
+    },
+    {
+      "id": "st",
+      "label": "azurerm_storage_account.this"
+    },
+    {
+      "id": "cont",
+      "label": "azurerm_storage_container.data"
+    }
+  ],
+  "edges": [
+    {
+      "from": "rand",
+      "to": "st",
+      "label": "via local (name)"
+    },
+    {
+      "from": "rg",
+      "to": "st",
+      "label": "reference: name + location"
+    },
+    {
+      "from": "st",
+      "to": "cont",
+      "label": "depends_on (explicit)"
+    }
+  ],
+  "layers": [
+    [
+      "rand",
+      "rg"
+    ],
+    [
+      "st"
+    ],
+    [
+      "cont"
+    ]
+  ]
+}

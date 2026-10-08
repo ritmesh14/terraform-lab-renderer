@@ -1,0 +1,11 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan -var=container_count=5",
+  "output_file": "lab27-plan5.txt",
+  "highlight": [
+    "var.container_count: 5",
+    "data[0]",
+    "data[4]",
+    "Plan: 8 to add"
+  ]
+}

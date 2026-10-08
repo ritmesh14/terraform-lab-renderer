@@ -1,0 +1,3 @@
+terraform output nsg_created
+
+nsg_created = true

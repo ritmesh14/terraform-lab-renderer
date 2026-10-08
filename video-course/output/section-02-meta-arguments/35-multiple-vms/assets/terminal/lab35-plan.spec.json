@@ -1,0 +1,13 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan",
+  "output_file": "lab35-plan.txt",
+  "highlight": [
+    "web[0]",
+    "web[1]",
+    "\"nic-vm-0\"",
+    "\"vm-web-1\"",
+    "(sensitive value)",
+    "Plan: 7 to add"
+  ]
+}

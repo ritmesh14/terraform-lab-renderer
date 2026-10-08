@@ -1,0 +1,70 @@
+{
+  "layers": [
+    [
+      "vars",
+      "data",
+      "random",
+      "rg",
+      "vault",
+      "secret"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": "vars",
+      "label": "variable: db_password (sensitive)"
+    },
+    {
+      "id": "data",
+      "label": "data: azurerm_client_config (tenant/object id)"
+    },
+    {
+      "id": "random",
+      "label": "random_string.suffix (stateful)"
+    },
+    {
+      "id": "rg",
+      "label": "rg-kv-meta"
+    },
+    {
+      "id": "vault",
+      "label": "kv-<random> + access_policy"
+    },
+    {
+      "id": "secret",
+      "label": "secret: db-password (value = var)"
+    }
+  ],
+  "edges": [
+    {
+      "id": "data-vault",
+      "from": "data",
+      "to": "vault",
+      "label": "tenant/object_id"
+    },
+    {
+      "id": "random-vault",
+      "from": "random",
+      "to": "vault",
+      "label": "name suffix"
+    },
+    {
+      "id": "rg-vault",
+      "from": "rg",
+      "to": "vault",
+      "label": "reference"
+    },
+    {
+      "id": "vault-secret",
+      "from": "vault",
+      "to": "secret",
+      "label": "key_vault_id"
+    },
+    {
+      "id": "vars-secret",
+      "from": "vars",
+      "to": "secret",
+      "label": "value"
+    }
+  ]
+}

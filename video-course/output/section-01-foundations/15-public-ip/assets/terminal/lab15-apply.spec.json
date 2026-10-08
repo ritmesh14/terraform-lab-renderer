@@ -1,0 +1,8 @@
+{
+  "command": "terraform apply -auto-approve",
+  "output_file": "lab15-apply.txt",
+  "highlight": [
+    "Apply complete",
+    "public_ip"
+  ]
+}

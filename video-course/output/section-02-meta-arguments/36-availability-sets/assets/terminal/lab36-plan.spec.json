@@ -1,0 +1,13 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan",
+  "output_file": "lab36-plan.txt",
+  "highlight": [
+    "\"as-web\"",
+    "web[0]",
+    "web[1]",
+    "\"vm-as-0\"",
+    "(sensitive value)",
+    "Plan: 8 to add"
+  ]
+}

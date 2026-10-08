@@ -1,0 +1,62 @@
+{
+ "episode": "22-terraform-import",
+ "source": "writing/scenes.json",
+ "scenes": [
+  {
+   "id": "S001",
+   "narration": "Every resource we've built so far was created by Terraform. But real projects inherit resources that already exist — created by hand, by script, by a teammate. This lesson adopts one of those into Terraform state, without creating or destroying anything."
+  },
+  {
+   "id": "S002",
+   "narration": "Here's what you'll learn. One: terraform import — bring an existing Azure resource under management. Two: the declarative import block — Terraform one point five and later. Three: the Azure resource I D format — subscriptions, resource groups, providers. Four: adopt first, manage forever after — no recreate, no downtime."
+  },
+  {
+   "id": "S003",
+   "narration": "This is lab twenty-two, and it breaks a pattern we've kept for twenty labs: nothing here gets created. There's a storage account in Azure already — made with the command line, outside Terraform. Our job is to adopt it, so future changes go through Terraform like everything else."
+  },
+  {
+   "id": "S004",
+   "narration": "The mental model: adoption, not creation. An import block names two things — an Azure resource id, and an address in the configuration. On the next apply, Terraform reads the real resource and records it in state under that address. Nothing changes in Azure. From then on, the resource answers to Terraform."
+  },
+  {
+   "id": "S005",
+   "narration": "The lab is in the course GitHub repository under Section 1, Foundations, link in the description. The readme shows how to create the example storage account first — main dot t f then adopts it."
+  },
+  {
+   "id": "S006",
+   "narration": "First, the ingredients of the resource id. The data source reads our current subscription. Two variables name the existing account and its resource group. And the local builds the full Azure id — subscriptions, resource groups, providers, storage accounts. Every Azure resource has an id in exactly this shape."
+  },
+  {
+   "id": "S007",
+   "narration": "The import block — three lines that do the adoption. To: the address in our configuration. Id: the Azure resource id we just built. On the next apply, Terraform reads the real account and binds it to this address — no creation, no destruction, just state gaining an entry."
+  },
+  {
+   "id": "S008",
+   "narration": "And the resource block that describes what the account should look like. After the import, Terraform compares this desired state against the real resource — any drift shows up in the next plan. The output prints the adopted id, which should match the local we built earlier."
+  },
+  {
+   "id": "S009",
+   "narration": "Drawn out: the storage account lives in Azure, created by hand. The import block carries its full resource id, and points at the configuration address. On apply, Terraform reads the real resource — and records it in state under that address. Azure never changed. Management did."
+  },
+  {
+   "id": "S010",
+   "narration": "Apply time — and the verb is different. Not seven added: one imported, zero added, zero changed, zero destroyed. Terraform read the existing account and wrote it into state. The next plan will compare our resource block against the real account — and manage every future change."
+  },
+  {
+   "id": "S011",
+   "narration": "Here are the pitfalls in this lab. One: the c l i form imports into state — you still write the resource block yourself. Import only creates the state binding; the configuration still has to describe the resource correctly. Two: a config that doesn't match the real resource shows drift on the next plan. If the block says standard l r s but the real account is standard g r s, the next plan shows the difference. Three: the i d must be the full Azure resource i d — not just the name. Subscription, resource group, provider, type, and name — that's why the lab builds it in a local. Four: import binds — it never fixes a wrongly-typed resource block. If the block is wrong, fix the block; import won't correct it."
+  },
+  {
+   "id": "S012",
+   "narration": "Quick recap — five things. One: the import block — Terraform one point five and later — binds an existing i d to a config address. Two: nothing is created or destroyed — state gains the binding. Three: the Azure resource i d reads subscriptions, resource groups, providers — the full path. Four: the resource block must match reality — drift shows on the next plan. Five: the c l i form — terraform import, address, i d — is the one-off alternative."
+  },
+  {
+   "id": "S013",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+  },
+  {
+   "id": "S014",
+   "narration": "Thanks for watching. If this helped, the full lab, along with every lab in this course, is in the GitHub repository linked below. If you'd like more lessons like this one, give the video a like, share it with a friend who is learning Azure, and subscribe to the channel. It really helps the course grow. Thank you, and see you in the next lesson."
+  }
+ ]
+}

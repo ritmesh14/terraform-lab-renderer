@@ -1,0 +1,10 @@
+{
+  "mode": "illustrative",
+  "command": "terraform output",
+  "output_file": "lab43-output.txt",
+  "highlight": [
+    "vm_name",
+    "vm_id",
+    "virtualMachines/vm-structured"
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "nodes": [
+    {
+      "id": "inet",
+      "label": "Internet inbound traffic\nany source → ports 3389 / 443"
+    },
+    {
+      "id": "nsg",
+      "label": "azurerm_network_security_group.web\nnsg-web"
+    },
+    {
+      "id": "r1",
+      "label": "Allow-RDP\npriority 200 · Tcp · 3389"
+    },
+    {
+      "id": "r2",
+      "label": "Allow-HTTPS\npriority 300 · Tcp · 443"
+    },
+    {
+      "id": "assoc",
+      "label": "subnet ↔ NSG\nassociation resource"
+    },
+    {
+      "id": "sub",
+      "label": "azurerm_subnet.web\nsnet-web 10.110.1.0/24"
+    }
+  ],
+  "edges": [
+    {
+      "from": "inet",
+      "to": "nsg",
+      "label": "hits first"
+    },
+    {
+      "from": "nsg",
+      "to": "r1",
+      "label": "priority 200"
+    },
+    {
+      "from": "nsg",
+      "to": "r2",
+      "label": "priority 300"
+    },
+    {
+      "from": "nsg",
+      "to": "assoc",
+      "label": "attached via"
+    },
+    {
+      "from": "assoc",
+      "to": "sub",
+      "label": "protects"
+    }
+  ],
+  "layers": [
+    [
+      "inet"
+    ],
+    [
+      "nsg"
+    ],
+    [
+      "assoc",
+      "r1",
+      "r2"
+    ],
+    [
+      "sub"
+    ]
+  ]
+}

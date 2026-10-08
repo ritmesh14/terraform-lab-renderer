@@ -1,0 +1,76 @@
+{
+  "layers": [
+    [
+      "locals",
+      "random",
+      "rg",
+      "st",
+      "containers",
+      "out"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": "locals",
+      "label": "locals: stages (toset)"
+    },
+    {
+      "id": "random",
+      "label": "random_string.suffix"
+    },
+    {
+      "id": "rg",
+      "label": "rg-foreach-meta"
+    },
+    {
+      "id": "st",
+      "label": "stforeach<suffix>"
+    },
+    {
+      "id": "containers",
+      "label": "containers: dev/stg/prod (for_each)"
+    },
+    {
+      "id": "out",
+      "label": "output: containers"
+    }
+  ],
+  "edges": [
+    {
+      "id": "random-locals",
+      "from": "random",
+      "to": "locals",
+      "label": "suffix"
+    },
+    {
+      "id": "locals-st",
+      "from": "locals",
+      "to": "st",
+      "label": "name"
+    },
+    {
+      "id": "rg-st",
+      "from": "rg",
+      "to": "st",
+      "label": "reference"
+    },
+    {
+      "id": "locals-containers",
+      "from": "locals",
+      "to": "containers",
+      "label": "for_each (set)"
+    },
+    {
+      "id": "st-containers",
+      "from": "st",
+      "to": "containers",
+      "label": "storage account"
+    },
+    {
+      "id": "containers-out",
+      "from": "containers",
+      "to": "out",
+      "label": "keys()"
+    }
+  ]
+}

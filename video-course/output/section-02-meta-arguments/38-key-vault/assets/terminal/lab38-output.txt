@@ -1,0 +1,4 @@
+terraform output
+
+vault_name = "kv-x7t2qp"
+secret_versionless_id = (sensitive value)

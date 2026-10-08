@@ -1,0 +1,53 @@
+{
+  "layers": [
+    [
+      "vars",
+      "locals",
+      "network",
+      "vm",
+      "out"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": "vars",
+      "label": "variables.tf — vm_name"
+    },
+    {
+      "id": "locals",
+      "label": "locals.tf — ssh_pubkey, rg"
+    },
+    {
+      "id": "network",
+      "label": "network.tf — RG, VNet, subnet, NIC"
+    },
+    {
+      "id": "vm",
+      "label": "vm.tf — the VM (var + locals + network refs)"
+    },
+    {
+      "id": "out",
+      "label": "outputs.tf — vm_name, vm_id"
+    }
+  ],
+  "edges": [
+    {
+      "id": "locals-vm",
+      "from": "locals",
+      "to": "vm",
+      "label": "local.ssh_pubkey"
+    },
+    {
+      "id": "network-vm",
+      "from": "network",
+      "to": "vm",
+      "label": "NIC id"
+    },
+    {
+      "id": "vm-out",
+      "from": "vm",
+      "to": "out",
+      "label": "outputs"
+    }
+  ]
+}

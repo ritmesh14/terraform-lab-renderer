@@ -1,0 +1,600 @@
+{
+  "title": "One Block, Many Resources: The count Meta-argument",
+  "lesson_label": "Terraform Meta-arguments — Lab 26",
+  "scenes": [
+    {
+      "id": "S001",
+      "type": "TITLE",
+      "title": "One Block, Many Resources: The count Meta-argument",
+      "lesson_label": "Terraform Meta-arguments — Lab 26",
+      "audio": "audio/S001.mp3",
+      "narration": "Welcome back to the course. Through all of Section 1, every resource block you wrote created exactly one thing. Today that changes. This is Lab 26, and it opens the Meta-arguments section with the most-used one of them all: count. One block of code — three containers in Azure. Let's see how."
+    },
+    {
+      "id": "S002",
+      "type": "CONCEPT",
+      "heading": "What you'll learn",
+      "numbered": true,
+      "audio": "audio/S002.mp3",
+      "points": [
+        "count — run one resource block N times",
+        "count.index — the number of the copy you're inside",
+        "The splat [*] — collect all copies' values into one list"
+      ],
+      "narration": "Here's what you'll learn in this lesson — three things. One: count — a meta-argument that runs one resource block N times, so three lines of code become three real containers. Two: count dot index — inside each copy, this tells you which number you're on, and that's how each container gets its own name. Three: the splat — star inside square brackets — which collects a value from every copy into one list, so a single output can show all three container names. Write once, create many, read them all back — that's the whole lab."
+    },
+    {
+      "id": "S003",
+      "type": "CONCEPT",
+      "heading": "Where this lab fits",
+      "audio": "audio/S003.mp3",
+      "points": [
+        "First lab of the Meta-arguments section",
+        "Section 1: every block created exactly one resource",
+        "Now: one block can create many"
+      ],
+      "narration": "This is the first lab of Section 2, Meta-arguments. Throughout Section 1, every resource block you wrote created exactly one thing — one resource group, one storage account. Meta-arguments change that. They are special arguments every resource understands, and count is the one that turns one block into many. It's the foundation the rest of this section builds on."
+    },
+    {
+      "id": "S004",
+      "type": "CONCEPT",
+      "heading": "Where to find this lab",
+      "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-02-meta-arguments\n          └── 26-count-meta-argument\n              ├── README.md\n              ├── main.tf\n              └── terraform.tf\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-02-meta-arguments/26-count-meta-argument",
+      "audio": "audio/S004.mp3",
+      "narration": "You can find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 26-count-meta-argument. The direct link is in the video description. Open the two files we'll read in this lesson: main dot T F holds the whole configuration, and terraform dot T F pins the providers."
+    },
+    {
+      "id": "S005",
+      "type": "CONCEPT",
+      "heading": "The mental model: a photocopier",
+      "audio": "audio/S005.mp3",
+      "points": [
+        "Write the block once — Terraform copies it N times",
+        "Each copy is a real, separate resource",
+        "Each copy carries a number: 0, 1, 2"
+      ],
+      "narration": "Before any code, here's the mental model. Think of count as a photocopier. You write the resource block once — that's your original. Terraform presses copy three times, and each copy becomes a real, separate resource in Azure. And just like pages coming out of a copier, each copy is numbered: copy zero, copy one, copy two. Nothing inside the block changes — only how many times Terraform stamps it out."
+    },
+    {
+      "id": "S006",
+      "type": "CODE",
+      "source_file": "terraform.tf",
+      "start_line": 1,
+      "end_line": 23,
+      "highlight_lines": [
+        5,
+        7,
+        8,
+        13,
+        21
+      ],
+      "asset": "assets/code/lab26-providers.png",
+      "audio": "audio/S006.mp3",
+      "narration": "The configuration lives in two files. Terraform dot T F pins the tooling: Terraform 1.5 or newer, the azurerm provider around version 3.70, and the random provider — that one matters here, because we'll use it to generate a unique suffix for our names. The provider block at the bottom is the bridge to Azure; the empty features block enables the provider's default behaviours."
+    },
+    {
+      "id": "S007",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 7,
+      "end_line": 19,
+      "highlight_lines": [
+        7,
+        15
+      ],
+      "asset": "assets/code/lab26-locals-random.png",
+      "audio": "audio/S007.mp3",
+      "steps": [
+        {
+          "narration": "At the top of main dot T F, the locals block computes names once. The resource group gets a fixed name, and the storage account name is lowercased with a random suffix appended — locals simply hold the values so we write them in one place.",
+          "active_lines": [
+            7,
+            8,
+            9,
+            10
+          ],
+          "active_tokens": [
+            "locals"
+          ]
+        },
+        {
+          "narration": "That suffix comes from random_string: six lowercase characters. Because it's a resource — not a function — the value is saved in state. Every future plan and apply keeps the same suffix, so names never drift between runs.",
+          "active_lines": [
+            15,
+            16,
+            17,
+            18,
+            19
+          ],
+          "active_tokens": [
+            "random_string"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S007.step1.mp3",
+        "audio/S007.step2.mp3"
+      ]
+    },
+    {
+      "id": "S008",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 22,
+      "end_line": 37,
+      "highlight_lines": [
+        22,
+        31
+      ],
+      "asset": "assets/code/lab26-rg-storage.png",
+      "audio": "audio/S008.mp3",
+      "steps": [
+        {
+          "narration": "Then the two single-instance blocks — the same pattern you know from Section 1. The resource group takes its name from locals.",
+          "active_lines": [
+            22,
+            23,
+            24,
+            25
+          ],
+          "active_tokens": [
+            "azurerm_resource_group"
+          ]
+        },
+        {
+          "narration": "And the storage account. Notice it references the resource group by attribute — name and location — instead of repeating strings. Those references create implicit dependencies, so Terraform always creates the group first, without you listing any order.",
+          "active_lines": [
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37
+          ],
+          "active_tokens": [
+            "azurerm_storage_account",
+            "resource_group_name"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S008.step1.mp3",
+        "audio/S008.step2.mp3"
+      ]
+    },
+    {
+      "id": "S009",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 41,
+      "end_line": 46,
+      "highlight_lines": [
+        42,
+        43
+      ],
+      "asset": "assets/code/lab26-count-block.png",
+      "audio": "audio/S009.mp3",
+      "steps": [
+        {
+          "narration": "And here is the star of the lab. An ordinary container block — with one extra line. count equals 3. That single line tells Terraform: create three copies of this block.",
+          "active_lines": [
+            41,
+            42
+          ],
+          "active_tokens": [
+            "count"
+          ]
+        },
+        {
+          "narration": "Inside a counted resource, count dot index is the number of the current copy — zero for the first, one for the second, two for the third.",
+          "active_lines": [
+            43
+          ],
+          "active_tokens": [
+            "count.index"
+          ]
+        },
+        {
+          "narration": "We use it in the name: data dash, then the index interpolated in. Copy zero becomes data-0, copy one becomes data-1, copy two becomes data-2. Three containers, one block, and every copy named automatically.",
+          "active_lines": [
+            43
+          ],
+          "active_tokens": [
+            "data-${count.index}"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S009.step1.mp3",
+        "audio/S009.step2.mp3",
+        "audio/S009.step3.mp3"
+      ]
+    },
+    {
+      "id": "S010",
+      "type": "ITERATION_EXPANSION",
+      "title": "One block becomes three",
+      "expression": "count = 3",
+      "audio": "audio/S010.mp3",
+      "stages": [
+        {
+          "id": "expr",
+          "label": "One block",
+          "kind": "expression",
+          "items": [
+            {
+              "key": "block",
+              "text": "resource \"azurerm_storage_container\" \"data\""
+            }
+          ]
+        },
+        {
+          "id": "inst",
+          "label": "Instances (state)",
+          "kind": "instances",
+          "items": [
+            {
+              "key": "i0",
+              "text": "azurerm_storage_container.data[0]"
+            },
+            {
+              "key": "i1",
+              "text": "azurerm_storage_container.data[1]"
+            },
+            {
+              "key": "i2",
+              "text": "azurerm_storage_container.data[2]"
+            }
+          ]
+        },
+        {
+          "id": "names",
+          "label": "Names",
+          "kind": "output",
+          "items": [
+            {
+              "key": "n0",
+              "text": "data-0"
+            },
+            {
+              "key": "n1",
+              "text": "data-1"
+            },
+            {
+              "key": "n2",
+              "text": "data-2"
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "narration": "Watch what count equals 3 does to this one block.",
+          "focus": {
+            "stages": [
+              "expr"
+            ]
+          }
+        },
+        {
+          "narration": "Terraform expands it into three instances, and each instance gets a state address with its index in brackets: data zero, data one, data two.",
+          "focus": {
+            "stages": [
+              "inst"
+            ]
+          }
+        },
+        {
+          "narration": "Inside copy two — the one at index one — count dot index is one, so its name becomes data-1. The other copies do the same with their own numbers.",
+          "focus": {
+            "stages": [
+              "inst",
+              "names"
+            ],
+            "items": [
+              "i1",
+              "n1"
+            ]
+          }
+        },
+        {
+          "narration": "Three names, derived from three indexes — and not one line of copy-paste in the source.",
+          "focus": {
+            "stages": [
+              "names"
+            ]
+          }
+        }
+      ],
+      "step_audio": [
+        "audio/S010.step1.mp3",
+        "audio/S010.step2.mp3",
+        "audio/S010.step3.mp3",
+        "audio/S010.step4.mp3"
+      ]
+    },
+    {
+      "id": "S011",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 48,
+      "end_line": 53,
+      "highlight_lines": [
+        51,
+        52
+      ],
+      "asset": "assets/code/lab26-output-splat.png",
+      "audio": "audio/S011.mp3",
+      "steps": [
+        {
+          "narration": "After apply, you'll want the names back. The output block does that. But here's the twist: once a resource uses count, Terraform stores it as a list — not one object. The address azurerm_storage_container dot data now points at all three instances at once.",
+          "active_lines": [
+            51,
+            52,
+            53
+          ],
+          "active_tokens": [
+            "container_names",
+            "azurerm_storage_container.data"
+          ]
+        },
+        {
+          "narration": "The splat — star in square brackets — says: walk every instance in that list, take dot name from each, and hand me all of them. One expression, three values.",
+          "active_lines": [
+            52
+          ],
+          "active_tokens": [
+            "[*]"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S011.step1.mp3",
+        "audio/S011.step2.mp3"
+      ]
+    },
+    {
+      "id": "S012",
+      "type": "STATE_ADDRESS",
+      "title": "How state addresses the copies",
+      "expression": "azurerm_storage_container.data[*].name",
+      "audio": "audio/S012.mp3",
+      "stages": [
+        {
+          "id": "addr",
+          "label": "Resource instance addresses",
+          "kind": "addresses",
+          "items": [
+            {
+              "key": "a0",
+              "text": "azurerm_storage_container.data[0]"
+            },
+            {
+              "key": "a1",
+              "text": "azurerm_storage_container.data[1]"
+            },
+            {
+              "key": "a2",
+              "text": "azurerm_storage_container.data[2]"
+            }
+          ]
+        },
+        {
+          "id": "splat",
+          "label": "Splat expression",
+          "kind": "expression",
+          "items": [
+            {
+              "key": "expr",
+              "text": "azurerm_storage_container.data[*].name"
+            }
+          ]
+        },
+        {
+          "id": "out",
+          "label": "Result",
+          "kind": "output",
+          "items": [
+            {
+              "key": "list",
+              "text": "[\"data-0\", \"data-1\", \"data-2\"]"
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "narration": "In state, the three containers live at resource instance addresses: data zero, data one, data two — one entry per copy.",
+          "focus": {
+            "stages": [
+              "addr"
+            ],
+            "items": [
+              "a0",
+              "a1",
+              "a2"
+            ]
+          }
+        },
+        {
+          "narration": "Then the splat expression — star inside square brackets — stands for every instance, all of them, no matter how many count created.",
+          "focus": {
+            "stages": [
+              "splat"
+            ],
+            "items": [
+              "expr"
+            ]
+          }
+        },
+        {
+          "narration": "From each instance it selects the name attribute, and the result is one tidy list — exactly what the output prints after apply.",
+          "focus": {
+            "stages": [
+              "splat",
+              "out"
+            ],
+            "items": [
+              "expr",
+              "list"
+            ]
+          }
+        }
+      ],
+      "step_audio": [
+        "audio/S012.step1.mp3",
+        "audio/S012.step2.mp3",
+        "audio/S012.step3.mp3"
+      ]
+    },
+    {
+      "id": "S013",
+      "type": "CONCEPT",
+      "heading": "Ordering: references do the work",
+      "audio": "audio/S013.mp3",
+      "points": [
+        "Storage account references the resource group → implicit dependency",
+        "Containers reference the storage account → created after it",
+        "You never list the order — the references define it"
+      ],
+      "narration": "One thing worth slowing down for: the order Terraform creates things. We never told it an order anywhere in the code. The storage account references the resource group's name and location — that reference is an implicit dependency, so the group is always created first. The containers reference the storage account's name, so they come after it. References define the order; Terraform builds the graph, and you never maintain it by hand."
+    },
+    {
+      "id": "S014",
+      "type": "DIAGRAM",
+      "caption": "How the pieces connect",
+      "asset": "assets/diagrams/lab26-resource-flow.svg",
+      "audio": "audio/S014.mp3",
+      "steps": [
+        {
+          "narration": "Here's how the pieces connect.",
+          "nodes": [],
+          "edges": []
+        },
+        {
+          "narration": "The random string generates the suffix and saves it in state.",
+          "nodes": [
+            "random"
+          ]
+        },
+        {
+          "narration": "Locals take that suffix and compute the names.",
+          "nodes": [
+            "locals"
+          ],
+          "edges": [
+            "random-locals"
+          ]
+        },
+        {
+          "narration": "The resource group takes its name from locals.",
+          "nodes": [
+            "rg"
+          ],
+          "edges": [
+            "locals-rg"
+          ]
+        },
+        {
+          "narration": "The storage account references the group — that's the dependency: group first, account second. Its own name came from locals, with the random suffix baked in.",
+          "nodes": [
+            "st"
+          ],
+          "edges": [
+            "rg-st"
+          ]
+        },
+        {
+          "narration": "And count equals 3 stamps three containers out of one block, all inside the storage account.",
+          "nodes": [
+            "containers"
+          ],
+          "edges": [
+            "st-containers"
+          ]
+        },
+        {
+          "narration": "The output splats all three names into one list.",
+          "nodes": [
+            "out"
+          ],
+          "edges": [
+            "containers-out"
+          ]
+        },
+        {
+          "narration": "Everything lands inside your Azure subscription.",
+          "nodes": [],
+          "edges": []
+        }
+      ],
+      "step_audio": [
+        "audio/S014.step1.mp3",
+        "audio/S014.step2.mp3",
+        "audio/S014.step3.mp3",
+        "audio/S014.step4.mp3",
+        "audio/S014.step5.mp3",
+        "audio/S014.step6.mp3",
+        "audio/S014.step7.mp3",
+        "audio/S014.step8.mp3"
+      ]
+    },
+    {
+      "id": "S015",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab26-plan.svg",
+      "audio": "audio/S015.mp3",
+      "narration": "Here's the plan this configuration produces — an illustrative view, of course. Count the entries: the random string, the group, the account, and three containers. And look at the addresses: data in brackets zero, data in brackets one, data in brackets two. That's count at work — one block in the code, three entries in the plan."
+    },
+    {
+      "id": "S016",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab26-apply.svg",
+      "audio": "audio/S016.mp3",
+      "narration": "Apply it, and the same story lands in Azure — illustrative again. Six resources created. And the output prints the splat's result: one list holding data-0, data-1 and data-2. One expression in the code, all three names in your terminal."
+    },
+    {
+      "id": "S017",
+      "type": "CONCEPT",
+      "heading": "Common pitfall",
+      "numbered": true,
+      "audio": "audio/S017.mp3",
+      "points": [
+        "Addresses are positional: data[1] is simply \"whatever is second\"",
+        "Reordering or removing a middle copy shifts every later address",
+        "for_each (later lab) addresses instances by stable key instead"
+      ],
+      "narration": "One pitfall to understand before you lean on count in production. One: count's addresses are positional — data in brackets one is simply whatever sits second in the list. So if you reorder the block, or remove a copy from the middle, every later address shifts: what used to be data-2 suddenly becomes data-1. Terraform sees the address change and will destroy and recreate those containers to match. That's harmless for throwaway names like these — it's a real problem when the resource holds data. The fix is a different meta-argument: for_each, which addresses instances by a stable key instead of a position. We'll cover it later in this section."
+    },
+    {
+      "id": "S018",
+      "type": "RECAP",
+      "numbered": true,
+      "audio": "audio/S018.mp3",
+      "points": [
+        "count = 3 — one block, three identical copies",
+        "count.index — the copy's number: 0, 1, 2",
+        "Names come straight from the index: data-0, data-1, data-2",
+        "A counted resource is a list — the splat [*] collects them",
+        "Addresses are positional: data[0] through data[2]"
+      ],
+      "narration": "Quick recap — five things. One: count equals 3 turned one container block into three identical copies. Two: count dot index is the copy's number — zero, one, two. Three: the names came straight from that index — data-0, data-1, data-2. Four: a counted resource is a list, and the splat collected all three names into the output. Five: the addresses are positional — data in brackets zero through two — so for count, position is identity."
+    },
+    {
+      "id": "S019",
+      "type": "NEXT",
+      "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure.",
+      "audio": "audio/S019.mp3"
+    },
+    {
+      "id": "S020",
+      "type": "CONCEPT",
+      "heading": "Thanks for watching",
+      "centered": true,
+      "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-02-meta-arguments/26-count-meta-argument",
+      "audio": "audio/S020.mp3",
+      "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+    }
+  ]
+}

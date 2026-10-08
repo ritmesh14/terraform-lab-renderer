@@ -1,0 +1,10 @@
+{
+  "mode": "illustrative",
+  "command": "terraform output subnet_keys",
+  "output_file": "lab48-output.txt",
+  "highlight": [
+    "subnet_keys",
+    "\"regionA-web\"",
+    "\"regionB-app\""
+  ]
+}

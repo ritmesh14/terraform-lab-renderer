@@ -1,0 +1,51 @@
+{
+  "nodes": [
+    {
+      "id": "azure",
+      "label": "Azure (created by hand)\nstimportdemo123 in rg-import-demo"
+    },
+    {
+      "id": "imp",
+      "label": "import {} block\nto = azurerm_storage_account.adopted\nid = local.sa_id"
+    },
+    {
+      "id": "res",
+      "label": "azurerm_storage_account.adopted\ndesired config"
+    },
+    {
+      "id": "st",
+      "label": "Terraform state\nadopted + managed"
+    }
+  ],
+  "edges": [
+    {
+      "from": "azure",
+      "to": "imp",
+      "label": "resource id"
+    },
+    {
+      "from": "imp",
+      "to": "res",
+      "label": "binds to"
+    },
+    {
+      "from": "res",
+      "to": "st",
+      "label": "recorded in"
+    }
+  ],
+  "layers": [
+    [
+      "azure"
+    ],
+    [
+      "imp"
+    ],
+    [
+      "res"
+    ],
+    [
+      "st"
+    ]
+  ]
+}

@@ -1,0 +1,10 @@
+terraform state list
+
+azurerm_network_security_group.this["app"]
+azurerm_network_security_group.this["web"]
+azurerm_resource_group.this
+azurerm_subnet.this["app"]
+azurerm_subnet.this["web"]
+azurerm_subnet_network_security_group_association.this["app"]
+azurerm_subnet_network_security_group_association.this["web"]
+azurerm_virtual_network.this

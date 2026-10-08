@@ -1,0 +1,218 @@
+{
+ "title": "Data Disks and Attachments",
+ "lesson_label": "Azure Foundations — Lab 21",
+ "scenes": [
+  {
+   "id": "S001",
+   "type": "TITLE",
+   "title": "Data Disks and Attachments",
+   "narration": "Every virtual machine so far carried exactly one disk — the one Windows was installed on. Real applications need more: a separate disk for databases, files, backups. This lesson builds that second disk, and the dedicated resource that bolts it onto the machine.",
+   "audio": "audio/S001.mp3"
+  },
+  {
+   "id": "S002",
+   "type": "CONCEPT",
+   "heading": "What you'll learn",
+   "points": [
+    "azurerm_managed_disk: a standalone managed disk you create directly",
+    "azurerm_virtual_machine_data_disk_attachment: the LUN-level link",
+    "OS disk vs data disk — Windows lives on one, your data on the other",
+    "LUN 0-63: how the guest OS identifies each attached disk"
+   ],
+   "narration": "Here's what you'll learn. One: azurerm managed disk — a standalone managed disk you create directly. Two: the data disk attachment — the L U N-level link between disk and machine. Three: O S disk versus data disk — Windows lives on one, your data on the other. Four: L U N zero through sixty-three — how the guest O S identifies each attached disk.",
+   "audio": "audio/S002.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S003",
+   "type": "CONCEPT",
+   "heading": "Where this lab fits",
+   "points": [
+    "Lab 21 of the Foundations section",
+    "Labs 17 and 20 built Windows VMs — each had only its OS disk",
+    "The attachment pattern returns in stateful app deployments"
+   ],
+   "narration": "This is lab twenty-one. Every machine we've built so far boots, and that's all it can do — stop it, and its data is gone. Today we give the machine a second, persistent disk. When we later deploy real applications, this disk is where their state will live.",
+   "audio": "audio/S003.mp3"
+  },
+  {
+   "id": "S004",
+   "type": "CONCEPT",
+   "heading": "One disk for the system, one for the data",
+   "points": [
+    "The OS disk is created automatically with the VM — it holds Windows",
+    "A data disk is independent storage: create it, then attach it",
+    "Managed disks live in the resource group, like any resource",
+    "Detaching keeps the data — the disk can re-attach to another VM"
+   ],
+   "narration": "The mental model: one disk for the system, one for the data. The O S disk appears automatically when the machine is created — Terraform never writes that block for it here. A data disk is different: it's a managed disk resource of its own, created first, and attached second. And because it's independent, you can detach it and bolt it onto a different machine later — the data survives.",
+   "audio": "audio/S004.mp3"
+  },
+  {
+   "id": "S005",
+   "type": "CONCEPT",
+   "heading": "Where to find this lab",
+   "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-01-foundations\n          └── 21-data-disk\n              ├── README.md\n              ├── main.tf\n              ├── variables.tf\n              ├── terraform.tf\n              └── terraform.tfvars.example\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-01-foundations/21-data-disk",
+   "narration": "As always, the lab is in the course GitHub repository under Section 1, Foundations, with the link in the description. Readme, main dot t f, variables, terraform dot t f, and the tf vars example for the password.",
+   "audio": "audio/S005.mp3"
+  },
+  {
+   "id": "S006",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 20,
+   "end_line": 52,
+   "highlight_lines": [
+    21,
+    43,
+    47,
+    49,
+    50
+   ],
+   "asset": "assets/code/21-01-network.png",
+   "narration": "The network stack first — resource group, VNet on ten one forty slash sixteen, subnet, and the network interface. All familiar from earlier labs. The interface is the VM's future network card, and it's the last piece before the machine itself.",
+   "audio": "audio/S006.mp3"
+  },
+  {
+   "id": "S007",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 54,
+   "end_line": 74,
+   "highlight_lines": [
+    56,
+    64,
+    65,
+    66
+   ],
+   "asset": "assets/code/21-02-vm.png",
+   "narration": "The Windows virtual machine. Nothing new in the block itself — size, credentials, image — except what's NOT here: no data disk yet. The O S disk inside is just the boot drive: read-write caching, standard S S D. Windows will see roughly a hundred twenty-seven gigabytes of C drive, and that's all.",
+   "audio": "audio/S007.mp3"
+  },
+  {
+   "id": "S008",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 76,
+   "end_line": 96,
+   "highlight_lines": [
+    77,
+    82,
+    83,
+    91,
+    93,
+    94
+   ],
+   "asset": "assets/code/21-03-disk.png",
+   "narration": "Now the new pair. The managed disk: create option Empty — a blank disk — thirty-two gigabytes. And the attachment, a separate resource that joins disk to machine. L U N zero is its slot number, zero through sixty-three, how the guest O S will identify it. Splitting these two apart is deliberate: resize the disk, or re-attach it elsewhere, and only one resource changes.",
+   "audio": "audio/S008.mp3"
+  },
+  {
+   "id": "S009",
+   "type": "DIAGRAM",
+   "caption": "Disk, machine, and the LUN that joins them",
+   "asset": "assets/diagrams/21-data-disk.svg",
+   "narration": "The whole story in one picture: the resource group holds the machine and the blank managed disk side by side — neither knows the other exists. The attachment resource is the join: disk into machine at L U N zero. Only when that third resource exists does Windows see its second drive.",
+   "steps": [
+    {
+     "narration": "The whole story in one picture.",
+     "nodes": [],
+     "edges": []
+    },
+    {
+     "narration": "The resource group holds the machine and the blank managed disk side by side.",
+     "nodes": [
+      "rg",
+      "vm",
+      "disk"
+     ],
+     "edges": [
+      "rg-vm",
+      "rg-disk"
+     ]
+    },
+    {
+     "narration": "Neither knows the other exists — the disk is just storage waiting in the group.",
+     "nodes": [
+      "vm",
+      "disk"
+     ],
+     "edges": []
+    },
+    {
+     "narration": "The attachment resource is the join between them.",
+     "nodes": [
+      "att"
+     ],
+     "edges": [
+      "vm-att",
+      "disk-att"
+     ]
+    },
+    {
+     "narration": "L U N zero is the slot it takes — how the guest O S will identify the disk.",
+     "nodes": [
+      "att",
+      "vm",
+      "disk"
+     ],
+     "edges": [
+      "vm-att",
+      "disk-att"
+     ]
+    }
+   ],
+   "audio": "audio/S009.mp3"
+  },
+  {
+   "id": "S010",
+   "type": "TERMINAL",
+   "asset": "assets/terminal/lab21-apply.svg",
+   "narration": "Apply time — seven resources, and watch the order: machine first, disk second, attachment last. The dependency chain Terraform inferred from the I D references. In the portal afterward, the machine's Disks blade shows two entries — the boot disk, and disk data zero one at L U N zero.",
+   "audio": "audio/S010.mp3"
+  },
+  {
+   "id": "S011",
+   "type": "CONCEPT",
+   "heading": "Common pitfall — treating the disk as VM config",
+   "points": [
+    "The attachment is a real resource — deleting the VM does not detach the disk",
+    "Changing the attachment's LUN is an in-place update; changing the disk id is a replace",
+    "Host caching: None for write-heavy disks, ReadWrite for read-heavy",
+    "Detached disks keep billing — delete what you don't need"
+   ],
+   "narration": "Here are the pitfalls in this lab. One: the attachment is a real resource — deleting the v m does not detach the disk. The disk's independence cuts both ways: the attachment survives as its own resource. Two: changing the attachment's l u n is an in-place update; changing the disk i d is a replace. The slot number can move; a different disk means the old one is replaced. Three: host caching — none for write-heavy disks, read write for read-heavy. Match the caching mode to the workload's read and write pattern. Four: detached disks keep billing — delete what you don't need. A detached disk keeps existing, and keeps costing, until you delete it explicitly.",
+   "audio": "audio/S011.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S012",
+   "type": "RECAP",
+   "points": [
+    "azurerm_managed_disk: blank standalone disk (create_option Empty)",
+    "Attach with azurerm_virtual_machine_data_disk_attachment",
+    "LUN 0-63 identifies the disk inside the guest OS",
+    "Separate resources: resize or re-attach without touching the other",
+    "OS disk is automatic; the data disk is what YOU manage"
+   ],
+   "narration": "Quick recap — five things. One: azurerm managed disk — a blank standalone disk, with create option empty. Two: attach with the virtual machine data disk attachment resource. Three: l u n zero through sixty three identifies the disk inside the guest o s. Four: separate resources mean you can resize or re-attach without touching the other. Five: the o s disk is automatic — the data disk is what you manage.",
+   "audio": "audio/S012.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S013",
+   "type": "NEXT",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure.",
+   "audio": "audio/S013.mp3"
+  },
+  {
+   "id": "S014",
+   "type": "CONCEPT",
+   "heading": "Thanks for watching",
+   "narration": "Thanks for watching. If this helped, the full lab, along with every lab in this course, is in the GitHub repository linked below. If you'd like more lessons like this one, give the video a like, share it with a friend who is learning Azure, and subscribe to the channel. It really helps the course grow. Thank you, and see you in the next lesson.",
+   "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-01-foundations/21-data-disk",
+   "centered": true,
+   "audio": "audio/S014.mp3"
+  }
+ ]
+}

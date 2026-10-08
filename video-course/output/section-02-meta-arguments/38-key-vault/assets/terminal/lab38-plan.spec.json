@@ -1,0 +1,11 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan",
+  "output_file": "lab38-plan.txt",
+  "highlight": [
+    "\"db-password\"",
+    "(sensitive value)",
+    "soft_delete_retention_days = 7",
+    "Plan: 4 to add"
+  ]
+}

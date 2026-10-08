@@ -1,0 +1,12 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan",
+  "output_file": "lab34-plan.txt",
+  "highlight": [
+    "this[\"app\"]",
+    "this[\"web\"]",
+    "association.this[\"app\"]",
+    "association.this[\"web\"]",
+    "Plan: 7 to add"
+  ]
+}

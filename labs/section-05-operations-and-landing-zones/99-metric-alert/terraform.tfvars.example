@@ -1,0 +1,2 @@
+vm_resource_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-monitor/providers/Microsoft.Compute/virtualMachines/vm-monitor"
+admin_email    = "oncall@example.com"

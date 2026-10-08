@@ -1,0 +1,17 @@
+$ terraform apply -auto-approve -no-color
+azurerm_resource_group.core: Creating...
+azurerm_resource_group.core: Creation complete after 2s [id=/subscriptions/<guid>/resourceGroups/rg-refs-foundation]
+azurerm_storage_account.logs: Creating...
+azurerm_storage_account.logs: Still creating... [10s elapsed]
+azurerm_storage_account.logs: Creation complete after 13s [id=<guid>]
+Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
+Outputs:
+rg_name = "rg-refs-foundation"
+st_name = "stlogs4f7a2b"
+$ terraform apply -var="location=westus2" -no-color
+azurerm_resource_group.core: Refreshing state...
+azurerm_resource_group.core: Destroying... [id=/subscriptions/<guid>/resourceGroups/rg-refs-foundation]
+azurerm_resource_group.core: Destruction complete after 32s
+azurerm_resource_group.core: Creating...
+azurerm_resource_group.core: Creation complete after 2s [id=/subscriptions/<guid>/resourceGroups/rg-refs-foundation]
+Apply complete! Resources: 1 added, 0 destroyed, 0 destroyed... region override applied

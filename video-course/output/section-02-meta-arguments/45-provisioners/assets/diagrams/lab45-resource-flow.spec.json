@@ -1,0 +1,72 @@
+{
+  "layers": [
+    [
+      "rg",
+      "vnet",
+      "pip",
+      "vars"
+    ],
+    [
+      "nic",
+      "vm"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": "vars",
+      "label": "vars: admin_public_key + admin_private_key (sensitive)"
+    },
+    {
+      "id": "rg",
+      "label": "rg-provisioner"
+    },
+    {
+      "id": "vnet",
+      "label": "vnet-provisioner + snet-web"
+    },
+    {
+      "id": "pip",
+      "label": "pip-provisioner (Static/Standard)"
+    },
+    {
+      "id": "nic",
+      "label": "nic-provisioner (subnet + public IP)"
+    },
+    {
+      "id": "vm",
+      "label": "vm-provisioner + remote-exec (SSH)"
+    }
+  ],
+  "edges": [
+    {
+      "id": "rg-vnet",
+      "from": "rg",
+      "to": "vnet",
+      "label": "reference"
+    },
+    {
+      "id": "vnet-nic",
+      "from": "vnet",
+      "to": "nic",
+      "label": "subnet"
+    },
+    {
+      "id": "pip-nic",
+      "from": "pip",
+      "to": "nic",
+      "label": "ip_configuration"
+    },
+    {
+      "id": "nic-vm",
+      "from": "nic",
+      "to": "vm",
+      "label": "network_interface_ids"
+    },
+    {
+      "id": "vars-vm",
+      "from": "vars",
+      "to": "vm",
+      "label": "key halves"
+    }
+  ]
+}

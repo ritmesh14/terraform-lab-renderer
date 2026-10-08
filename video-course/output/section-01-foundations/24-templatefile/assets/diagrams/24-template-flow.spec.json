@@ -1,0 +1,61 @@
+{
+  "nodes": [
+    {
+      "id": "tpl",
+      "label": "cloud-init.tpl\n${hostname} · %{ for p in packages }"
+    },
+    {
+      "id": "vars",
+      "label": "vars map\nhostname · packages"
+    },
+    {
+      "id": "tf",
+      "label": "templatefile(PATH, VARS)\nlocal.rendered"
+    },
+    {
+      "id": "rend",
+      "label": "base64encode(rendered)\ncustom_data"
+    },
+    {
+      "id": "vm",
+      "label": "azurerm_linux_virtual_machine.web\ncloud-init on first boot"
+    }
+  ],
+  "edges": [
+    {
+      "from": "tpl",
+      "to": "tf",
+      "label": "template"
+    },
+    {
+      "from": "vars",
+      "to": "tf",
+      "label": "values"
+    },
+    {
+      "from": "tf",
+      "to": "rend",
+      "label": "encode"
+    },
+    {
+      "from": "rend",
+      "to": "vm",
+      "label": "runs once"
+    }
+  ],
+  "layers": [
+    [
+      "tpl",
+      "vars"
+    ],
+    [
+      "tf"
+    ],
+    [
+      "rend"
+    ],
+    [
+      "vm"
+    ]
+  ]
+}

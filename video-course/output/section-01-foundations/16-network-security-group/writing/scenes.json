@@ -1,0 +1,236 @@
+{
+ "title": "Network Security Groups",
+ "lesson_label": "Azure Foundations — Lab 16",
+ "scenes": [
+  {
+   "id": "S001",
+   "type": "TITLE",
+   "title": "Network Security Groups",
+   "narration": "Last lesson built a door to the internet — a public I P. But a door with no rules lets anyone through. This lesson builds the doorman: the network security group, a stateful firewall with prioritized rules, attached to a subnet by its own association resource.",
+   "audio": "audio/S001.mp3"
+  },
+  {
+   "id": "S002",
+   "type": "CONCEPT",
+   "heading": "What you'll learn",
+   "points": [
+    "azurerm_network_security_group: a stateful firewall for subnets and NICs",
+    "security_rule blocks: priority, direction, access, ports",
+    "Lower priority number is evaluated first — 200 before 300",
+    "Subnet ↔ NSG via its own association resource"
+   ],
+   "narration": "Here's what you'll learn. One: azurerm network security group — a stateful firewall for subnets and N I Cs. Two: security rule blocks — priority, direction, access, and ports. Three: a lower priority number is evaluated first — two hundred before three hundred. Four: connecting the group to a subnet through its own association resource.",
+   "audio": "audio/S002.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S003",
+   "type": "CONCEPT",
+   "heading": "Where this lab fits",
+   "points": [
+    "Lab 16 of the Foundations section",
+    "Lab 15 created a public IP — reachable means filtered",
+    "Lab 17's VM will log in over the RDP rule built today"
+   ],
+   "narration": "This is lab sixteen, and it answers the question lab fifteen left open: an I P address exists — but who's allowed to knock? The security group answers that. And it sets up the very next lab, where a Windows virtual machine finally uses the R D P rule we're about to write.",
+   "audio": "audio/S003.mp3"
+  },
+  {
+   "id": "S004",
+   "type": "CONCEPT",
+   "heading": "A stateful firewall with an ordering rule",
+   "points": [
+    "Default inbound: deny — you open only the ports you need",
+    "Rules evaluated by priority, lowest number first",
+    "Stateful: reply traffic to an allowed flow is permitted automatically",
+    "Attach by association resource — at subnet or NIC level"
+   ],
+   "narration": "The mental model: a stateful firewall with a strict ordering rule. By default, inbound traffic is denied — you open exactly the ports you need, nothing more. Rules are evaluated in priority order, lowest number first, so a two hundred is decided before a three hundred. Stateful means replies to an allowed connection flow back automatically. And attaching the group to a subnet is its own resource — an association — which is where today's configuration ends.",
+   "audio": "audio/S004.mp3"
+  },
+  {
+   "id": "S005",
+   "type": "CONCEPT",
+   "heading": "Where to find this lab",
+   "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-01-foundations\n          └── 16-network-security-group\n              ├── README.md\n              ├── main.tf\n              └── terraform.tf\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-01-foundations/16-network-security-group",
+   "narration": "As always, the lab is in the course GitHub repository under Section 1, Foundations, with the link in the description. Readme, main dot t f, terraform dot t f — and most of main dot t f is rules.",
+   "audio": "audio/S005.mp3"
+  },
+  {
+   "id": "S006",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 18,
+   "end_line": 32,
+   "highlight_lines": [
+    27,
+    28,
+    29,
+    30,
+    31
+   ],
+   "asset": "assets/code/16-01-network.png",
+   "narration": "The backdrop first: group, VNet on ten one ten slash sixteen, and the web subnet — the standalone form from lab twelve, unchanged. The security group will attach to exactly this subnet, so its rules protect everything that ever joins it.",
+   "audio": "audio/S006.mp3"
+  },
+  {
+   "id": "S007",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 34,
+   "end_line": 52,
+   "highlight_lines": [
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51
+   ],
+   "asset": "assets/code/16-02-nsg.png",
+   "narration": "The security group, and its first rule. Eight fields, but three decide everything: direction Inbound, access Allow, and destination port three three eight nine — R D P. Priority two hundred: this rule is evaluated before anything numbered higher. The asterisks mean any source I P and any source port — deliberately loose, because this is a lab. Tighten the source in production.",
+   "audio": "audio/S007.mp3"
+  },
+  {
+   "id": "S008",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 54,
+   "end_line": 71,
+   "highlight_lines": [
+    67,
+    68,
+    69,
+    70
+   ],
+   "asset": "assets/code/16-03-assoc.png",
+   "narration": "A second rule — H T T P S on port four forty three, priority three hundred — evaluated only if the two hundred rule didn't already decide. And then the piece that's easy to forget: the association resource. Creating the group does nothing by itself. This block binds it to the subnet — that's when the rules take effect.",
+   "audio": "audio/S008.mp3"
+  },
+  {
+   "id": "S009",
+   "type": "DIAGRAM",
+   "caption": "Rules by priority, attached by association",
+   "asset": "assets/diagrams/16-nsg-rules.svg",
+   "narration": "The doorman, drawn out: inbound traffic meets the security group, whose two allow rules are checked in priority order — two hundred first, then three hundred. And the association is what arms it, binding group to subnet. Everything else stays denied.",
+   "steps": [
+    {
+     "narration": "The doorman, drawn out.",
+     "nodes": [],
+     "edges": []
+    },
+    {
+     "narration": "Inbound internet traffic reaches the security group first.",
+     "nodes": [
+      "inet",
+      "nsg"
+     ],
+     "edges": [
+      "inet-nsg"
+     ]
+    },
+    {
+     "narration": "R D P first: priority two hundred is evaluated before anything higher.",
+     "nodes": [
+      "nsg",
+      "r1"
+     ],
+     "edges": [
+      "nsg-r1"
+     ]
+    },
+    {
+     "narration": "H T T P S second: three hundred only gets evaluated if two hundred didn't already decide.",
+     "nodes": [
+      "nsg",
+      "r1",
+      "r2"
+     ],
+     "edges": [
+      "nsg-r1",
+      "nsg-r2"
+     ]
+    },
+    {
+     "narration": "And the association is what arms it: the group bound to the subnet it protects.",
+     "nodes": [
+      "nsg",
+      "assoc",
+      "sub"
+     ],
+     "edges": [
+      "nsg-assoc",
+      "assoc-sub"
+     ]
+    },
+    {
+     "narration": "Everything else stays denied — default deny covers every port we didn't open.",
+     "nodes": [
+      "nsg",
+      "r1",
+      "r2"
+     ],
+     "edges": [
+      "nsg-r1",
+      "nsg-r2"
+     ]
+    }
+   ],
+   "audio": "audio/S009.mp3"
+  },
+  {
+   "id": "S010",
+   "type": "TERMINAL",
+   "asset": "assets/terminal/lab16-apply.svg",
+   "narration": "Apply time — five resources, and the last line matters most: the association. Group and subnet each existed as resources, but only this block connects them. From that moment, inbound traffic to that subnet is filtered by exactly the rules we wrote, in exactly the priority order we set.",
+   "audio": "audio/S010.mp3"
+  },
+  {
+   "id": "S011",
+   "type": "CONCEPT",
+   "heading": "Common pitfall — ignoring rule priority",
+   "points": [
+    "Lowest priority number is evaluated first — a broad 200 can mask a 300",
+    "A wide Allow at 200 makes a narrower later rule unreachable",
+    "source_address_prefix \"*\" = the entire internet — tighten in production",
+    "Subnet-level and NIC-level NSGs can both apply — don't double-manage"
+   ],
+   "narration": "Here are the pitfalls in this lab. One: the lowest priority number is evaluated first — a broad rule at two hundred can mask a rule at three hundred. Rule order is the whole design of an n s g. Two: a wide allow at two hundred makes a narrower later rule unreachable. Traffic matching the broad rule never gets that far down the list. Three: a wildcard source prefix means the entire internet — tighten in production. That asterisk is honest for a demo and dangerous for anything real. Four: subnet-level and n i c-level n s g s can both apply — don't double-manage. Two layers of rules are easy to contradict; the rule of thumb is most specific allow first, and everything else stays denied.",
+   "audio": "audio/S011.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S012",
+   "type": "RECAP",
+   "points": [
+    "NSG: stateful firewall, default inbound deny",
+    "security_rule blocks with priority — lowest number wins",
+    "Attach via azurerm_subnet_network_security_group_association",
+    "Open only what you need: 3389 (RDP) and 443 (HTTPS) here",
+    "Wildcard source prefixes are demo-grade — tighten for production"
+   ],
+   "narration": "Quick recap — five things. One: an n s g is a stateful firewall — default inbound deny. Two: security rule blocks carry priorities — the lowest number wins. Three: attach with the subnet network security group association resource. Four: open only what you need — three three eight nine for r d p, and four four three for h t t p s. Five: wildcard source prefixes are demo-grade — tighten for production.",
+   "audio": "audio/S012.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S013",
+   "type": "NEXT",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure.",
+   "audio": "audio/S013.mp3"
+  },
+  {
+   "id": "S014",
+   "type": "CONCEPT",
+   "heading": "Thanks for watching",
+   "narration": "Thanks for watching. If this helped, the full lab, along with every lab in this course, is in the GitHub repository linked below. If you'd like more lessons like this one, give the video a like, share it with a friend who is learning Azure, and subscribe to the channel. It really helps the course grow. Thank you, and see you in the next lesson.",
+   "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-01-foundations/16-network-security-group",
+   "centered": true,
+   "audio": "audio/S014.mp3"
+  }
+ ]
+}

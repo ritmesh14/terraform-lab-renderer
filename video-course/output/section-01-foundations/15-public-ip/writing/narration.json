@@ -1,0 +1,58 @@
+{
+ "episode": "15-public-ip",
+ "source": "writing/scenes.json",
+ "scenes": [
+  {
+   "id": "S001",
+   "narration": "Everything we've built so far is private — VNets, subnets, a network interface with a private address. This lesson adds the doorway from the internet: the public I P, and the two settings that decide whether that address ever changes."
+  },
+  {
+   "id": "S002",
+   "narration": "Here's what you'll learn. One: azurerm public I P — a resource's doorway from the internet. Two: allocation method — static keeps the address, dynamic releases it. Three: S K U — Basic is legacy; Standard is the modern default. Four: the address is computed — read it via an output after apply."
+  },
+  {
+   "id": "S003",
+   "narration": "This is lab fifteen. Lab thirteen gave a network interface a private address — reachable inside the VNet, invisible from the internet. Today we add the doorway. And a doorway is only half the story: the next lesson adds the doorman, the security rules that decide who's let through."
+  },
+  {
+   "id": "S004",
+   "narration": "Two decisions define every public I P. Allocation: dynamic addresses are handed out cheaply but released when the machine stops — bookmarks and D N S records break. Static reserves the address for the resource's lifetime. Then S K U: Basic is the legacy tier, Standard is today's default and what zone-redundant load balancers require. And note the shape: a public I P is a resource of its own — created, referenceable, and billed."
+  },
+  {
+   "id": "S005",
+   "narration": "As always, the lab is in the course GitHub repository under Section 1, Foundations, with the link in the description. One of the smallest labs in the section — one group, one address — because the lesson is in two settings."
+  },
+  {
+   "id": "S006",
+   "narration": "The resource group first, one line as always. Then the new resource, and its two decisions stand out. Allocation method Static: this address is reserved — it won't change when a future machine stops. And S K U Standard: the modern tier. The address itself is deliberately absent from the code. Azure will choose it."
+  },
+  {
+   "id": "S007",
+   "narration": "One output, and it's the whole payoff: the address, read from I P underscore address. That value didn't exist at plan time — it's computed during creation, and the output is how you read it back the moment it exists."
+  },
+  {
+   "id": "S008",
+   "narration": "The smallest diagram in the course, and every piece matters: the group anchors the address, the address is created with Static allocation and Standard S K U, and the output reads back the value Azure chose."
+  },
+  {
+   "id": "S009",
+   "narration": "Apply time — two resources, and the output answers the question the code couldn't: an actual I P address. Azure picked it during creation, and Static now keeps it for this resource's lifetime. Computed value, exported the moment it exists — never guessed."
+  },
+  {
+   "id": "S010",
+   "narration": "Here are the pitfalls in this lab. One: dynamic allocation releases the address on stop or deallocate — d n s and bookmarks break. The address is held only while the resource runs; stop the machine, and Azure hands that i p to someone else. Every bookmark, d n s record, and firewall rule pointed at it now aims at a stranger. Two: static costs the same for a running resource — reserve by default. Static costs nothing extra while the resource runs, so make it your default. Three: the basic s k u is legacy — new work should use standard. Pick the standard s k u while you're at it. Four: a public i p alone isn't reachable — it needs a n i c or load balancer, and rules. Lab sixteen adds the rules."
+  },
+  {
+   "id": "S011",
+   "narration": "Quick recap — five things. One: azurerm public i p — a standalone, referenceable, billed resource. Two: static reserves the address; dynamic releases it on stop. Three: the standard s k u is the modern default. Four: the i p address is computed — exported via an output. Five: reachability still needs a n i c or load balancer, and security rules."
+  },
+  {
+   "id": "S012",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+  },
+  {
+   "id": "S013",
+   "narration": "Thanks for watching. If this helped, the full lab, along with every lab in this course, is in the GitHub repository linked below. If you'd like more lessons like this one, give the video a like, share it with a friend who is learning Azure, and subscribe to the channel. It really helps the course grow. Thank you, and see you in the next lesson."
+  }
+ ]
+}

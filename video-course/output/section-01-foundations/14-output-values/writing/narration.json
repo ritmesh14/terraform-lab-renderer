@@ -1,0 +1,62 @@
+{
+ "episode": "14-output-values",
+ "source": "writing/scenes.json",
+ "scenes": [
+  {
+   "id": "S001",
+   "narration": "Every lab so far has ended the same way: values you only learn after apply — a resource I D, a private I P, an address Azure chose. This lesson makes those exports the subject: the output block, in its three costumes."
+  },
+  {
+   "id": "S002",
+   "narration": "Here's what you'll learn. One: output blocks — plain, described, and sensitive. Two: outputs are the configuration's public API after apply. Three: terraform output, followed by a name, reads a value back on demand. Four: what sensitive masks — and what it doesn't."
+  },
+  {
+   "id": "S003",
+   "narration": "This is lab fourteen. We've used outputs casually since lab four — a subnet I D, a private I P. Today they're the subject: how to declare them, how to read them back, and how to keep a secret from printing itself into your terminal."
+  },
+  {
+   "id": "S004",
+   "narration": "Think of outputs as the configuration's public interface. Everything inside — resources, attributes, computed addresses — is private until you declare an output for it. A description tells the next reader what the value means. Sensitive marks values that must not print in plain text. And after apply, the terraform output command is how you — or a script, or another configuration — read them back."
+  },
+  {
+   "id": "S005",
+   "narration": "As always, the lab is in the course GitHub repository under Section 1, Foundations, with the link in the description. The interesting file this time is outputs dot t f — main dot t f just builds a storage account to expose."
+  },
+  {
+   "id": "S006",
+   "narration": "The subject of our outputs: a storage account. Its name embeds a random suffix from the stateful random string you met in lab five — stable across plans. Standard tier, L R S replication. Deliberately ordinary, because the lesson lives in outputs dot t f."
+  },
+  {
+   "id": "S007",
+   "narration": "The first two outputs. The storage account's name — with a description, which changes nothing at runtime but tells the next reader what the value is. And the blob endpoint, a U R L you can paste straight into a browser. Plain outputs like these print in full after every apply."
+  },
+  {
+   "id": "S008",
+   "narration": "The third output is different: sensitive equals true. This is the account's primary access key — a real secret. With that one flag, Terraform masks the value in every plan and apply log. The value still exists and still flows to whoever reads the output. It just refuses to print itself in plain text."
+  },
+  {
+   "id": "S009",
+   "narration": "Drawn out: one storage account exposing three outputs. The name with its description, the blob endpoint, and the access key — marked sensitive, so it flows but never prints in plain text."
+  },
+  {
+   "id": "S010",
+   "narration": "Apply time, and look at the outputs block. Two values print in full — the name and the blob endpoint. The access key doesn't: it shows as sensitive, masked by the flag we set. The value isn't gone. Ask for it by name, and terraform output hands it over. Masked in logs, available on demand."
+  },
+  {
+   "id": "S011",
+   "narration": "Here are the pitfalls in this lab. One: sensitive masks logs only — the value still sits in state, in plain text. The flag protects plan and apply output, nothing more. Two: don't output secrets that no downstream consumer needs. Expose only what someone downstream actually uses. Three: terraform output, followed by a name, prints the real value on demand — by design. So build the habit of treating the state file as the sensitive artifact it is. Four: state-file protection is a separate concern — not this flag's job. Marking something sensitive doesn't secure it; it just keeps it out of the log."
+  },
+  {
+   "id": "S012",
+   "narration": "Quick recap — five things. One: output blocks expose values after apply — the configuration's public interface. Two: description documents; sensitive masks in logs. Three: terraform output, followed by a name, reads values back on demand. Four: computed values — Azure's choices — are prime output candidates. Five: masked is not encrypted — state is still plain text."
+  },
+  {
+   "id": "S013",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+  },
+  {
+   "id": "S014",
+   "narration": "Thanks for watching. If this helped, the full lab, along with every lab in this course, is in the GitHub repository linked below. If you'd like more lessons like this one, give the video a like, share it with a friend who is learning Azure, and subscribe to the channel. It really helps the course grow. Thank you, and see you in the next lesson."
+  }
+ ]
+}

@@ -1,0 +1,9 @@
+terraform state list
+
+azurerm_resource_group.this
+azurerm_storage_account.this
+azurerm_storage_blob.file["app.json"]
+azurerm_storage_blob.file["note.txt"]
+azurerm_storage_blob.file["readme.md"]
+azurerm_storage_container.cfg
+random_string.suffix

@@ -1,0 +1,12 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan",
+  "output_file": "lab44-plan.txt",
+  "highlight": [
+    "\"nsg-deploy\"",
+    "\"pip-deploy\"",
+    "destination_port_range  = \"22\"",
+    "(sensitive value)",
+    "Plan: 7 to add"
+  ]
+}

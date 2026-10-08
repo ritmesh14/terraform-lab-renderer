@@ -1,0 +1,13 @@
+$ terraform apply -auto-approve -no-color
+azurerm_resource_group.this: Creating...
+azurerm_resource_group.this: Creation complete after 2s [id=/subscriptions/<guid>/resourceGroups/rg-nic-foundation]
+azurerm_virtual_network.this: Creating...
+azurerm_virtual_network.this: Creation complete after 8s [id=<guid>]
+azurerm_subnet.web: Creating...
+azurerm_subnet.web: Creation complete after 2s [id=<guid>]
+azurerm_network_interface.web: Creating...
+azurerm_network_interface.web: Creation complete after 4s [id=<guid>]
+Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
+Outputs:
+nic_id = "/subscriptions/<guid>/resourceGroups/rg-nic-foundation/providers/Microsoft.Network/networkInterfaces/nic-web-01"
+nic_private_ip = "10.90.1.4"

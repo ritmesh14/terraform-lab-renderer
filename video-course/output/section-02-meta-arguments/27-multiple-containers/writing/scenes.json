@@ -1,0 +1,563 @@
+{
+  "title": "Count On Demand: Driving count with a Variable",
+  "lesson_label": "Terraform Meta-arguments — Lab 27",
+  "scenes": [
+    {
+      "id": "S001",
+      "type": "TITLE",
+      "title": "Count On Demand: Driving count with a Variable",
+      "lesson_label": "Terraform Meta-arguments — Lab 27",
+      "audio": "audio/S001.mp3",
+      "narration": "Welcome back to the course. Last lesson, count took one block and turned it into three — but the three was hard-coded. This is Lab 27, and we make that number configurable: count driven by an input variable, so a tfvars file — or one CLI flag — decides how many containers get created. Plus the validation block that keeps bad values out. Let's build it."
+    },
+    {
+      "id": "S002",
+      "type": "CONCEPT",
+      "heading": "What you'll learn",
+      "numbered": true,
+      "audio": "audio/S002.mp3",
+      "points": [
+        "count accepts any number expression — not just a literal",
+        "The validation block — bad values fail at plan time",
+        "Scaling: change the variable, the plan follows"
+      ],
+      "narration": "Here's what you'll learn in this lesson — three things. One: count isn't limited to a literal — it accepts any number expression, and here a variable supplies it, so the number of containers is a setting, not a code edit. Two: the validation block — a rule that fails the plan early with a friendly message, instead of a cryptic Azure error after the first resource already landed. Three: what scaling looks like — change the variable, and the plan adds or removes exactly the difference."
+    },
+    {
+      "id": "S003",
+      "type": "CONCEPT",
+      "heading": "Where this lab fits",
+      "audio": "audio/S003.mp3",
+      "points": [
+        "Lab 26: count = 3 — the fan-out was a literal",
+        "This lab: count = var.container_count — a dial",
+        "Later labs push the idea further: for_each and friends"
+      ],
+      "narration": "This is the second lab of Section 2, Meta-arguments. In Lab 26 you met count with a literal — count equals three — and the fan-out was fixed the moment the code was written. This lab keeps the same one-block-many-copies idea but moves the number into a variable: the same configuration can create three containers today and ten tomorrow. Making the fan-out a parameter is the step that leads to for_each later in this section."
+    },
+    {
+      "id": "S004",
+      "type": "CONCEPT",
+      "heading": "Where to find this lab",
+      "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-02-meta-arguments\n          └── 27-multiple-containers\n              ├── README.md\n              ├── main.tf\n              ├── terraform.tf\n              └── variables.tf\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-02-meta-arguments/27-multiple-containers",
+      "audio": "audio/S004.mp3",
+      "narration": "You can find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 27-multiple-containers. The direct link is in the video description. Open the two files we'll read in this lesson: main dot T F holds the whole configuration, and terraform dot T F pins the providers."
+    },
+    {
+      "id": "S005",
+      "type": "CONCEPT",
+      "heading": "The mental model: a dial on the photocopier",
+      "audio": "audio/S005.mp3",
+      "points": [
+        "Lab 26's photocopier had a fixed setting — three copies",
+        "A variable is a dial on the front panel",
+        "The validation block is the guard next to the dial"
+      ],
+      "narration": "Before any code, here's the mental model. Lab 26's photocopier had its number of copies hard-wired — always three. Now the number comes from a dial on the front panel: an input variable. Want three containers? Set the dial. Want seven? Turn it — without rewriting the machine's internals, the resource block. And standing next to the dial is a guard: the validation block, which checks the setting before the plan runs and refuses impossible values on the spot."
+    },
+    {
+      "id": "S006",
+      "type": "CODE",
+      "source_file": "terraform.tf",
+      "start_line": 1,
+      "end_line": 23,
+      "highlight_lines": [
+        5,
+        7,
+        8,
+        13,
+        21
+      ],
+      "asset": "assets/code/lab27-providers.png",
+      "audio": "audio/S006.mp3",
+      "narration": "The configuration lives in two files. Terraform dot T F pins the tooling: Terraform 1.5 or newer, the azurerm provider around version 3.70, and the random provider — this lab uses it again for a unique suffix. The provider block at the bottom is the bridge to Azure; the empty features block enables the provider's default behaviours. Nothing new in this file — the change in this lab is all in main dot T F."
+    },
+    {
+      "id": "S007",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 8,
+      "end_line": 15,
+      "highlight_lines": [
+        8,
+        12
+      ],
+      "asset": "assets/code/lab27-variable.png",
+      "audio": "audio/S007.mp3",
+      "steps": [
+        {
+          "narration": "The new piece sits at the top of main dot T F: an input variable named container_count. Its type is number, and its default is three — so with no extra input at all, this lab behaves exactly like the last one.",
+          "active_lines": [
+            8,
+            9,
+            10
+          ],
+          "active_tokens": [
+            "variable"
+          ]
+        },
+        {
+          "narration": "Then the validation block — a rule Terraform checks at plan time. The condition has to be true: the value must be above zero and at most ten. Pass eleven, or zero, and the plan stops right there with the friendly message you wrote — before a single resource is even planned.",
+          "active_lines": [
+            11,
+            12,
+            13,
+            14
+          ],
+          "active_tokens": [
+            "validation"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S007.step1.mp3",
+        "audio/S007.step2.mp3"
+      ]
+    },
+    {
+      "id": "S008",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 20,
+      "end_line": 31,
+      "highlight_lines": [
+        20,
+        21,
+        27
+      ],
+      "asset": "assets/code/lab27-locals-random.png",
+      "audio": "audio/S008.mp3",
+      "steps": [
+        {
+          "narration": "Next, the locals block computes names once. The storage account name is lowercased with a random suffix appended — locals simply hold the value so it's written in one place.",
+          "active_lines": [
+            20,
+            21
+          ],
+          "active_tokens": [
+            "locals"
+          ]
+        },
+        {
+          "narration": "The suffix comes from random_string: six lowercase characters. Because it's a resource — not a function — the value is saved in state, so every future plan and apply keeps the same suffix and names never drift between runs.",
+          "active_lines": [
+            27,
+            28,
+            29,
+            30,
+            31
+          ],
+          "active_tokens": [
+            "random_string"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S008.step1.mp3",
+        "audio/S008.step2.mp3"
+      ]
+    },
+    {
+      "id": "S009",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 34,
+      "end_line": 48,
+      "highlight_lines": [
+        34,
+        42,
+        44
+      ],
+      "asset": "assets/code/lab27-rg-account.png",
+      "audio": "audio/S009.mp3",
+      "steps": [
+        {
+          "narration": "The resource group gets a fixed name — rg dash multi dash containers.",
+          "active_lines": [
+            34,
+            35,
+            36,
+            37
+          ],
+          "active_tokens": [
+            "azurerm_resource_group"
+          ]
+        },
+        {
+          "narration": "The storage account references the group for its name and location — that reference is an implicit dependency, so the group is always created first. Its own name comes from locals, with the random suffix baked in.",
+          "active_lines": [
+            42,
+            43,
+            44,
+            45
+          ],
+          "active_tokens": [
+            "azurerm_storage_account"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S009.step1.mp3",
+        "audio/S009.step2.mp3"
+      ]
+    },
+    {
+      "id": "S010",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 51,
+      "end_line": 56,
+      "highlight_lines": [
+        52,
+        53
+      ],
+      "asset": "assets/code/lab27-count-block.png",
+      "audio": "audio/S010.mp3",
+      "steps": [
+        {
+          "narration": "And here is the one line that changed from last lab. It's still an ordinary container block with a count — but now count reads the variable: count equals var dot container_count. The number of copies is whatever the caller set.",
+          "active_lines": [
+            51,
+            52
+          ],
+          "active_tokens": [
+            "var.container_count"
+          ]
+        },
+        {
+          "narration": "Inside each copy, everything from last lab still applies: count dot index is the copy's number, and the name interpolates it in — tier-0, tier-1, tier-2.",
+          "active_lines": [
+            53
+          ],
+          "active_tokens": [
+            "tier-${count.index}"
+          ]
+        },
+        {
+          "narration": "Each copy also references the storage account, so every instance waits for the account. And nothing in this block is hard-wired to three anymore — the same code serves one container or ten.",
+          "active_lines": [
+            54,
+            55
+          ],
+          "active_tokens": [
+            "azurerm_storage_account.this.name"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S010.step1.mp3",
+        "audio/S010.step2.mp3",
+        "audio/S010.step3.mp3"
+      ]
+    },
+    {
+      "id": "S011",
+      "type": "ITERATION_EXPANSION",
+      "title": "One variable, any number of copies",
+      "expression": "count = var.container_count",
+      "audio": "audio/S011.mp3",
+      "stages": [
+        {
+          "id": "var",
+          "label": "Input variable",
+          "kind": "expression",
+          "items": [
+            {
+              "key": "var",
+              "text": "container_count = 3"
+            }
+          ]
+        },
+        {
+          "id": "block",
+          "label": "One block",
+          "kind": "expression",
+          "items": [
+            {
+              "key": "block",
+              "text": "resource \"azurerm_storage_container\" \"data\""
+            }
+          ]
+        },
+        {
+          "id": "inst",
+          "label": "Instances (state)",
+          "kind": "instances",
+          "items": [
+            {
+              "key": "i0",
+              "text": "azurerm_storage_container.data[0]"
+            },
+            {
+              "key": "i1",
+              "text": "azurerm_storage_container.data[1]"
+            },
+            {
+              "key": "i2",
+              "text": "azurerm_storage_container.data[2]"
+            }
+          ]
+        },
+        {
+          "id": "names",
+          "label": "Names",
+          "kind": "output",
+          "items": [
+            {
+              "key": "n0",
+              "text": "tier-0"
+            },
+            {
+              "key": "n1",
+              "text": "tier-1"
+            },
+            {
+              "key": "n2",
+              "text": "tier-2"
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "narration": "The dial starts at three — that's the variable's default.",
+          "focus": {
+            "stages": [
+              "var"
+            ]
+          }
+        },
+        {
+          "narration": "count reads the variable and expands the block into three instances — data zero, data one, data two, exactly like last lab.",
+          "focus": {
+            "stages": [
+              "block",
+              "inst"
+            ]
+          }
+        },
+        {
+          "narration": "Inside copy two — the one at index one — count dot index is one, so its name becomes tier-1. The other copies do the same with their own numbers.",
+          "focus": {
+            "stages": [
+              "inst",
+              "names"
+            ],
+            "items": [
+              "i1",
+              "n1"
+            ]
+          }
+        },
+        {
+          "narration": "Now the payoff: terraform apply dash var container_count equals 5 — or one line in terraform dot tfvars — and the same block expands into five instances. The dial turned; no code was touched.",
+          "focus": {
+            "stages": [
+              "var"
+            ]
+          }
+        }
+      ],
+      "step_audio": [
+        "audio/S011.step1.mp3",
+        "audio/S011.step2.mp3",
+        "audio/S011.step3.mp3",
+        "audio/S011.step4.mp3"
+      ]
+    },
+    {
+      "id": "S012",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 61,
+      "end_line": 62,
+      "highlight_lines": [
+        61,
+        62
+      ],
+      "asset": "assets/code/lab27-outputs.png",
+      "audio": "audio/S012.mp3",
+      "steps": [
+        {
+          "narration": "The outputs read the counted list back. A counted resource is a list, so length counts its entries — and that number is whatever the caller chose.",
+          "active_lines": [
+            61
+          ],
+          "active_tokens": [
+            "length("
+          ]
+        },
+        {
+          "narration": "The splat you met last lab collects the name from every instance — so container underscore names prints the whole list, whatever its length.",
+          "active_lines": [
+            62
+          ],
+          "active_tokens": [
+            "[*]"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S012.step1.mp3",
+        "audio/S012.step2.mp3"
+      ]
+    },
+    {
+      "id": "S013",
+      "type": "CONCEPT",
+      "heading": "Scaling: moving the dial",
+      "audio": "audio/S013.mp3",
+      "points": [
+        "Raise 3 → 5: the plan adds data[3] and data[4]",
+        "Lower 5 → 3: the plan destroys data[3] and data[4]",
+        "Kept instances keep their addresses — no churn"
+      ],
+      "narration": "So what actually happens when the dial moves? Raise container_count from three to five, and the next plan adds exactly two entries — data in brackets three and data in brackets four, the highest new indexes. Lower it back to three, and the plan destroys those same two. The kept instances hold onto their addresses and are never touched. That's the flip side of the positional addressing from last lab: scaling is cheap for throwaway names — and something to think about when real data lives in the higher indexes."
+    },
+    {
+      "id": "S014",
+      "type": "DIAGRAM",
+      "caption": "How the pieces connect",
+      "asset": "assets/diagrams/lab27-resource-flow.svg",
+      "audio": "audio/S014.mp3",
+      "steps": [
+        {
+          "narration": "Here's how the pieces connect.",
+          "nodes": [],
+          "edges": []
+        },
+        {
+          "narration": "On the left, the input variable holds the number — the dial.",
+          "nodes": [
+            "var"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The random string generates the suffix and saves it in state.",
+          "nodes": [
+            "random"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "Locals take that suffix and compute the storage account's name.",
+          "nodes": [
+            "locals"
+          ],
+          "edges": [
+            "random-locals"
+          ]
+        },
+        {
+          "narration": "The resource group groups everything in Azure.",
+          "nodes": [
+            "rg"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The storage account references the group — that's the dependency: group first, account second. Its own name came from locals, with the random suffix baked in.",
+          "nodes": [
+            "st"
+          ],
+          "edges": [
+            "rg-st",
+            "locals-st"
+          ]
+        },
+        {
+          "narration": "And the containers: count reads the variable, so one block fans out into exactly as many containers as the caller chose.",
+          "nodes": [
+            "containers"
+          ],
+          "edges": [
+            "var-containers",
+            "st-containers"
+          ]
+        },
+        {
+          "narration": "The outputs read the copies back: length counts them, and the splat collects every name.",
+          "nodes": [
+            "out"
+          ],
+          "edges": [
+            "containers-out"
+          ]
+        },
+        {
+          "narration": "Everything lands inside your Azure subscription.",
+          "nodes": [],
+          "edges": []
+        }
+      ],
+      "step_audio": [
+        "audio/S014.step1.mp3",
+        "audio/S014.step2.mp3",
+        "audio/S014.step3.mp3",
+        "audio/S014.step4.mp3",
+        "audio/S014.step5.mp3",
+        "audio/S014.step6.mp3",
+        "audio/S014.step7.mp3",
+        "audio/S014.step8.mp3",
+        "audio/S014.step9.mp3"
+      ]
+    },
+    {
+      "id": "S015",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab27-plan5.svg",
+      "audio": "audio/S015.mp3",
+      "narration": "Here's the plan with the dial turned to five — terraform plan dash var container_count equals 5 — an illustrative view. Look at the header: the variable's value is five. Count the entries: the random string, the group, the account, and five containers — data in brackets zero through data in brackets four. The same block, five copies — decided by the variable, not the code."
+    },
+    {
+      "id": "S016",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab27-validation-error.svg",
+      "audio": "audio/S016.mp3",
+      "narration": "And here is the guard at work — an illustrative run with container_count set to eleven. The plan never reaches Azure: it stops at the variable, with the exact message written in the validation block — keep between one and ten. That's the value of a validation block: bad input dies at plan time, on your machine, before a single resource is touched."
+    },
+    {
+      "id": "S017",
+      "type": "CONCEPT",
+      "heading": "Common pitfall",
+      "numbered": true,
+      "audio": "audio/S017.mp3",
+      "points": [
+        "count from a variable scales — but addresses stay positional",
+        "Lowering the count destroys the highest instances — and their data",
+        "Validation guards the variable only — other mistakes bypass it"
+      ],
+      "narration": "One pitfall to understand before you make count configurable everywhere. One: a variable makes the fan-out configurable, but the addresses are still positional — data zero through data N — just like last lab. Two: that matters most when the dial goes down: the highest instances are the ones destroyed, and if they hold real data, shrinking a count is a deletion. Check what lives at the highest indexes before you lower it. And three: the validation block guards only the variable it lives in — it's an input check, not a code review; mistakes elsewhere in the configuration sail right past it."
+    },
+    {
+      "id": "S018",
+      "type": "RECAP",
+      "numbered": true,
+      "audio": "audio/S018.mp3",
+      "points": [
+        "count = var.container_count — the fan-out is a setting",
+        "The validation block fails bad values at plan time",
+        "Raising the variable adds the highest new indexes",
+        "Lowering destroys the highest indexes — mind real data",
+        "length() and the splat [*] flex with the count"
+      ],
+      "narration": "Quick recap — five things. One: count now reads a variable — count equals var dot container count — so the fan-out is a setting, not a code edit. Two: the validation block checks the value at plan time and fails early with a friendly message. Three: raising the variable adds the highest new indexes — data three, data four. Four: lowering it destroys the highest indexes first — mind what lives there. Five: the outputs flex with the count — length counts the list, the splat collects every name. One block, and the caller decides how many."
+    },
+    {
+      "id": "S019",
+      "type": "NEXT",
+      "audio": "audio/S019.mp3",
+      "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+    },
+    {
+      "id": "S020",
+      "type": "CONCEPT",
+      "heading": "Thanks for watching",
+      "centered": true,
+      "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-02-meta-arguments/27-multiple-containers",
+      "audio": "audio/S020.mp3",
+      "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+    }
+  ]
+}

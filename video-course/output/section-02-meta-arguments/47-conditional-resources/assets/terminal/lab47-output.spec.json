@@ -1,0 +1,9 @@
+{
+  "mode": "illustrative",
+  "command": "terraform output nsg_created",
+  "output_file": "lab47-output.txt",
+  "highlight": [
+    "nsg_created",
+    "true"
+  ]
+}

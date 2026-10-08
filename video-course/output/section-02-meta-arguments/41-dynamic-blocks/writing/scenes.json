@@ -1,0 +1,449 @@
+{
+  "title": "One Block, Many Rules: Dynamic Blocks",
+  "lesson_label": "Terraform Meta-arguments — Lab 41",
+  "scenes": [
+    {
+      "id": "S001",
+      "type": "TITLE",
+      "title": "One Block, Many Rules: Dynamic Blocks",
+      "lesson_label": "Terraform Meta-arguments — Lab 41",
+      "audio": "audio/S001.mp3",
+      "narration": "Welcome back. Labs 28 through 37 fanned out whole RESOURCES. This is Lab 41, and we go one level deeper: fanning out NESTED BLOCKS inside a single resource. One NSG, whose security rules are stamped out by a dynamic block from a plain variable list. Add a rule to the input and the firewall extends — no code changes. Let's build it."
+    },
+    {
+      "id": "S002",
+      "type": "CONCEPT",
+      "heading": "What you'll learn",
+      "numbered": true,
+      "audio": "audio/S002.mp3",
+      "points": [
+        "dynamic \"security_rule\" { for_each = var.rules } — nested blocks from data",
+        "security_rule.value — addressing the current element inside content",
+        "Add a rule to tfvars → the NSG extends with no code changes"
+      ],
+      "narration": "Three things in this lesson. One: the dynamic block itself — you write the block ONCE, and its for_each generates one nested block per element of a variable list. Two: the addressing inside — the block's label dot value is the current list element, so name, priority and port all come from data. Three: the payoff — this config's rule count is decided by the CALLER. Add a rule to tfvars and apply, and the NSG grows without touching main dot T F."
+    },
+    {
+      "id": "S003",
+      "type": "CONCEPT",
+      "heading": "Where this lab fits",
+      "audio": "audio/S003.mp3",
+      "points": [
+        "Labs 28–37: fan-outs over whole RESOURCES (for_each / count)",
+        "This lab: fan-out INSIDE one resource — repeated nested blocks",
+        "The last fan-out shape: data decides the resource's own anatomy"
+      ],
+      "narration": "Placement. The meta-argument stretch so far fanned out whole resources — many subnets, many NICs, many VMs. Dynamic blocks go one level deeper: ONE resource whose internal anatomy is itself repeated — one NSG, many security rules, generated from data. You've seen the static version already: lab 34 wrote one security_rule block per tier BY HAND. Dynamic makes that list caller-owned."
+    },
+    {
+      "id": "S004",
+      "type": "CONCEPT",
+      "heading": "Where to find this lab",
+      "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-02-meta-arguments\n          └── 41-dynamic-blocks\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-02-meta-arguments/41-dynamic-blocks",
+      "audio": "audio/S004.mp3",
+      "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 41-dynamic-blocks. The direct link is in the video description. Main dot T F holds everything; terraform dot T F pins the providers."
+    },
+    {
+      "id": "S005",
+      "type": "CODE",
+      "source_file": "terraform.tf",
+      "start_line": 1,
+      "end_line": 19,
+      "highlight_lines": [
+        6,
+        8,
+        10,
+        17,
+        18
+      ],
+      "asset": "assets/code/lab41-providers.png",
+      "audio": "audio/S005.mp3",
+      "narration": "Terraform dot T F pins the tooling: Terraform 1.5 or newer, and the azurerm provider around version 3.70 — no extra providers this time. The provider block at the bottom bridges to Azure; the empty features block enables the provider's defaults."
+    },
+    {
+      "id": "S006",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 10,
+      "end_line": 20,
+      "highlight_lines": [
+        11,
+        12,
+        16,
+        17,
+        18
+      ],
+      "asset": "assets/code/lab41-variable.png",
+      "audio": "audio/S006.mp3",
+      "steps": [
+        {
+          "narration": "The input is a LIST of objects — the type contract says every rule must carry a name, a priority, and a port. Three strings and numbers, checked by Terraform before anything runs.",
+          "active_lines": [
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "active_tokens": [
+            "list(object({",
+            "name     = string",
+            "priority = number",
+            "port     = number"
+          ]
+        },
+        {
+          "narration": "And the default ships two rules: Allow HTTP on port 80 with priority 200, and Allow HTTPS on 443 with priority 210. Two entries — so two nested blocks will be generated.",
+          "active_lines": [
+            16,
+            17,
+            18,
+            19
+          ],
+          "active_tokens": [
+            "default = [",
+            "name = \"Allow-HTTP\"",
+            "name = \"Allow-HTTPS\""
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S006.step1.mp3",
+        "audio/S006.step2.mp3"
+      ]
+    },
+    {
+      "id": "S007",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 23,
+      "end_line": 26,
+      "highlight_lines": [
+        24
+      ],
+      "asset": "assets/code/lab41-rg.png",
+      "audio": "audio/S007.mp3",
+      "steps": [
+        {
+          "narration": "The resource group — rg dash dynamic. The container for everything this lab creates.",
+          "active_lines": [
+            23,
+            24,
+            25,
+            26
+          ],
+          "active_tokens": [
+            "azurerm_resource_group",
+            "rg-dynamic"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S007.step1.mp3"
+      ]
+    },
+    {
+      "id": "S008",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 31,
+      "end_line": 35,
+      "highlight_lines": [
+        32
+      ],
+      "asset": "assets/code/lab41-nsg-head.png",
+      "audio": "audio/S008.mp3",
+      "steps": [
+        {
+          "narration": "The NSG block itself looks ordinary at the top: nsg dash dynamic, location and group from the resource group. The unusual part comes next — there is NOT a single hard-coded security_rule block in this resource.",
+          "active_lines": [
+            31,
+            32,
+            33,
+            34
+          ],
+          "active_tokens": [
+            "azurerm_network_security_group",
+            "nsg-dynamic"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S008.step1.mp3"
+      ]
+    },
+    {
+      "id": "S009",
+      "type": "DYNAMIC_BLOCK",
+      "title": "dynamic \"security_rule\" — nested blocks from a variable",
+      "expression": "dynamic \"security_rule\" { for_each = var.rules }",
+      "audio": "audio/S009.mp3",
+      "stages": [
+        {
+          "id": "expr",
+          "label": "The dynamic block",
+          "kind": "expression",
+          "items": [
+            {
+              "key": "e0",
+              "text": "dynamic \"security_rule\" { for_each = var.rules }"
+            }
+          ]
+        },
+        {
+          "id": "elems",
+          "label": "One content per element",
+          "kind": "instances",
+          "items": [
+            {
+              "key": "b0",
+              "text": "security_rule.value → Allow-HTTP : 80 (pri 200)"
+            },
+            {
+              "key": "b1",
+              "text": "security_rule.value → Allow-HTTPS : 443 (pri 210)"
+            }
+          ]
+        },
+        {
+          "id": "blocks",
+          "label": "Rendered inside nsg-dynamic",
+          "kind": "output",
+          "items": [
+            {
+              "key": "r0",
+              "text": "security_rule { name Allow-HTTP, port 80 }"
+            },
+            {
+              "key": "r1",
+              "text": "security_rule { name Allow-HTTPS, port 443 }"
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "narration": "The dynamic block declares the LABEL — security_rule — and drives it with for_each over the rules variable.",
+          "focus": {
+            "stages": [
+              "expr"
+            ]
+          }
+        },
+        {
+          "narration": "For each element, the content block runs once, and security_rule dot value IS that element: value dot name, value dot priority, value dot port.",
+          "focus": {
+            "stages": [
+              "elems"
+            ]
+          }
+        },
+        {
+          "narration": "The result: two real security_rule blocks inside one NSG — generated, not hand-written. The plan output shows both, exactly as if you'd typed them.",
+          "focus": {
+            "stages": [
+              "blocks"
+            ]
+          }
+        }
+      ],
+      "step_audio": [
+        "audio/S009.step1.mp3",
+        "audio/S009.step2.mp3",
+        "audio/S009.step3.mp3"
+      ]
+    },
+    {
+      "id": "S010",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 38,
+      "end_line": 48,
+      "highlight_lines": [
+        39,
+        40,
+        45
+      ],
+      "asset": "assets/code/lab41-content.png",
+      "audio": "audio/S010.mp3",
+      "steps": [
+        {
+          "narration": "Inside content, the block's own fields are bound from the element: name equals security_rule dot value dot name; priority from value dot priority. The nested block is a template; each element fills it in.",
+          "active_lines": [
+            39,
+            40
+          ],
+          "active_tokens": [
+            "security_rule.value.name",
+            "security_rule.value.priority"
+          ]
+        },
+        {
+          "narration": "Direction, access, protocol are constants here; the destination port is data again: tostring of security rule dot value dot port. tostring, because the port is a number and the argument is a string — the conversion you met in lab 34.",
+          "active_lines": [
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47
+          ],
+          "active_tokens": [
+            "tostring(security_rule.value.port)",
+            "source_port_range          = \"*\""
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S010.step1.mp3",
+        "audio/S010.step2.mp3"
+      ]
+    },
+    {
+      "id": "S011",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 54,
+      "end_line": 56,
+      "highlight_lines": [
+        55
+      ],
+      "asset": "assets/code/lab41-output.png",
+      "audio": "audio/S011.mp3",
+      "steps": [
+        {
+          "narration": "The output uses a for expression to collect just the names from the rules variable — one name per dynamic block that will be generated. Proof that the list, not the config, decides what exists.",
+          "active_lines": [
+            54,
+            55,
+            56
+          ],
+          "active_tokens": [
+            "[for r in var.rules : r.name]"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S011.step1.mp3"
+      ]
+    },
+    {
+      "id": "S012",
+      "type": "DIAGRAM",
+      "caption": "How the pieces connect",
+      "asset": "assets/diagrams/lab41-resource-flow.svg",
+      "audio": "audio/S012.mp3",
+      "steps": [
+        {
+          "narration": "Here's how the pieces connect.",
+          "nodes": [],
+          "edges": []
+        },
+        {
+          "narration": "The variables block holds the rules list — two rules by default.",
+          "nodes": [
+            "vars"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The resource group groups everything in Azure.",
+          "nodes": [
+            "rg"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The NSG: ONE resource, whose security_rule blocks are generated by the dynamic block from that list.",
+          "nodes": [
+            "nsg"
+          ],
+          "edges": [
+            "vars-nsg",
+            "rg-nsg"
+          ]
+        },
+        {
+          "narration": "The output collects the rule names — one per generated block, straight from the list.",
+          "nodes": [
+            "out"
+          ],
+          "edges": [
+            "nsg-out",
+            "vars-out"
+          ]
+        },
+        {
+          "narration": "Everything lands inside your Azure subscription.",
+          "nodes": [],
+          "edges": []
+        }
+      ],
+      "step_audio": [
+        "audio/S012.step1.mp3",
+        "audio/S012.step2.mp3",
+        "audio/S012.step3.mp3",
+        "audio/S012.step4.mp3",
+        "audio/S012.step5.mp3",
+        "audio/S012.step6.mp3"
+      ]
+    },
+    {
+      "id": "S013",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab41-plan.svg",
+      "audio": "audio/S013.mp3",
+      "narration": "Here's the plan — terraform plan, an illustrative view. Two resources to add: the resource group and the NSG. Look inside the NSG: two security_rule blocks, generated by the dynamic block — Allow HTTP and Allow HTTPS, priorities 200 and 210. One resource in the add list, two nested blocks inside it."
+    },
+    {
+      "id": "S014",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab41-output.svg",
+      "audio": "audio/S014.mp3",
+      "narration": "And the output — terraform output rule_names, an illustrative view. Two names, straight from the list: Allow HTTP, Allow HTTPS. Add a third rule to tfvars and this list — and the NSG — grow together on the next apply."
+    },
+    {
+      "id": "S015",
+      "type": "CONCEPT",
+      "heading": "Common pitfall",
+      "numbered": true,
+      "audio": "audio/S015.mp3",
+      "points": [
+        "dynamic fans out NESTED BLOCKS — resources are for_each/count's job",
+        "Inside content the label scopes addressing: security_rule.value, not each.value",
+        "Numbers into string arguments need tostring() — port is a number"
+      ],
+      "narration": "Three pitfalls. One: dynamic is for nested blocks INSIDE a resource — for whole extra resources, for_each on the resource itself is still the tool; mixing them up is a common beginner detour. Two: inside content, addressing goes through the BLOCK label — security_rule dot value here — not each dot value; the label scopes the iteration. Three: the port is a number, the argument is a string — tostring makes the conversion explicit; Terraform refuses to guess types silently."
+    },
+    {
+      "id": "S016",
+      "type": "RECAP",
+      "numbered": true,
+      "audio": "audio/S016.mp3",
+      "points": [
+        "dynamic \"security_rule\" { for_each = var.rules } — one block, many copies",
+        "content { ... } binds each element: security_rule.value.name / .priority / .port",
+        "tostring(each.value.port) — explicit number-to-string conversion",
+        "Rule count is caller-owned: add to tfvars, apply, the NSG extends",
+        "Lab 34's hand-written rules vs lab 41's generated ones — same result, data-driven"
+      ],
+      "narration": "Quick recap — five things. One: a dynamic block generates repeated nested blocks from a collection — one block, many copies. Two: content is the template, and security rule dot value binds each element's fields. Three: tostring converts the numeric port for a string argument. Four: the rule count is caller-owned — tfvars can extend the NSG with no code changes. Five: same result as lab 34's hand-written rules, but now the data drives the anatomy. That's the last fan-out shape — resources, addresses, and now nested blocks."
+    },
+    {
+      "id": "S017",
+      "type": "NEXT",
+      "audio": "audio/S017.mp3",
+      "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+    },
+    {
+      "id": "S018",
+      "type": "CONCEPT",
+      "heading": "Thanks for watching",
+      "centered": true,
+      "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-02-meta-arguments/41-dynamic-blocks",
+      "audio": "audio/S018.mp3",
+      "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+    }
+  ]
+}

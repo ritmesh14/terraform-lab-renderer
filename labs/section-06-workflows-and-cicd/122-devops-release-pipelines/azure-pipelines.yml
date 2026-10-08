@@ -1,0 +1,88 @@
+# Lab 122 — Azure DevOps YAML pipeline for Terraform.
+# Two stages: Plan (init/validate/plan, save the plan as an artifact) and
+# Apply (download the artifact and apply it, after stage-level approval).
+# Comments below are documentation only — the pipeline logic is unchanged.
+
+# When to run this pipeline: on any push to `main`. (In a real repo you'd also
+# add a PR validation trigger so plan runs before merging.)
+trigger:
+  branches:
+    include:
+      - main
+
+# The build agent image (Microsoft-hosted Ubuntu VM).
+pool:
+  vmImage: ubuntu-latest
+
+# Pipeline variables: `$(name)` syntax substitutes them at runtime.
+variables:
+  terraformVersion: '1.5.7'
+  # Which folder in the repo Terraform should run in — here the section-01
+  # storage lab. Point this at whichever stack the pipeline deploys.
+  workingDirectory: 'labs/section-01-foundations/02-storage-account'
+
+# A stage is the big unit of this pipeline. Two of them, in order:
+# Plan (read-only, safe to run on any branch) and Apply (changes Azure,
+# so it is gated on Plan's success + an approval).
+stages:
+  - stage: Plan
+    jobs:
+      - job: Plan
+        steps:
+          # Installs the pinned Terraform version on the agent.
+          - task: TerraformInstaller@1
+            inputs:
+              terraformVersion: '$(terraformVersion)'
+
+          # The classic trio: init (download providers/backend), validate
+          # (syntax/consistency check), plan (the diff, saved to tfplan).
+          # -input=false makes Terraform fail instead of hanging if it is
+          # missing an input; -out=tfplan captures the exact changes to apply.
+          # The ARM_* environment variables authenticate Terraform to Azure —
+          # the $(...) values come from pipeline variables (keep them secret!).
+          - script: |
+              terraform init
+              terraform validate
+              terraform plan -input=false -out=tfplan
+            displayName: 'terraform init / validate / plan'
+            env:
+              ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+              ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+              ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+              ARM_TENANT_ID: $(ARM_TENANT_ID)
+            workingDirectory: $(workingDirectory)
+
+          # Save the generated plan file as a build artifact so the Apply
+          # stage applies the *exact same* diff — never a freshly computed one.
+          - publish: $(workingDirectory)/tfplan
+            artifact: tfplan
+
+  # Apply only runs if Plan succeeded AND someone approved the stage.
+  - stage: Apply
+    dependsOn: Plan
+    jobs:
+      - job: Apply
+        steps:
+          # Apply jobs run on a fresh agent, so Terraform must be installed
+          # and the plan artifact downloaded again here.
+          - task: TerraformInstaller@1
+            inputs:
+              terraformVersion: '$(terraformVersion)'
+
+          - download: current
+            artifact: tfplan
+
+          # Re-init on this fresh agent, then apply the downloaded plan.
+          # `apply tfplan` needs no approval prompt — the plan file itself was
+          # already reviewed/approved; -auto-approve just skips the interactive
+          # prompt (there is no interactive terminal in CI).
+          - script: |
+              terraform init
+              terraform apply -auto-approve tfplan
+            displayName: 'terraform apply'
+            env:
+              ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+              ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+              ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+              ARM_TENANT_ID: $(ARM_TENANT_ID)
+            workingDirectory: $(workingDirectory)

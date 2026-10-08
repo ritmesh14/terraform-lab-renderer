@@ -1,0 +1,119 @@
+name: Render Terraform Lab Video
+
+on:
+  workflow_dispatch:
+    inputs:
+      lab:
+        description: "Lab number, for example 01"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: terraform-video-${{ github.event.inputs.lab }}
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    env:
+      CI: "true"
+      PYTHONUNBUFFERED: "1"
+      COURSE_SOURCE_ROOT: ${{ github.workspace }}/labs
+      VIDEO_COURSE_ROOT: ${{ github.workspace }}/video-course
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: video-course/remotion/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Linux media tools and fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            ffmpeg \
+            fonts-inter \
+            fonts-jetbrains-mono
+          ffmpeg -version
+          ffprobe -version
+          fc-match Inter
+          fc-match "JetBrains Mono"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r video-course/requirements-ci.txt
+          python -m pip install uv
+
+      - name: Install Playwright Chromium
+        run: |
+          python -m playwright install --with-deps chromium
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.16.3"
+          terraform_wrapper: false
+
+      - name: Install Remotion dependencies
+        working-directory: video-course/remotion
+        run: npm ci
+
+      - name: Verify CI source layout
+        shell: bash
+        run: |
+          test -d "$COURSE_SOURCE_ROOT"
+          test -d "$VIDEO_COURSE_ROOT"
+          test -f "$VIDEO_COURSE_ROOT/remotion/package.json"
+          test -f "$VIDEO_COURSE_ROOT/config/theme.json"
+          echo "CI source root: $COURSE_SOURCE_ROOT"
+          echo "Video course root: $VIDEO_COURSE_ROOT"
+
+      - name: Run complete CI media pipeline
+        shell: bash
+        run: |
+          python video-course/tools/generate_course.py \
+            --source-root "$COURSE_SOURCE_ROOT" \
+            --lab "${{ github.event.inputs.lab }}" \
+            --mode ci \
+            --force
+
+      - name: Upload final video deliverables
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-lab-${{ github.event.inputs.lab }}-video-${{ github.run_number }}
+          path: |
+            video-course/output/**/final/*.mp4
+            video-course/output/**/final/*.srt
+            video-course/output/**/validation/quality-check.json
+            video-course/output/**/timing/timed-scenes.json
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+
+      - name: Upload QC evidence on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-lab-${{ github.event.inputs.lab }}-failure-${{ github.run_number }}
+          path: |
+            video-course/output/**/validation/
+            video-course/output/**/writing/
+          if-no-files-found: warn
+          retention-days: 1

@@ -1,0 +1,54 @@
+{
+  "nodes": [
+    {
+      "id": "rg",
+      "label": "azurerm_resource_group.this\nrg-disk-foundation"
+    },
+    {
+      "id": "vm",
+      "label": "azurerm_windows_virtual_machine.web\nvm-disk-01 · OS disk inside"
+    },
+    {
+      "id": "disk",
+      "label": "azurerm_managed_disk.data\ndisk-data-01 · 32 GB · Empty"
+    },
+    {
+      "id": "att",
+      "label": "data_disk_attachment.data\nLUN 0 · ReadWrite"
+    }
+  ],
+  "edges": [
+    {
+      "from": "rg",
+      "to": "vm",
+      "label": "hosts"
+    },
+    {
+      "from": "rg",
+      "to": "disk",
+      "label": "holds"
+    },
+    {
+      "from": "vm",
+      "to": "att",
+      "label": "target"
+    },
+    {
+      "from": "disk",
+      "to": "att",
+      "label": "attached at LUN 0"
+    }
+  ],
+  "layers": [
+    [
+      "rg"
+    ],
+    [
+      "vm",
+      "disk"
+    ],
+    [
+      "att"
+    ]
+  ]
+}

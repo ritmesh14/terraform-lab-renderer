@@ -1,0 +1,62 @@
+{
+ "episode": "21-data-disk",
+ "source": "writing/scenes.json",
+ "scenes": [
+  {
+   "id": "S001",
+   "narration": "Every virtual machine so far carried exactly one disk — the one Windows was installed on. Real applications need more: a separate disk for databases, files, backups. This lesson builds that second disk, and the dedicated resource that bolts it onto the machine."
+  },
+  {
+   "id": "S002",
+   "narration": "Here's what you'll learn. One: azurerm managed disk — a standalone managed disk you create directly. Two: the data disk attachment — the L U N-level link between disk and machine. Three: O S disk versus data disk — Windows lives on one, your data on the other. Four: L U N zero through sixty-three — how the guest O S identifies each attached disk."
+  },
+  {
+   "id": "S003",
+   "narration": "This is lab twenty-one. Every machine we've built so far boots, and that's all it can do — stop it, and its data is gone. Today we give the machine a second, persistent disk. When we later deploy real applications, this disk is where their state will live."
+  },
+  {
+   "id": "S004",
+   "narration": "The mental model: one disk for the system, one for the data. The O S disk appears automatically when the machine is created — Terraform never writes that block for it here. A data disk is different: it's a managed disk resource of its own, created first, and attached second. And because it's independent, you can detach it and bolt it onto a different machine later — the data survives."
+  },
+  {
+   "id": "S005",
+   "narration": "As always, the lab is in the course GitHub repository under Section 1, Foundations, with the link in the description. Readme, main dot t f, variables, terraform dot t f, and the tf vars example for the password."
+  },
+  {
+   "id": "S006",
+   "narration": "The network stack first — resource group, VNet on ten one forty slash sixteen, subnet, and the network interface. All familiar from earlier labs. The interface is the VM's future network card, and it's the last piece before the machine itself."
+  },
+  {
+   "id": "S007",
+   "narration": "The Windows virtual machine. Nothing new in the block itself — size, credentials, image — except what's NOT here: no data disk yet. The O S disk inside is just the boot drive: read-write caching, standard S S D. Windows will see roughly a hundred twenty-seven gigabytes of C drive, and that's all."
+  },
+  {
+   "id": "S008",
+   "narration": "Now the new pair. The managed disk: create option Empty — a blank disk — thirty-two gigabytes. And the attachment, a separate resource that joins disk to machine. L U N zero is its slot number, zero through sixty-three, how the guest O S will identify it. Splitting these two apart is deliberate: resize the disk, or re-attach it elsewhere, and only one resource changes."
+  },
+  {
+   "id": "S009",
+   "narration": "The whole story in one picture: the resource group holds the machine and the blank managed disk side by side — neither knows the other exists. The attachment resource is the join: disk into machine at L U N zero. Only when that third resource exists does Windows see its second drive."
+  },
+  {
+   "id": "S010",
+   "narration": "Apply time — seven resources, and watch the order: machine first, disk second, attachment last. The dependency chain Terraform inferred from the I D references. In the portal afterward, the machine's Disks blade shows two entries — the boot disk, and disk data zero one at L U N zero."
+  },
+  {
+   "id": "S011",
+   "narration": "Here are the pitfalls in this lab. One: the attachment is a real resource — deleting the v m does not detach the disk. The disk's independence cuts both ways: the attachment survives as its own resource. Two: changing the attachment's l u n is an in-place update; changing the disk i d is a replace. The slot number can move; a different disk means the old one is replaced. Three: host caching — none for write-heavy disks, read write for read-heavy. Match the caching mode to the workload's read and write pattern. Four: detached disks keep billing — delete what you don't need. A detached disk keeps existing, and keeps costing, until you delete it explicitly."
+  },
+  {
+   "id": "S012",
+   "narration": "Quick recap — five things. One: azurerm managed disk — a blank standalone disk, with create option empty. Two: attach with the virtual machine data disk attachment resource. Three: l u n zero through sixty three identifies the disk inside the guest o s. Four: separate resources mean you can resize or re-attach without touching the other. Five: the o s disk is automatic — the data disk is what you manage."
+  },
+  {
+   "id": "S013",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+  },
+  {
+   "id": "S014",
+   "narration": "Thanks for watching. If this helped, the full lab, along with every lab in this course, is in the GitHub repository linked below. If you'd like more lessons like this one, give the video a like, share it with a friend who is learning Azure, and subscribe to the channel. It really helps the course grow. Thank you, and see you in the next lesson."
+  }
+ ]
+}

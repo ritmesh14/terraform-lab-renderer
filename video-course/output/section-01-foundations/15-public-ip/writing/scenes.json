@@ -1,0 +1,191 @@
+{
+ "title": "Public IP Addresses",
+ "lesson_label": "Azure Foundations — Lab 15",
+ "scenes": [
+  {
+   "id": "S001",
+   "type": "TITLE",
+   "title": "Public IP Addresses",
+   "narration": "Everything we've built so far is private — VNets, subnets, a network interface with a private address. This lesson adds the doorway from the internet: the public I P, and the two settings that decide whether that address ever changes.",
+   "audio": "audio/S001.mp3"
+  },
+  {
+   "id": "S002",
+   "type": "CONCEPT",
+   "heading": "What you'll learn",
+   "points": [
+    "azurerm_public_ip: a resource's doorway from the internet",
+    "allocation_method: Static keeps the address, Dynamic releases it",
+    "sku: Basic is legacy — Standard is the modern default",
+    "The address is computed — read via output after apply"
+   ],
+   "narration": "Here's what you'll learn. One: azurerm public I P — a resource's doorway from the internet. Two: allocation method — static keeps the address, dynamic releases it. Three: S K U — Basic is legacy; Standard is the modern default. Four: the address is computed — read it via an output after apply.",
+   "audio": "audio/S002.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S003",
+   "type": "CONCEPT",
+   "heading": "Where this lab fits",
+   "points": [
+    "Lab 15 of the Foundations section",
+    "Lab 13's NIC has a private IP only — nothing reachable from outside",
+    "Next lab (NSG) decides who's allowed through this door"
+   ],
+   "narration": "This is lab fifteen. Lab thirteen gave a network interface a private address — reachable inside the VNet, invisible from the internet. Today we add the doorway. And a doorway is only half the story: the next lesson adds the doorman, the security rules that decide who's let through.",
+   "audio": "audio/S003.mp3"
+  },
+  {
+   "id": "S004",
+   "type": "CONCEPT",
+   "heading": "Static vs Dynamic, Basic vs Standard",
+   "points": [
+    "Dynamic: released when the resource stops — the address changes",
+    "Static: reserved for the resource's lifetime — survives stop/start",
+    "Basic SKU: legacy; Standard: required for zone-redundant load balancers",
+    "A public IP is a real resource: created, referenced, billed"
+   ],
+   "narration": "Two decisions define every public I P. Allocation: dynamic addresses are handed out cheaply but released when the machine stops — bookmarks and D N S records break. Static reserves the address for the resource's lifetime. Then S K U: Basic is the legacy tier, Standard is today's default and what zone-redundant load balancers require. And note the shape: a public I P is a resource of its own — created, referenceable, and billed.",
+   "audio": "audio/S004.mp3"
+  },
+  {
+   "id": "S005",
+   "type": "CONCEPT",
+   "heading": "Where to find this lab",
+   "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-01-foundations\n          └── 15-public-ip\n              ├── README.md\n              ├── main.tf\n              └── terraform.tf\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-01-foundations/15-public-ip",
+   "narration": "As always, the lab is in the course GitHub repository under Section 1, Foundations, with the link in the description. One of the smallest labs in the section — one group, one address — because the lesson is in two settings.",
+   "audio": "audio/S005.mp3"
+  },
+  {
+   "id": "S006",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 12,
+   "end_line": 27,
+   "highlight_lines": [
+    25,
+    26
+   ],
+   "asset": "assets/code/15-01-public-ip.png",
+   "narration": "The resource group first, one line as always. Then the new resource, and its two decisions stand out. Allocation method Static: this address is reserved — it won't change when a future machine stops. And S K U Standard: the modern tier. The address itself is deliberately absent from the code. Azure will choose it.",
+   "audio": "audio/S006.mp3"
+  },
+  {
+   "id": "S007",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 29,
+   "end_line": 32,
+   "highlight_lines": [
+    32
+   ],
+   "asset": "assets/code/15-02-output.png",
+   "narration": "One output, and it's the whole payoff: the address, read from I P underscore address. That value didn't exist at plan time — it's computed during creation, and the output is how you read it back the moment it exists.",
+   "audio": "audio/S007.mp3"
+  },
+  {
+   "id": "S008",
+   "type": "DIAGRAM",
+   "caption": "One resource, one address — chosen by Azure",
+   "asset": "assets/diagrams/15-public-ip.svg",
+   "narration": "The smallest diagram in the course, and every piece matters: the group anchors the address, the address is created with Static allocation and Standard S K U, and the output reads back the value Azure chose.",
+   "steps": [
+    {
+     "narration": "The smallest diagram in the course — and every piece matters.",
+     "nodes": [],
+     "edges": []
+    },
+    {
+     "narration": "The resource group anchors it.",
+     "nodes": [
+      "rg"
+     ],
+     "edges": []
+    },
+    {
+     "narration": "The public I P: Static allocation, Standard S K U — the address is reserved for this resource.",
+     "nodes": [
+      "rg",
+      "pip"
+     ],
+     "edges": [
+      "rg-pip"
+     ]
+    },
+    {
+     "narration": "The address itself is computed during creation — the output reads it back.",
+     "nodes": [
+      "pip",
+      "out"
+     ],
+     "edges": [
+      "pip-out"
+     ]
+    },
+    {
+     "narration": "One resource, one address, one output. The doorway is built.",
+     "nodes": [
+      "rg",
+      "pip",
+      "out"
+     ],
+     "edges": [
+      "rg-pip",
+      "pip-out"
+     ]
+    }
+   ],
+   "audio": "audio/S008.mp3"
+  },
+  {
+   "id": "S009",
+   "type": "TERMINAL",
+   "asset": "assets/terminal/lab15-apply.svg",
+   "narration": "Apply time — two resources, and the output answers the question the code couldn't: an actual I P address. Azure picked it during creation, and Static now keeps it for this resource's lifetime. Computed value, exported the moment it exists — never guessed.",
+   "audio": "audio/S009.mp3"
+  },
+  {
+   "id": "S010",
+   "type": "CONCEPT",
+   "heading": "Common pitfall — Dynamic allocation for anything long-lived",
+   "points": [
+    "Dynamic releases the address on stop/deallocate — DNS and bookmarks break",
+    "Static costs the same for a running resource — reserve by default",
+    "Basic SKU is legacy; new work should use Standard",
+    "A public IP alone isn't reachable — it needs a NIC/LB and rules (Lab 16)"
+   ],
+   "narration": "Here are the pitfalls in this lab. One: dynamic allocation releases the address on stop or deallocate — d n s and bookmarks break. The address is held only while the resource runs; stop the machine, and Azure hands that i p to someone else. Every bookmark, d n s record, and firewall rule pointed at it now aims at a stranger. Two: static costs the same for a running resource — reserve by default. Static costs nothing extra while the resource runs, so make it your default. Three: the basic s k u is legacy — new work should use standard. Pick the standard s k u while you're at it. Four: a public i p alone isn't reachable — it needs a n i c or load balancer, and rules. Lab sixteen adds the rules.",
+   "audio": "audio/S010.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S011",
+   "type": "RECAP",
+   "points": [
+    "azurerm_public_ip: a standalone, referenceable, billed resource",
+    "Static reserves the address; Dynamic releases it on stop",
+    "Standard SKU is the modern default",
+    "ip_address is computed — exported via output",
+    "Reachability still needs a NIC/LB and security rules"
+   ],
+   "narration": "Quick recap — five things. One: azurerm public i p — a standalone, referenceable, billed resource. Two: static reserves the address; dynamic releases it on stop. Three: the standard s k u is the modern default. Four: the i p address is computed — exported via an output. Five: reachability still needs a n i c or load balancer, and security rules.",
+   "audio": "audio/S011.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S012",
+   "type": "NEXT",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure.",
+   "audio": "audio/S012.mp3"
+  },
+  {
+   "id": "S013",
+   "type": "CONCEPT",
+   "heading": "Thanks for watching",
+   "narration": "Thanks for watching. If this helped, the full lab, along with every lab in this course, is in the GitHub repository linked below. If you'd like more lessons like this one, give the video a like, share it with a friend who is learning Azure, and subscribe to the channel. It really helps the course grow. Thank you, and see you in the next lesson.",
+   "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-01-foundations/15-public-ip",
+   "centered": true,
+   "audio": "audio/S013.mp3"
+  }
+ ]
+}

@@ -1,0 +1,66 @@
+{
+ "episode": "10-types-map",
+ "source": "writing/scenes.json",
+ "scenes": [
+  {
+   "id": "S001",
+   "narration": "Last lesson repeated blocks from a list. But lists address by position, and infrastructure usually addresses by role: web, app, data. In this lesson we meet the map, and the for each meta argument, the idiomatic way to create one resource per entry."
+  },
+  {
+   "id": "S002",
+   "narration": "Here's what you'll learn. One: the map type — meaningful keys, each holding a value or an object. Two: for each over a map — one resource per key. Three: each dot key and each dot value inside the resource block. Four: why maps beat lists when entries have identity."
+  },
+  {
+   "id": "S003",
+   "narration": "This is lab ten, the last of the collection-type pair. In lab nine, a list generated subnets by position. Here a map generates them by role: web, app, and data. And notice the shape: each subnet is now its own standalone resource, not an inline block. That's the flexible version lab six promised was coming."
+  },
+  {
+   "id": "S004",
+   "narration": "The rule for choosing between last lesson and this one is simple. If you address entries by position, use a list. If you address them by role or name, use a map. The reason it matters is state: for each over a map creates one tracked instance per key. Delete the app key from the map, and Terraform destroys exactly the app subnet, leaving web and data alone. That kind of surgical change is what makes maps the professional default for repeated resources."
+  },
+  {
+   "id": "S005",
+   "narration": "As always, the lab is in the course GitHub repository under Section 1, Foundations, with the link in the description. Main dot T F and terraform dot T F, same split layout as the last two labs."
+  },
+  {
+   "id": "S006",
+   "narration": "First the data, and it's a different shape this time. Subnets is a map: three keys, web, app, and data, and each value is an object with a prefix and an N S G flag. Compare this to last lab's list: there, position told you what a subnet was. Here, the key does. You'll see how much that buys us in a moment."
+  },
+  {
+   "id": "S007",
+   "narration": "The resource group and virtual network are the familiar opening pair, same reference chains as the last several labs. One network, ten sixty dot zero dot zero slash sixteen, ready to hold three subnets. Nothing new here, so let's get to the main event."
+  },
+  {
+   "id": "S008",
+   "narration": "This is the lesson: one subnet resource, no list, no dynamic block. For each equals the map, and Terraform creates one instance per key. Inside the block, each dot key is the role name, web, app, or data, and it builds the subnet name: snet dash web. Each dot value is that key's object, and the address prefixes line pulls its prefix. Three map entries, three real resources, one resource block."
+  },
+  {
+   "id": "S009",
+   "narration": "Here's what for each actually built. The map has three entries, so the single azurerm subnet resource becomes three instances: snet web, snet app, and snet data, each tracked in state under its key. Change the web entry's prefix, and only web is touched. Delete the data key, and only data is destroyed. Identity, not position."
+  },
+  {
+   "id": "S010",
+   "narration": "The output closes with a for expression over the created resources. K is the key, S is each instance, and the result is a map from role to subnet I D. After apply you can hand any downstream module the data subnet's I D by asking for it by name."
+  },
+  {
+   "id": "S011",
+   "narration": "Apply time, and the plan tells the story: three separate subnet resources, each with its own address, created from one block. The output maps every role to its I D. That's for each doing in resources what for expressions did in data."
+  },
+  {
+   "id": "S012",
+   "narration": "Here are the pitfalls in this lab. One: a list-based for each re-indexes on removal — entries shift, and state churns. If you remove the first entry of a list, every following entry slides down an index. Two: remove web from a list, and every later subnet's address changes. Terraform thinks every subnet changed, even though nothing real did. Three: remove web from a map, and only web is destroyed. Map keys are stable names, so state follows the role, not the position. Four: the unused n s g flag is deliberate — lab eleven turns this map into a variable. The shape is already production-ready for it."
+  },
+  {
+   "id": "S013",
+   "narration": "Quick recap — five things. One: maps are key-addressed — web, app, data — by role, not position. Two: for each over a map creates one resource instance per key. Three: each dot key names the instance; each dot value carries its object. Four: instance identity in state is the map key — changes stay surgical. Five: prefer maps over lists whenever entries have identity."
+  },
+  {
+   "id": "S014",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+  },
+  {
+   "id": "S015",
+   "narration": "Thanks for watching. If this helped, the full lab, along with every lab in this course, is in the GitHub repository linked below. If you'd like more lessons like this one, give the video a like, share it with a friend who is learning Azure, and subscribe to the channel. It really helps the course grow. Thank you, and see you in the next lesson."
+  }
+ ]
+}

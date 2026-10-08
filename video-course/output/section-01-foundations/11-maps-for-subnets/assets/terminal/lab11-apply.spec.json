@@ -1,0 +1,9 @@
+{
+  "command": "terraform apply -auto-approve",
+  "output_file": "lab11-apply.txt",
+  "highlight": [
+    "Apply complete",
+    "subnet_count",
+    "subnet_names"
+  ]
+}

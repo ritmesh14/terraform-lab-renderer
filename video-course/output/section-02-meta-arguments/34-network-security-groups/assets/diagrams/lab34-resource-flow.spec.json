@@ -1,0 +1,70 @@
+{
+ "layers": [
+  [
+   "locals",
+   "rg",
+   "vnet",
+   "subnets",
+   "assoc",
+   "nsgs"
+  ]
+ ],
+ "nodes": [
+  {
+   "id": "locals",
+   "label": "locals: tiers map (prefix, port)"
+  },
+  {
+   "id": "rg",
+   "label": "rg-nsgs-meta"
+  },
+  {
+   "id": "vnet",
+   "label": "vnet-nsgs (10.180.0.0/16)"
+  },
+  {
+   "id": "subnets",
+   "label": "subnets: snet-web/app (for_each)"
+  },
+  {
+   "id": "nsgs",
+   "label": "nsgs: nsg-web/app + port rules (for_each)"
+  },
+  {
+   "id": "assoc",
+   "label": "associations: [each.key] lookup"
+  }
+ ],
+ "edges": [
+  {
+   "id": "rg-vnet",
+   "from": "rg",
+   "to": "vnet",
+   "label": "reference"
+  },
+  {
+   "id": "locals-subnets",
+   "from": "locals",
+   "to": "subnets",
+   "label": "for_each"
+  },
+  {
+   "id": "vnet-subnets",
+   "from": "vnet",
+   "to": "subnets",
+   "label": "address space"
+  },
+  {
+   "id": "subnets-assoc",
+   "from": "subnets",
+   "to": "assoc",
+   "label": "[each.key]"
+  },
+  {
+   "id": "nsgs-assoc",
+   "from": "nsgs",
+   "to": "assoc",
+   "label": "[each.key]"
+  }
+ ]
+}

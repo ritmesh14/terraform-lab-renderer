@@ -1,0 +1,8 @@
+{
+  "command": "terraform apply -auto-approve",
+  "output_file": "lab22-apply.txt",
+  "highlight": [
+    "Import complete",
+    "imported"
+  ]
+}

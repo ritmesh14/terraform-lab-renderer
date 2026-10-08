@@ -1,0 +1,70 @@
+{
+  "layers": [
+    [
+      "locals",
+      "rg",
+      "vnet",
+      "subnets",
+      "nics",
+      "out"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": "locals",
+      "label": "locals: tiers [web, app, data]"
+    },
+    {
+      "id": "rg",
+      "label": "rg-multi-nics"
+    },
+    {
+      "id": "vnet",
+      "label": "vnet-multi-nics (10.160.0.0/16)"
+    },
+    {
+      "id": "subnets",
+      "label": "subnets: snet-web/app/data (computed map)"
+    },
+    {
+      "id": "nics",
+      "label": "nics: nic-web/app/data (for_each over subnets)"
+    },
+    {
+      "id": "out",
+      "label": "output: nics"
+    }
+  ],
+  "edges": [
+    {
+      "id": "rg-vnet",
+      "from": "rg",
+      "to": "vnet",
+      "label": "reference"
+    },
+    {
+      "id": "locals-subnets",
+      "from": "locals",
+      "to": "subnets",
+      "label": "for → map"
+    },
+    {
+      "id": "vnet-subnets",
+      "from": "vnet",
+      "to": "subnets",
+      "label": "address space"
+    },
+    {
+      "id": "subnets-nics",
+      "from": "subnets",
+      "to": "nics",
+      "label": "for_each (resource map)"
+    },
+    {
+      "id": "nics-out",
+      "from": "nics",
+      "to": "out",
+      "label": "keys()"
+    }
+  ]
+}

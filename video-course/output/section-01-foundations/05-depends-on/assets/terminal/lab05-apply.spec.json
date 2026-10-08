@@ -1,0 +1,5 @@
+{
+  "command": "terraform apply -auto-approve",
+  "output_file": "lab05-apply.txt",
+  "highlight": ["Apply complete", "azurerm_storage_container"]
+}

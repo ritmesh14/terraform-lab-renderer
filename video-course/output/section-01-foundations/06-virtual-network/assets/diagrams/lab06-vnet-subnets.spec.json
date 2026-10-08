@@ -1,0 +1,49 @@
+{
+  "nodes": [
+    {
+      "id": "rg",
+      "label": "azurerm_resource_group.this"
+    },
+    {
+      "id": "vnet",
+      "label": "azurerm_virtual_network.this\n10.20.0.0/16"
+    },
+    {
+      "id": "web",
+      "label": "snet-web\n10.20.1.0/24"
+    },
+    {
+      "id": "app",
+      "label": "snet-app\n10.20.2.0/24"
+    }
+  ],
+  "edges": [
+    {
+      "from": "rg",
+      "to": "vnet",
+      "label": "name + location"
+    },
+    {
+      "from": "vnet",
+      "to": "web",
+      "label": "inline subnet"
+    },
+    {
+      "from": "vnet",
+      "to": "app",
+      "label": "inline subnet"
+    }
+  ],
+  "layers": [
+    [
+      "rg"
+    ],
+    [
+      "vnet"
+    ],
+    [
+      "web",
+      "app"
+    ]
+  ]
+}

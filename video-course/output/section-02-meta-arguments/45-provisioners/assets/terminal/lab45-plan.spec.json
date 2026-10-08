@@ -1,0 +1,11 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan",
+  "output_file": "lab45-plan.txt",
+  "highlight": [
+    "\"nsg-provisioner\"",
+    "\"pip-provisioner\"",
+    "(sensitive value)",
+    "Plan: 7 to add"
+  ]
+}

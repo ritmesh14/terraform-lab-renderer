@@ -1,0 +1,9 @@
+{
+  "command": "terraform apply -auto-approve",
+  "output_file": "lab14-apply.txt",
+  "highlight": [
+    "Apply complete",
+    "<sensitive>",
+    "terraform output"
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "nodes": [
+    {
+      "id": "var",
+      "label": "var.location (default: eastus)"
+    },
+    {
+      "id": "loc",
+      "label": "local.rg_name"
+    },
+    {
+      "id": "core",
+      "label": "azurerm_resource_group.core"
+    },
+    {
+      "id": "hash",
+      "label": "substr(md5(core.id), 0, 6)"
+    },
+    {
+      "id": "st",
+      "label": "azurerm_storage_account.logs"
+    }
+  ],
+  "edges": [
+    {
+      "from": "var",
+      "to": "core",
+      "label": "location"
+    },
+    {
+      "from": "loc",
+      "to": "core",
+      "label": "name"
+    },
+    {
+      "from": "core",
+      "to": "hash",
+      "label": "id"
+    },
+    {
+      "from": "hash",
+      "to": "st",
+      "label": "name suffix"
+    },
+    {
+      "from": "core",
+      "to": "st",
+      "label": "rg name + location"
+    }
+  ],
+  "layers": [
+    [
+      "var",
+      "loc"
+    ],
+    [
+      "core",
+      "hash"
+    ],
+    [
+      "st"
+    ]
+  ]
+}

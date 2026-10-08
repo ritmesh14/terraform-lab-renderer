@@ -1,0 +1,477 @@
+{
+  "title": "One VM per Zone: length() and Zone Lookup",
+  "lesson_label": "Terraform Meta-arguments — Lab 37",
+  "scenes": [
+    {
+      "id": "S001",
+      "type": "TITLE",
+      "title": "One VM per Zone: length() and Zone Lookup",
+      "lesson_label": "Terraform Meta-arguments — Lab 37",
+      "audio": "audio/S001.mp3",
+      "narration": "Welcome back. Availability sets spread VMs across racks in ONE datacenter. This is Lab 37, and we go one level up: availability zones — whole separate datacenters. And count gets smarter: instead of a magic number, its size comes from a list, and count dot index becomes a LOOKUP into that list. One VM per zone, automatically. Let's build it."
+    },
+    {
+      "id": "S002",
+      "type": "CONCEPT",
+      "heading": "What you'll learn",
+      "numbered": true,
+      "audio": "audio/S002.mp3",
+      "points": [
+        "count = length(local.zones) — the list sizes the fan-out",
+        "count.index as a LOOKUP: local.zones[count.index] gives meaning",
+        "zone pinning + the real 99.99% SLA conditions"
+      ],
+      "narration": "Three things in this lesson. One: count driven by length — the zones list decides how many VMs exist; add a zone, get a VM. Two: count dot index used as a lookup — instead of just numbering things, it reaches into the list to fetch each VM's zone. Three: the honest SLA picture — zone pinning counts toward the 99.99 percent VM SLA, but only when you use premium or ultra disks and span two or more zones; with standard SSD storage, like this lab, it alone doesn't qualify."
+    },
+    {
+      "id": "S003",
+      "type": "CONCEPT",
+      "heading": "Where this lab fits",
+      "audio": "audio/S003.mp3",
+      "points": [
+        "Lab 36: availability sets — racks within ONE datacenter",
+        "This lab: zones — separate datacenters with independent power",
+        "This is the bridge from count to data-driven fan-outs"
+      ],
+      "narration": "Placement. Lab 36 spread VMs across fault domains — racks within a single building. Zones are physically separate datacenters with independent power, network and cooling. A region outage can't touch a VM in another zone. And technically, this lab is the bridge you've been building toward: count sized by a list is the halfway point between count and for_each — the collection, not a number, decides the fan-out."
+    },
+    {
+      "id": "S004",
+      "type": "CONCEPT",
+      "heading": "Where to find this lab",
+      "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-02-meta-arguments\n          └── 37-availability-zones\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-02-meta-arguments/37-availability-zones",
+      "audio": "audio/S004.mp3",
+      "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 37-availability-zones. The direct link is in the video description. Main dot T F holds everything; terraform dot T F pins the providers."
+    },
+    {
+      "id": "S005",
+      "type": "CODE",
+      "source_file": "terraform.tf",
+      "start_line": 1,
+      "end_line": 19,
+      "highlight_lines": [
+        6,
+        8,
+        10,
+        17,
+        18
+      ],
+      "asset": "assets/code/lab37-providers.png",
+      "audio": "audio/S005.mp3",
+      "narration": "Terraform dot T F pins the tooling: Terraform 1.5 or newer, and the azurerm provider around version 3.70 — no extra providers this time. The provider block at the bottom bridges to Azure; the empty features block enables the provider's defaults. Every interesting line lives in main dot T F."
+    },
+    {
+      "id": "S006",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 11,
+      "end_line": 18,
+      "highlight_lines": [
+        12,
+        17
+      ],
+      "asset": "assets/code/lab37-vars-zones.png",
+      "audio": "audio/S006.mp3",
+      "steps": [
+        {
+          "narration": "The same sensitive SSH key variable as labs 35 and 36 — required, no default, hidden in output.",
+          "active_lines": [
+            11,
+            12,
+            13,
+            14
+          ],
+          "active_tokens": [
+            "admin_ssh_key",
+            "sensitive = true"
+          ]
+        },
+        {
+          "narration": "And the new piece: a locals block holding one list — zones: one, two, three. Three plain numbers, but they carry the whole lab's meaning: this is WHERE the VMs will live. Not how many — where.",
+          "active_lines": [
+            16,
+            17,
+            18
+          ],
+          "active_tokens": [
+            "zones = [1, 2, 3]"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S006.step1.mp3",
+        "audio/S006.step2.mp3"
+      ]
+    },
+    {
+      "id": "S007",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 21,
+      "end_line": 40,
+      "highlight_lines": [
+        22,
+        23,
+        31,
+        39
+      ],
+      "asset": "assets/code/lab37-network.png",
+      "audio": "audio/S007.mp3",
+      "steps": [
+        {
+          "narration": "The resource group gets a comment that matters: zones need a region that supports them. East US does — pick a region without zones and the plan fails with a clear error.",
+          "active_lines": [
+            21,
+            22,
+            23,
+            24
+          ],
+          "active_tokens": [
+            "rg-availzones"
+          ]
+        },
+        {
+          "narration": "The network is the familiar base: VNet on 10.210 slash 16, one subnet snet web. All three VMs — one per zone — attach to this one shared subnet.",
+          "active_lines": [
+            31,
+            36,
+            39
+          ],
+          "active_tokens": [
+            "10.210.0.0/16",
+            "snet-web"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S007.step1.mp3",
+        "audio/S007.step2.mp3"
+      ]
+    },
+    {
+      "id": "S008",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 44,
+      "end_line": 54,
+      "highlight_lines": [
+        45,
+        46
+      ],
+      "asset": "assets/code/lab37-nics.png",
+      "audio": "audio/S008.mp3",
+      "steps": [
+        {
+          "narration": "The NIC block's count is no longer a number: count equals length of local dot zones. The list decides — three entries, three NICs. Add a four to the list and a fourth NIC appears on the next plan.",
+          "active_lines": [
+            45
+          ],
+          "active_tokens": [
+            "length(local.zones)"
+          ]
+        },
+        {
+          "narration": "The comment above it says exactly that: adding a zone to the list scales NICs and VMs together. One list, two fan-outs, kept in sync by construction.",
+          "active_lines": [
+            44,
+            45
+          ],
+          "active_tokens": [
+            "count"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S008.step1.mp3",
+        "audio/S008.step2.mp3"
+      ]
+    },
+    {
+      "id": "S009",
+      "type": "ITERATION_EXPANSION",
+      "title": "The list sizes the fan-out",
+      "expression": "count = length(local.zones)   # zones = [1, 2, 3]",
+      "audio": "audio/S009.mp3",
+      "stages": [
+        {
+          "id": "expr",
+          "label": "The expression",
+          "kind": "expression",
+          "items": [
+            {
+              "key": "e0",
+              "text": "count = length(local.zones)  (= 3)"
+            }
+          ]
+        },
+        {
+          "id": "inst",
+          "label": "Instances (state)",
+          "kind": "instances",
+          "items": [
+            {
+              "key": "i0",
+              "text": "azurerm_linux_virtual_machine.web[0]"
+            },
+            {
+              "key": "i1",
+              "text": "azurerm_linux_virtual_machine.web[1]"
+            },
+            {
+              "key": "i2",
+              "text": "azurerm_linux_virtual_machine.web[2]"
+            }
+          ]
+        },
+        {
+          "id": "zones",
+          "label": "Each instance's zone (lookup)",
+          "kind": "output",
+          "items": [
+            {
+              "key": "z0",
+              "text": "local.zones[0] → zone 1"
+            },
+            {
+              "key": "z1",
+              "text": "local.zones[1] → zone 2"
+            },
+            {
+              "key": "z2",
+              "text": "local.zones[2] → zone 3"
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "narration": "The expression reads a length, not a number: three list entries mean count three.",
+          "focus": {
+            "stages": [
+              "expr"
+            ]
+          }
+        },
+        {
+          "narration": "Three instances expand: VM web bracket zero, one, two — the usual count addressing.",
+          "focus": {
+            "stages": [
+              "inst"
+            ]
+          }
+        },
+        {
+          "narration": "But each instance's ZONE comes from a lookup: instance zero reads zones bracket zero, which is one. Instance one gets zone two, instance two gets zone three. The index picks the meaning.",
+          "focus": {
+            "stages": [
+              "zones"
+            ]
+          }
+        }
+      ],
+      "step_audio": [
+        "audio/S009.step1.mp3",
+        "audio/S009.step2.mp3",
+        "audio/S009.step3.mp3"
+      ]
+    },
+    {
+      "id": "S010",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 57,
+      "end_line": 80,
+      "highlight_lines": [
+        58,
+        59,
+        62,
+        65
+      ],
+      "asset": "assets/code/lab37-vms.png",
+      "audio": "audio/S010.mp3",
+      "steps": [
+        {
+          "narration": "The VM block: the same count — length of the zones list — and a name that already uses the lookup: vm dash az dash local dot zones, bracket, count dot index. VM zero is named vm dash az dash 1, because zones bracket zero is one. The name shows the zone, not the index.",
+          "active_lines": [
+            58,
+            59
+          ],
+          "active_tokens": [
+            "length(local.zones)",
+            "vm-az-${local.zones[count.index]}"
+          ]
+        },
+        {
+          "narration": "And here is the pin: zone equals tostring of local dot zones, bracket, count dot index. tostring because the zone attribute is a string and the list holds numbers. This one line places each VM in its own datacenter.",
+          "active_lines": [
+            62
+          ],
+          "active_tokens": [
+            "tostring(local.zones[count.index])"
+          ]
+        },
+        {
+          "narration": "The rest is the lab-35 anatomy: NIC picked by index — network interface ids bracket count dot index — then the three nested blocks: SSH key, os disk, image.",
+          "active_lines": [
+            65,
+            66,
+            70,
+            74
+          ],
+          "active_tokens": [
+            "azurerm_network_interface.web[count.index]",
+            "admin_ssh_key {",
+            "os_disk {",
+            "source_image_reference {"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S010.step1.mp3",
+        "audio/S010.step2.mp3",
+        "audio/S010.step3.mp3"
+      ]
+    },
+    {
+      "id": "S011",
+      "type": "CONCEPT",
+      "heading": "count.index as a lookup, not a number",
+      "audio": "audio/S011.mp3",
+      "points": [
+        "So far count.index only COUNTED — 0, 1, 2 in names",
+        "Here it LOOKS UP: zones[count.index] fetches each VM's meaning",
+        "This is the bridge to for_each — data decides, not position"
+      ],
+      "narration": "Pause on the idea this lab really teaches. Until now, count dot index was just a counter — it numbered NICs and VMs. Here it becomes a lookup: zones bracket count dot index doesn't just label the VM, it decides WHERE the VM lives. The list carries meaning; the index fetches it. And notice what this enables: change the list and both the count and the meaning change together. That's one step away from for_each, where the data itself becomes the key — which is exactly where the course goes next."
+    },
+    {
+      "id": "S012",
+      "type": "DIAGRAM",
+      "caption": "How the pieces connect",
+      "asset": "assets/diagrams/lab37-resource-flow.svg",
+      "audio": "audio/S012.mp3",
+      "steps": [
+        {
+          "narration": "Here's how the pieces connect.",
+          "nodes": [],
+          "edges": []
+        },
+        {
+          "narration": "The sensitive SSH key variable, as before.",
+          "nodes": [
+            "vars"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "Locals hold the zones list — one, two, three.",
+          "nodes": [
+            "locals"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The resource group — in a region that supports zones.",
+          "nodes": [
+            "rg"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The network: VNet and subnet shared by all three VMs.",
+          "nodes": [
+            "vnet"
+          ],
+          "edges": [
+            "rg-vnet"
+          ]
+        },
+        {
+          "narration": "Three counted NICs — count sized by length of the zones list.",
+          "nodes": [
+            "nics"
+          ],
+          "edges": [
+            "locals-nics",
+            "vnet-nics"
+          ]
+        },
+        {
+          "narration": "Three counted VMs, each pinned to its own zone by the lookup — zones bracket count dot index — and paired to its NIC by index.",
+          "nodes": [
+            "vms"
+          ],
+          "edges": [
+            "nics-vms",
+            "locals-vms",
+            "vars-vms"
+          ]
+        },
+        {
+          "narration": "Everything lands inside your Azure subscription.",
+          "nodes": [],
+          "edges": []
+        }
+      ],
+      "step_audio": [
+        "audio/S012.step1.mp3",
+        "audio/S012.step2.mp3",
+        "audio/S012.step3.mp3",
+        "audio/S012.step4.mp3",
+        "audio/S012.step5.mp3",
+        "audio/S012.step6.mp3",
+        "audio/S012.step7.mp3",
+        "audio/S012.step8.mp3"
+      ]
+    },
+    {
+      "id": "S013",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab37-plan.svg",
+      "audio": "audio/S013.mp3",
+      "narration": "Here's the plan — terraform plan, an illustrative view. Resource group, VNet, subnet, then three NICs and three VMs — and look at the VM names: vm dash az dash 1, vm dash az dash 2, vm dash az dash 3. The names come from the list values, not the indexes. Nine to add, zero to destroy."
+    },
+    {
+      "id": "S014",
+      "type": "CONCEPT",
+      "heading": "Common pitfall",
+      "numbered": true,
+      "audio": "audio/S014.mp3",
+      "points": [
+        "99.99% SLA needs premium/ultra disks AND 2+ zones — Standard SSD doesn't qualify",
+        "The zone must exist in your region — plan fails fast otherwise",
+        "zone is a string: tostring() converts the numeric list entry"
+      ],
+      "narration": "Three pitfalls. One: the SLA claim has conditions — 99.99 percent for zone-pinned VMs requires premium or ultra disks and VMs spanning two or more zones. This lab uses standard SSD storage deliberately, so it demonstrates the mechanism without claiming the number. Two: not every region has zones — and not every region has three. If the list says three but the region offers two, the plan fails immediately; that's Terraform protecting you before any deploy. Three: the zone attribute is a string, the list holds numbers — tostring makes the conversion explicit, and forgetting it is a type error."
+    },
+    {
+      "id": "S015",
+      "type": "RECAP",
+      "numbered": true,
+      "audio": "audio/S015.mp3",
+      "points": [
+        "count = length(local.zones) — the list sizes the fan-out",
+        "count.index becomes a lookup: zones[count.index] = the VM's zone",
+        "VM names show the zone value: vm-az-1, vm-az-2, vm-az-3",
+        "Zones are separate datacenters — a superset of availability sets",
+        "99.99% SLA is conditional: premium disks + VMs across 2+ zones"
+      ],
+      "narration": "Quick recap — five things. One: count reads a length, so the zones list sizes the fan-out. Two: count dot index becomes a lookup into that list — it fetches each VM's zone. Three: the names prove it — vm dash az dash one through three, named from list values. Four: zones are separate datacenters with independent power — a bigger promise than availability sets. Five: the 99.99 percent SLA is conditional — premium disks and VMs across two or more zones. The list is now the source of truth for both how many and where."
+    },
+    {
+      "id": "S016",
+      "type": "NEXT",
+      "audio": "audio/S016.mp3",
+      "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+    },
+    {
+      "id": "S017",
+      "type": "CONCEPT",
+      "heading": "Thanks for watching",
+      "centered": true,
+      "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-02-meta-arguments/37-availability-zones",
+      "audio": "audio/S017.mp3",
+      "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+    }
+  ]
+}

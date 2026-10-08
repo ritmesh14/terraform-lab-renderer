@@ -1,0 +1,452 @@
+{
+  "title": "Same VM, Six Files: Restructuring",
+  "lesson_label": "Terraform Meta-arguments — Lab 43",
+  "scenes": [
+    {
+      "id": "S001",
+      "type": "TITLE",
+      "title": "Same VM, Six Files: Restructuring",
+      "lesson_label": "Terraform Meta-arguments — Lab 43",
+      "audio": "audio/S001.mp3",
+      "narration": "Welcome back. Every VM so far lived in one main dot T F. This is Lab 43, and the lab is the SAME virtual machine as last time — same resources, same plan — restructured into six files, grouped by concern. Terraform merges them into one configuration, and that's the lesson: file boundaries are for humans, not for Terraform. Let's look."
+    },
+    {
+      "id": "S002",
+      "type": "CONCEPT",
+      "heading": "What you'll learn",
+      "numbered": true,
+      "audio": "audio/S002.mp3",
+      "points": [
+        "Terraform loads EVERY .tf file in the folder as one configuration",
+        "The standard split: variables / locals / network / vm / outputs",
+        "Cross-file references (vm.tf reading locals.tf) are ordinary"
+      ],
+      "narration": "Three things in this lesson. One: the merge rule — every dot T F file in the folder is loaded together as ONE configuration; the file names are purely organizational. Two: the layout serious projects use — inputs in variables dot T F, derived values in locals, network in network dot T F, compute in vm dot T F, outputs in outputs dot T F. Three: references work across files as if nothing moved — vm dot T F reads locals dot T F and network dot T F freely."
+    },
+    {
+      "id": "S003",
+      "type": "CONCEPT",
+      "heading": "Where this lab fits",
+      "audio": "audio/S003.mp3",
+      "points": [
+        "Lab 42: the same VM in a single main.tf",
+        "This lab: identical resources, restructured files",
+        "The state addresses don't move — type.name is file-independent"
+      ],
+      "narration": "Placement. Lab 42 built this VM in one main dot T F. This lab creates the IDENTICAL resources — only the files change. And because state addresses are type dot name, not file dot name, nothing in the state moves either. The next lab deploys this structure end to end and adds public reachability. And the course modules you'll meet later — the shared network and VM modules — are built exactly this way."
+    },
+    {
+      "id": "S004",
+      "type": "CONCEPT",
+      "heading": "Where to find this lab",
+      "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-02-meta-arguments\n          └── 43-linux-restructure\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-02-meta-arguments/43-linux-restructure",
+      "audio": "audio/S004.mp3",
+      "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 43-linux-restructure. The direct link is in the video description. No main dot T F this time — the file tree IS the lesson."
+    },
+    {
+      "id": "S005",
+      "type": "CODE",
+      "source_file": "terraform.tf",
+      "start_line": 1,
+      "end_line": 19,
+      "highlight_lines": [
+        6,
+        8,
+        10,
+        17,
+        18
+      ],
+      "asset": "assets/code/lab43-providers.png",
+      "audio": "audio/S005.mp3",
+      "narration": "Terraform dot T F pins the tooling: Terraform 1.5 or newer, and the azurerm provider around version 3.70 — no extra providers this time. The provider block at the bottom bridges to Azure; the empty features block enables the provider's defaults."
+    },
+    {
+      "id": "S006",
+      "type": "CODE",
+      "source_file": "variables.tf",
+      "start_line": 1,
+      "end_line": 6,
+      "highlight_lines": [
+        3,
+        4,
+        5
+      ],
+      "asset": "assets/code/lab43-variables.png",
+      "audio": "audio/S006.mp3",
+      "steps": [
+        {
+          "narration": "variables dot T F: the inputs. One variable — the VM's name, overridable with dash var — defaulting to vm dash structured. Inputs get their own file so a caller can find them instantly.",
+          "active_lines": [
+            3,
+            4,
+            5,
+            6
+          ],
+          "active_tokens": [
+            "vm_name",
+            "vm-structured"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S006.step1.mp3"
+      ]
+    },
+    {
+      "id": "S007",
+      "type": "CODE",
+      "source_file": "locals.tf",
+      "start_line": 1,
+      "end_line": 9,
+      "highlight_lines": [
+        5,
+        7,
+        8
+      ],
+      "asset": "assets/code/lab43-locals.png",
+      "audio": "audio/S007.mp3",
+      "steps": [
+        {
+          "narration": "locals dot T F: derived values. The SSH key ternary moved here unchanged from lab 42 — fileexists guard, file read, fallback.",
+          "active_lines": [
+            5,
+            6,
+            7
+          ],
+          "active_tokens": [
+            "ssh_pubkey",
+            "fileexists(\"id_rsa.pub\")"
+          ]
+        },
+        {
+          "narration": "And one new derived value: rg, the resource group name. The comment states the rule this lab teaches — Terraform merges every dot T F file into ONE configuration; the names are purely organizational.",
+          "active_lines": [
+            1,
+            2,
+            3,
+            4,
+            8,
+            9
+          ],
+          "active_tokens": [
+            "rg-linux-structure"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S007.step1.mp3",
+        "audio/S007.step2.mp3"
+      ]
+    },
+    {
+      "id": "S008",
+      "type": "CODE",
+      "source_file": "network.tf",
+      "start_line": 1,
+      "end_line": 14,
+      "highlight_lines": [
+        3,
+        10,
+        14
+      ],
+      "asset": "assets/code/lab43-network-1.png",
+      "audio": "audio/S008.mp3",
+      "steps": [
+        {
+          "narration": "network dot T F: grouped by concern. The resource group — its name comes from the locals file, via local dot rg. This reference crosses a file boundary, and it's an ordinary reference.",
+          "active_lines": [
+            3,
+            4
+          ],
+          "active_tokens": [
+            "local.rg"
+          ]
+        },
+        {
+          "narration": "The virtual network: vnet dash structure on 10.240 slash 16 — same shape as lab 42, different name and CIDR.",
+          "active_lines": [
+            10,
+            11,
+            14
+          ],
+          "active_tokens": [
+            "vnet-structure",
+            "10.240.0.0/16"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S008.step1.mp3",
+        "audio/S008.step2.mp3"
+      ]
+    },
+    {
+      "id": "S009",
+      "type": "CODE",
+      "source_file": "network.tf",
+      "start_line": 17,
+      "end_line": 36,
+      "highlight_lines": [
+        18,
+        28
+      ],
+      "asset": "assets/code/lab43-network-2.png",
+      "audio": "audio/S009.mp3",
+      "steps": [
+        {
+          "narration": "The subnet: snet web, a /24 carved from the VNet's space — still in network dot T F, still the same shape.",
+          "active_lines": [
+            18,
+            19,
+            22
+          ],
+          "active_tokens": [
+            "snet-web",
+            "10.240.1.0/24"
+          ]
+        },
+        {
+          "narration": "And the NIC — with a comment that matters: it connects the VM declared in vm dot T F to the subnet declared here. Cross-file references are ordinary; the comment makes the split's intent visible.",
+          "active_lines": [
+            25,
+            26,
+            27,
+            28,
+            33
+          ],
+          "active_tokens": [
+            "nic-structure",
+            "azurerm_subnet.web.id"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S009.step1.mp3",
+        "audio/S009.step2.mp3"
+      ]
+    },
+    {
+      "id": "S010",
+      "type": "CODE",
+      "source_file": "vm.tf",
+      "start_line": 1,
+      "end_line": 26,
+      "highlight_lines": [
+        1,
+        6,
+        11,
+        14
+      ],
+      "asset": "assets/code/lab43-vm.png",
+      "audio": "audio/S010.mp3",
+      "steps": [
+        {
+          "narration": "vm dot T F: the compute block, in its own file so it can be swapped or scaled without touching networking. That's the reason for the split — files group CHANGE, not just code.",
+          "active_lines": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "active_tokens": [
+            "vm.tf — the VM"
+          ]
+        },
+        {
+          "narration": "The three cross-file references on display: the name comes from var dot vm name — variables dot T F; the NIC comes from network dot T F; the key comes from local dot ssh pubkey in locals dot T F. Three files, one block.",
+          "active_lines": [
+            6,
+            11,
+            14
+          ],
+          "active_tokens": [
+            "var.vm_name",
+            "azurerm_network_interface.web.id",
+            "local.ssh_pubkey"
+          ]
+        },
+        {
+          "narration": "And the nested blocks are the lab-42 anatomy, unchanged: os disk, source image — Ubuntu 22.04.",
+          "active_lines": [
+            16,
+            20
+          ],
+          "active_tokens": [
+            "os_disk {",
+            "source_image_reference {"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S010.step1.mp3",
+        "audio/S010.step2.mp3",
+        "audio/S010.step3.mp3"
+      ]
+    },
+    {
+      "id": "S011",
+      "type": "CODE",
+      "source_file": "outputs.tf",
+      "start_line": 1,
+      "end_line": 4,
+      "highlight_lines": [
+        3,
+        4
+      ],
+      "asset": "assets/code/lab43-outputs.png",
+      "audio": "audio/S011.mp3",
+      "steps": [
+        {
+          "narration": "outputs dot T F, four lines total: the VM's name and its full Azure resource ID. The id is handy for feeding other systems or tests — and it prints the file-free address: resource group, provider, machine name.",
+          "active_lines": [
+            3,
+            4
+          ],
+          "active_tokens": [
+            "output \"vm_name\"",
+            "output \"vm_id\""
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S011.step1.mp3"
+      ]
+    },
+    {
+      "id": "S012",
+      "type": "CONCEPT",
+      "heading": "The merge rule",
+      "audio": "audio/S012.mp3",
+      "points": [
+        "All *.tf files in the folder load as ONE configuration",
+        "File names are organization only — renaming files changes nothing",
+        "Identifiers must still be unique ACROSS files: one variable \"vm_name\" total"
+      ],
+      "narration": "Here's the rule the whole lab rests on. Terraform loads every dot T F file in the folder and merges them into a single configuration — the loader doesn't care about file names at all. So you can move blocks between files freely, and rename files freely — nothing in the plan or the state changes. The one constraint: identifiers are unique across the WHOLE configuration, not per file. Two variable vm-name declarations in different files is still an error — as lab 45's comment records. One namespace, many files."
+    },
+    {
+      "id": "S013",
+      "type": "DIAGRAM",
+      "caption": "Six files, one configuration",
+      "asset": "assets/diagrams/lab43-resource-flow.svg",
+      "audio": "audio/S013.mp3",
+      "steps": [
+        {
+          "narration": "Here's how the files connect.",
+          "nodes": [],
+          "edges": []
+        },
+        {
+          "narration": "variables.tf holds the VM's name input.",
+          "nodes": [
+            "vars"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "locals.tf derives the SSH key and the RG name.",
+          "nodes": [
+            "locals"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "network.tf: resource group, VNet, subnet, NIC — the plumbing.",
+          "nodes": [
+            "network"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "vm.tf: the VM — name from variables, key from locals, NIC from network. Three cross-file references in one block.",
+          "nodes": [
+            "vm"
+          ],
+          "edges": [
+            "locals-vm",
+            "network-vm"
+          ]
+        },
+        {
+          "narration": "outputs.tf reports the name and the full Azure ID.",
+          "nodes": [
+            "out"
+          ],
+          "edges": [
+            "vm-out"
+          ]
+        },
+        {
+          "narration": "All five files merge into ONE configuration — the folder is the module.",
+          "nodes": [],
+          "edges": []
+        }
+      ],
+      "step_audio": [
+        "audio/S013.step1.mp3",
+        "audio/S013.step2.mp3",
+        "audio/S013.step3.mp3",
+        "audio/S013.step4.mp3",
+        "audio/S013.step5.mp3",
+        "audio/S013.step6.mp3",
+        "audio/S013.step7.mp3"
+      ]
+    },
+    {
+      "id": "S014",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab43-plan.svg",
+      "audio": "audio/S014.mp3",
+      "narration": "Here's the plan — terraform plan, an illustrative view. Resource group, VNet, subnet, NIC, and the VM named vm dash structured — five to add, zero to destroy. Identical to lab 42's plan in shape: the restructure changed no resources."
+    },
+    {
+      "id": "S015",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab43-output.svg",
+      "audio": "audio/S015.mp3",
+      "narration": "And the outputs — terraform output, an illustrative view. vm name, and vm id — the full Azure resource ID, the one-liner address of this machine. Note the address carries the resource GROUP and machine name — no file names anywhere in it."
+    },
+    {
+      "id": "S016",
+      "type": "CONCEPT",
+      "heading": "Common pitfall",
+      "numbered": true,
+      "audio": "audio/S016.mp3",
+      "points": [
+        "Every *.tf in the folder loads — a stray scratch.tf breaks the whole config",
+        "File boundaries don't affect state — addresses are type.name, not file paths",
+        "Keep the reference direction sane: compute may read locals, not the reverse"
+      ],
+      "narration": "Three pitfalls. One: because every dot T F file loads, a stray scratch file left in the folder joins the configuration — a duplicate identifier there breaks everything. Clean as you go. Two: don't fear the split — file boundaries have zero effect on state or plan; addresses are type dot name. Moving a block between files is safe. Three: with free cross-file references, keep the DIRECTION sane — network and compute read locals and variables; locals and variables read nothing. When references flow both ways between files, the structure is lying about its layers."
+    },
+    {
+      "id": "S017",
+      "type": "RECAP",
+      "numbered": true,
+      "audio": "audio/S017.mp3",
+      "points": [
+        "Terraform merges every .tf in the folder into ONE configuration",
+        "The split: variables.tf / locals.tf / network.tf / vm.tf / outputs.tf",
+        "Cross-file references are ordinary — vm.tf reads vars + locals + network",
+        "State addresses are type.name — restructuring moves nothing in state",
+        "Identifiers stay unique ACROSS files: one namespace, many files"
+      ],
+      "narration": "Quick recap — five things. One: the folder is the module — every dot T F file merges into one configuration. Two: the standard split — inputs, derived values, network, compute, outputs — one concern per file. Three: cross-file references are ordinary; the VM block reads from three different files. Four: state addresses are type dot name, so restructuring moves nothing. Five: the namespace is still ONE — identifiers must be unique across all files. Same VM as lab 42, but now it's structured the way serious projects are."
+    },
+    {
+      "id": "S018",
+      "type": "NEXT",
+      "audio": "audio/S018.mp3",
+      "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+    },
+    {
+      "id": "S019",
+      "type": "CONCEPT",
+      "heading": "Thanks for watching",
+      "centered": true,
+      "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-02-meta-arguments/43-linux-restructure",
+      "audio": "audio/S019.mp3",
+      "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+    }
+  ]
+}

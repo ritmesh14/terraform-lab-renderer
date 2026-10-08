@@ -1,0 +1,47 @@
+{
+  "nodes": [
+    {
+      "id": "st",
+      "label": "azurerm_storage_account.this\nstout<suffix>"
+    },
+    {
+      "id": "o1",
+      "label": "output.storage_account_name\n+ description"
+    },
+    {
+      "id": "o2",
+      "label": "output.primary_blob_endpoint"
+    },
+    {
+      "id": "o3",
+      "label": "output.primary_access_key\nsensitive = true"
+    }
+  ],
+  "edges": [
+    {
+      "from": "st",
+      "to": "o1",
+      "label": ".name"
+    },
+    {
+      "from": "st",
+      "to": "o2",
+      "label": ".primary_blob_endpoint"
+    },
+    {
+      "from": "st",
+      "to": "o3",
+      "label": ".primary_access_key"
+    }
+  ],
+  "layers": [
+    [
+      "st"
+    ],
+    [
+      "o1",
+      "o2",
+      "o3"
+    ]
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "mode": "illustrative",
+  "command": "terraform output discovered_rg_ids",
+  "output_file": "lab49-output.txt",
+  "highlight": [
+    "discovered_rg_ids",
+    "resourceGroups/rg-already-here",
+    "resourceGroups/rg-multi-subnets"
+  ]
+}

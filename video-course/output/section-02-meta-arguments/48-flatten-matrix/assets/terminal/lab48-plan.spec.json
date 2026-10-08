@@ -1,0 +1,11 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan",
+  "output_file": "lab48-plan.txt",
+  "highlight": [
+    "\"regionA-web\"",
+    "172.20.0.0/26",
+    "172.21.0.64/26",
+    "Plan: 7 to add"
+  ]
+}

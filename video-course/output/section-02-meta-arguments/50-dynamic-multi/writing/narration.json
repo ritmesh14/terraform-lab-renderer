@@ -1,0 +1,86 @@
+{
+ "episode": "50-dynamic-multi",
+ "source": "writing/scenes.json",
+ "scenes": [
+  {
+   "id": "S001",
+   "narration": "Welcome back. Lab 41 gave you the dynamic block — one block, many copies. This is Lab 50, the section capstone, and it runs the pattern TWICE in one configuration: an NSG whose security rules come from a variable list, and a NIC whose ip configurations come from another — two static IPs on one machine. Extend either list, re-apply, and the anatomy follows the data. Let's build it."
+  },
+  {
+   "id": "S002",
+   "narration": "Three things in this lesson. One: the scale-up — two independent dynamic blocks in one configuration, each driven by its own variable list. Two: the addressing detail that trips everyone — inside content, the iterator is the BLOCK's label dot value, so security rule dot value on the NSG and ip configuration dot value on the NIC; not each dot value. Three: the multi-IP pattern — static allocation with explicit addresses, and exactly one configuration marked primary."
+  },
+  {
+   "id": "S003",
+   "narration": "Placement. Lab 41 taught the dynamic block once, on one NSG. This lab runs it twice and adds the multi-IP NIC — and it's the section capstone: variables that own the anatomy, fan-outs you've built everywhere since lab 26, and the confidence to extend a resource without touching its code. After this, section two's meta-argument toolbox is complete."
+  },
+  {
+   "id": "S004",
+   "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 50-dynamic-multi. The direct link is in the video description. One main dot T F — the terraform block is inline at the top."
+  },
+  {
+   "id": "S005",
+   "narration": "No separate terraform dot T F this time — the tooling block is inline at the top of main dot T F: Terraform 1.5 or newer, and the azurerm provider around version 3.70. The provider block below bridges to Azure; the empty features block enables the provider's defaults."
+  },
+  {
+   "id": "S006",
+   "narration": "First list: rules — the lab-41 type contract again. Every entry must carry a name, a priority, and a port; Terraform checks the shape before anything runs. And the default ships two entries: Allow SSH on 22 with priority 200, Allow HTTPS on 443 with priority 210. Two entries — two security_rule blocks will be generated."
+  },
+  {
+   "id": "S007",
+   "narration": "Second list: ip configs — same contract style, but the fields are NIC-shaped: a name, a primary flag, and a static ip. The default: ipconfig one — primary, on 172.22.0.10 — and ipconfig two, not primary, on 172.22.0.11. Two entries — two ip_configuration blocks, two addresses on one NIC."
+  },
+  {
+   "id": "S008",
+   "narration": "Locals, and the now-familiar smaller blocks: VNet on a /20, subnet on a /26 — sizes only have to nest, as lab 47 established."
+  },
+  {
+   "id": "S009",
+   "narration": "The base: resource group from local dot rg — the locals set it to rg dash dynamic multi — and VNet vnet dash dynamic multi on the /20. And the subnet: snet web on the /26 — the target the NIC's ip configurations will attach to."
+  },
+  {
+   "id": "S010",
+   "narration": "The NSG head looks ordinary: nsg dash dynamic multi, location and group from the resource group. And the FIRST dynamic — identical to lab 41's. Dynamic security rule, for each over the rules variable, and inside content the fields bind from security rule dot value — name, priority, and the port through tostring. One block, stamped twice."
+  },
+  {
+   "id": "S011",
+   "narration": "The NIC head: nic dash dynamic multi — same three header lines as the NSG. And the SECOND dynamic — different label, same shape. Dynamic ip configuration, for each over ip configs. Inside content: the name from ip configuration dot value, subnet id pointing at snet web, STATIC allocation with the explicit address from value dot static ip — and primary from the flag. Note the iterator: ip configuration dot value, because the block label scopes it — not each dot value."
+  },
+  {
+   "id": "S012",
+   "narration": "Two outputs. Rule names — a for expression over the rules variable, same as lab 41. And nic ips — the NIC's private ip addresses attribute, a provider-computed LIST. One address per generated ip configuration — proof, straight from state, that the dynamic block landed both."
+  },
+  {
+   "id": "S013",
+   "narration": "Dynamic number one sits on the NSG: security rule, driven by the rules list — two rule blocks by default. Dynamic number two sits on the NIC — ip configuration over the ip configs list, with the static IP and primary flag as fields. Together: two resources, four generated nested blocks — two rules on the NSG, two ip configurations on the NIC. Extend either list in tfvars, re-apply, and the anatomy follows the data. No code changes."
+  },
+  {
+   "id": "S014",
+   "narration": "Here's how the pieces connect. The two variables: rules and ip configs — the lists that own the anatomy. The network base: resource group, VNet, subnet. The NSG: dynamic security_rule — one block per rule in the list. The NIC: dynamic ip_configuration — one block per entry, each with a static IP, attached to the subnet. Outputs report both: rule names from the variable, and the NIC's private IP list from state. Everything lands inside your Azure subscription."
+  },
+  {
+   "id": "S015",
+   "narration": "Here's the plan — terraform plan, an illustrative view. Five to add: resource group, VNet, subnet, NSG, NIC. Inside the NSG: two generated security rule blocks. Inside the NIC: two ip configurations with the static addresses. The plan reads exactly as if you'd hand-written all four."
+  },
+  {
+   "id": "S016",
+   "narration": "And the outputs — an illustrative view. Rule names: Allow SSH and Allow HTTPS. Nic ips: 172.22.0.10 and 172.22.0.11 — both addresses on one machine, one per generated ip configuration."
+  },
+  {
+   "id": "S017",
+   "narration": "Three pitfalls. One: the iterator follows the block label — inside the NSG it's security rule dot value, inside the NIC it's ip configuration dot value; reaching for each dot value is the classic dynamic-block error. Two: multi-IP NICs — static allocation with an explicit address, and EXACTLY one configuration marked primary; Azure refuses zero or two. Three: judgment, straight from the README — dynamic blocks trade readability for flexibility. For a handful of fixed blocks, plain code is easier to debug; reach for dynamic when the count is genuinely caller-owned."
+  },
+  {
+   "id": "S018",
+   "narration": "Quick recap — five things. One: two dynamic blocks in one configuration, each driven by its own list. Two: the iterator is the block label's value — scope it by the label, not each. Three: the multi-IP pattern — static, explicit address, one primary. Four: the nic ips output proves the fan-out straight from state. Five: both lists are caller-owned — the section's whole theme in one lab. That closes the meta-argument toolbox: count, for each, lifecycle, provider, dynamic, and everything between."
+  },
+  {
+   "id": "S019",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+  },
+  {
+   "id": "S020",
+   "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+  }
+ ]
+}

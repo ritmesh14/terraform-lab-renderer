@@ -1,0 +1,14 @@
+$ terraform apply -auto-approve -no-color
+azurerm_resource_group.this: Creating...
+azurerm_resource_group.this: Creation complete after 2s [id=/subscriptions/<guid>/resourceGroups/rg-secret-foundation]
+azurerm_virtual_network.this: Creating...
+azurerm_virtual_network.this: Creation complete after 8s [id=<guid>]
+azurerm_subnet.web: Creating...
+azurerm_subnet.web: Creation complete after 2s [id=<guid>]
+azurerm_network_interface.web: Creating...
+azurerm_network_interface.web: Creation complete after 4s [id=<guid>]
+azurerm_windows_virtual_machine.web: Still creating... [40s elapsed]
+azurerm_windows_virtual_machine.web: Creation complete after 2m30s [id=<guid>]
+Apply complete! Resources: 5 added, 0 changed, 0 destroyed.
+Note: admin_password was supplied via a sensitive variable —
+      the plan log shows (sensitive value), never the password itself.

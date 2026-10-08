@@ -1,0 +1,18 @@
+{
+  "layers": [
+    ["rg", "vnet", "sub", "nic", "ip"]
+  ],
+  "nodes": [
+    {"id": "rg", "label": "rg-nic-foundation"},
+    {"id": "vnet", "label": "vnet-nic 10.90.0.0/16"},
+    {"id": "sub", "label": "snet-web 10.90.1.0/24"},
+    {"id": "nic", "label": "nic-web-01"},
+    {"id": "ip", "label": "ipconfig-web Dynamic"}
+  ],
+  "edges": [
+    {"from": "rg", "to": "vnet", "label": "resource_group_name"},
+    {"from": "vnet", "to": "sub", "label": "virtual_network_name"},
+    {"from": "sub", "to": "nic", "label": "subnet_id"},
+    {"from": "nic", "to": "ip", "label": "carries"}
+  ]
+}

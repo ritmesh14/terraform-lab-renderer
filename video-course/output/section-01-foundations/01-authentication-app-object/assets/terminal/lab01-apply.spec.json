@@ -1,0 +1,5 @@
+{
+  "command": "terraform apply",
+  "output_file": "lab01-apply.txt",
+  "highlight": ["Apply complete", "display_name", "subscription_id"]
+}

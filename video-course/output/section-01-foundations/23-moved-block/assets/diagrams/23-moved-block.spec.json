@@ -1,0 +1,51 @@
+{
+  "nodes": [
+    {
+      "id": "old",
+      "label": "azurerm_storage_account.legacy\nold address in state"
+    },
+    {
+      "id": "mv",
+      "label": "moved {}\nfrom legacy → to this"
+    },
+    {
+      "id": "new",
+      "label": "azurerm_storage_account.this\nnew address in code"
+    },
+    {
+      "id": "real",
+      "label": "Real Azure storage account\nuntouched · no recreate"
+    }
+  ],
+  "edges": [
+    {
+      "from": "old",
+      "to": "mv",
+      "label": "from"
+    },
+    {
+      "from": "mv",
+      "to": "new",
+      "label": "to"
+    },
+    {
+      "from": "new",
+      "to": "real",
+      "label": "same resource"
+    }
+  ],
+  "layers": [
+    [
+      "old"
+    ],
+    [
+      "mv"
+    ],
+    [
+      "new"
+    ],
+    [
+      "real"
+    ]
+  ]
+}

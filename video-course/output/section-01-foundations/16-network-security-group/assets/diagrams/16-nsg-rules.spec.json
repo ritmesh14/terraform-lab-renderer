@@ -1,0 +1,23 @@
+{
+  "layers": [
+    ["inet"],
+    ["nsg"],
+    ["r1", "r2", "assoc"],
+    ["sub"]
+  ],
+  "nodes": [
+    {"id": "inet", "label": "Internet inbound"},
+    {"id": "nsg", "label": "nsg-web"},
+    {"id": "r1", "label": "Allow-RDP 200:3389"},
+    {"id": "r2", "label": "Allow-HTTPS 300:443"},
+    {"id": "assoc", "label": "subnet-NSG assoc"},
+    {"id": "sub", "label": "snet-web /24"}
+  ],
+  "edges": [
+    {"from": "inet", "to": "nsg", "label": "hits first"},
+    {"from": "nsg", "to": "r1", "label": "priority 200"},
+    {"from": "nsg", "to": "r2", "label": "priority 300"},
+    {"from": "nsg", "to": "assoc", "label": "attached via"},
+    {"from": "assoc", "to": "sub", "label": "protects"}
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "layers": [
+    [
+      "locals",
+      "rg",
+      "vnet",
+      "subnets",
+      "out"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": "locals",
+      "label": "locals: subnets map"
+    },
+    {
+      "id": "rg",
+      "label": "rg-multi-subnets"
+    },
+    {
+      "id": "vnet",
+      "label": "vnet-multi-subnets /16"
+    },
+    {
+      "id": "subnets",
+      "label": "subnets ×4 (for_each)"
+    },
+    {
+      "id": "out",
+      "label": "output: subnet_ids"
+    }
+  ],
+  "edges": [
+    {
+      "id": "rg-vnet",
+      "from": "rg",
+      "to": "vnet",
+      "label": "reference"
+    },
+    {
+      "id": "locals-subnets",
+      "from": "locals",
+      "to": "subnets",
+      "label": "for_each (map)"
+    },
+    {
+      "id": "vnet-subnets",
+      "from": "vnet",
+      "to": "subnets",
+      "label": "parent vnet"
+    },
+    {
+      "id": "subnets-out",
+      "from": "subnets",
+      "to": "out",
+      "label": "for expression"
+    }
+  ]
+}

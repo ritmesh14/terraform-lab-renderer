@@ -1,0 +1,18 @@
+{
+  "layers": [
+    ["tfv"],
+    ["vars"],
+    ["rg", "st"]
+  ],
+  "nodes": [
+    {"id": "tfv", "label": "terraform.tfvars"},
+    {"id": "vars", "label": "location/prefix/tier"},
+    {"id": "rg", "label": "rg-tfvars-foundation"},
+    {"id": "st", "label": "sttfvar<suffix>"}
+  ],
+  "edges": [
+    {"from": "tfv", "to": "vars", "label": "values"},
+    {"from": "vars", "to": "rg", "label": "var.location"},
+    {"from": "vars", "to": "st", "label": "prefix + tier"}
+  ]
+}

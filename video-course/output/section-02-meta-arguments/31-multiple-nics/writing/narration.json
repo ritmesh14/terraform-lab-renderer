@@ -1,0 +1,78 @@
+{
+ "episode": "31-multiple-nics",
+ "source": "writing/scenes.json",
+ "scenes": [
+  {
+   "id": "S001",
+   "narration": "Welcome back. So far, for_each has iterated collections you wrote by hand — a toset, a map in locals. But what if the map doesn't exist until the configuration runs? This is Lab 31, and we let Terraform build the map: a for expression computes one subnet CIDR per tier, and for_each consumes it. Then we go one step further — iterating a map of already-created resources. Let's build it."
+  },
+  {
+   "id": "S002",
+   "narration": "Three things in this lesson. One: a for expression that builds the map for_each consumes — we start from a plain list of tier names and compute a CIDR for each one on the fly. Two: for_each over a resource map — when the collection is other resource instances, each dot value isn't a string, it's a whole object with every attribute. Three: keys, to read the instance keys back out of the finished map."
+  },
+  {
+   "id": "S003",
+   "narration": "Quick placement. Labs 28 through 30 taught for_each over collections you wrote yourself — a toset of names, maps of files and subnets. This lab removes the constraint that the collection must exist before you type it: a for expression computes it from another list. And the second half goes further — the collection is the map of subnets Terraform itself created. The lab after this drives for_each straight from an input variable."
+  },
+  {
+   "id": "S004",
+   "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 31-multiple-nics. The direct link is in the video description. Two files matter: main dot T F holds the whole configuration, and terraform dot T F pins the providers."
+  },
+  {
+   "id": "S005",
+   "narration": "Two files matter here, and the first is terraform dot T F. It pins the tooling: Terraform 1.5 or newer, and the azurerm provider around version 3.70 — nothing else, because this lab needs no extras. The provider block at the bottom is the bridge to Azure; the empty features block enables the provider's default behaviours. That's the whole file — every interesting line lives in main dot T F."
+  },
+  {
+   "id": "S006",
+   "narration": "The raw material is the smallest collection in the course so far: a locals block holding one list — tiers: web, app, data. Just three plain strings. No CIDRs anywhere yet — those get computed in a moment. Notice the comment: this is deliberately a list, not a set, because the next scene needs the numeric index each element sits at."
+  },
+  {
+   "id": "S007",
+   "narration": "The resource group is the usual container — rg dash multi dash nics. The virtual network gets one slash 16 address space, 10.160 slash 16. Every subnet we're about to compute must fit inside that space — and they will, each one is a slash 24."
+  },
+  {
+   "id": "S008",
+   "narration": "Here is the star: one subnet block, and its for_each is not a variable or a locals map — it's a for expression, written inline. For each element t of local dot tiers, with its index i, produce a key t and a value — the CIDR string built from i plus one. Read the result as a map: web maps to 10.160.1.0 slash 24, app to 10.160.2.0 slash 24, data to 10.160.3.0 slash 24. The interpolation dollar-brace i plus one is what turns an index into an octet. Inside the block, each dot key is the tier name — it names the subnet — and each dot value is the computed CIDR. One block, three subnets, and the addressing was never hand-written."
+  },
+  {
+   "id": "S009",
+   "narration": "The input is a plain list — web, app, data. A list has order, and that's exactly what we need, because the index drives the second octet. The for expression walks it and emits a map: each tier paired with its computed CIDR. This map never existed in the source — Terraform built it while evaluating. for_each consumes the map and expands the one block into one instance per key — the addresses are the tier names. And the names follow the keys: snet dash web, snet dash app, snet dash data. The list order decided the octets; the keys decided the addresses."
+  },
+  {
+   "id": "S010",
+   "narration": "Now the second trick: the NIC block's for_each iterates azurerm_subnet dot this — not a variable, not a locals map, but the map of subnet instances Terraform is creating. One NIC per subnet, keys inherited. Because the collection is a resource map, each dot value is a whole subnet object — every attribute of the created subnet. We only need one: each dot value dot id drops straight into the ip configuration's subnet id. The dependency is implicit and automatic: a NIC can't be planned until its subnet exists in the graph, so Terraform orders subnet first, NIC second — three times over, once per key."
+  },
+  {
+   "id": "S011",
+   "narration": "The output reads the fan-out back. keys on the NIC resource map returns the key list — nic names in the same keys the subnets used: app, data, web. Note the order in that output — keys of a map come back sorted, not in source order. Web, app, data went in; app, data, web comes out. Maps have no order — that's by design."
+  },
+  {
+   "id": "S012",
+   "narration": "Here's how the pieces connect. Locals hold the tiers list — web, app, data. The resource group groups everything in Azure. The virtual network carves the 10.160 slash 16 space. The subnets: a for expression turns the tiers list into a tier-to-CIDR map, and for_each expands it into three keyed subnets inside the VNet. The NICs iterate the subnet map itself — one NIC per subnet key, each wired to its own subnet's id. The output lists the keys back — one NIC per tier. Everything lands inside your Azure subscription."
+  },
+  {
+   "id": "S013",
+   "narration": "Here's the plan — terraform plan, an illustrative view. Count the entries: the resource group, the virtual network, three keyed subnets — subnet this in brackets app, data, web — and three keyed NICs with the same keys. Eight to add, zero to destroy. Two blocks of fan-out code; eight real resources."
+  },
+  {
+   "id": "S014",
+   "narration": "And the output — terraform output nics, an illustrative view. The list comes back sorted: app, data, web. Not the order we typed — the order maps keep. Every NIC name is the key it was built from."
+  },
+  {
+   "id": "S015",
+   "narration": "Three pitfalls. One: the map a for expression builds must have unique keys — if two list elements produced the same key, the expression errors out instead of silently dropping one. Two: when for_each iterates a resource map, each dot value is the whole object — a string's dot-value habits will bite you; reach for dot id, dot name, whatever attribute you actually need. Three: this lab hand-builds octets with i plus one for teaching, but real CIDR math belongs to the cidrsubnet function — it handles host bits and sizing for you."
+  },
+  {
+   "id": "S016",
+   "narration": "Quick recap — five things. One: for_each doesn't need a collection you wrote — a for expression can compute the map inline. Two: each dot key names the instance, each dot value carries what the expression produced. Three: for_each can iterate a resource map — one copy per already-existing key. Four: there, each dot value is a full object, so each dot value dot id feeds references directly. Five: keys lists every key back — sorted, because maps have no order. The collection doesn't have to exist before you write the code — Terraform can build it while it plans."
+  },
+  {
+   "id": "S017",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+  },
+  {
+   "id": "S018",
+   "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+  }
+ ]
+}

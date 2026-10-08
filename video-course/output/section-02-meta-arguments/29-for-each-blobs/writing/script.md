@@ -1,0 +1,253 @@
+# Script — Lab 29: One Blob Per Recipe: for_each over a Map
+
+*Terraform Meta-arguments — Lab 29. Generated from `source/terraform-inventory.json` + `source/source-manifest.json` (ACTIVE_LAB = `section-02-meta-arguments/29-for-each-blobs`).*
+
+---
+
+## S001 — TITLE: One Blob Per Recipe: for_each over a Map
+
+**One Blob Per Recipe: for_each over a Map**
+
+Welcome back to the course. Last lab, for_each walked a set of plain strings. This is Lab 29, and the collection grows up: a map whose values are real configuration. One blob block, three files — each with its own name and its own content — all from a single for_each. Let's build it.
+
+---
+
+## S002 — CONCEPT: What you'll learn
+
+- for_each over a map — one instance per key
+- each.key and each.value — two different things now
+- Per-instance config straight from the map's values
+
+**What you'll learn**
+
+Here's what you'll learn — three things. One: for_each over a map — one resource instance per key, exactly like the set, but now every entry can carry data. Two: each dot key and each dot value split apart — with a map they're different: the key is the name, the value is the configuration. Three: per-instance configuration — each blob's content comes straight from its map entry, with no extra blocks and no repetition.
+
+---
+
+## S003 — CONCEPT: Where this lab fits
+
+- Lab 28: for_each over a set — key and value were the same
+- This lab: for_each over a map — key names it, value configures it
+- The pattern that scales to whole fleets of differing resources
+
+**Where this lab fits**
+
+This is the fourth lab of Section 2, Meta-arguments. Lab 28 gave for_each a set of strings — and with a set, each dot key and each dot value were the same thing. This lab swaps in a map: the key still names the instance, but the value now carries real configuration. That split — name versus config — is the pattern that scales from three blobs to entire fleets of differing resources.
+
+---
+
+## S004 — CONCEPT: Where to find this lab
+
+**Where to find this lab**
+
+```
+RIT-MESH / Terraform-Azure-Labs-and-Case_Studies
+  └── labs
+      └── section-02-meta-arguments
+          └── 29-for-each-blobs
+              ├── README.md
+              ├── main.tf
+              └── terraform.tf
+
+https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies
+/tree/master/labs/section-02-meta-arguments/29-for-each-blobs
+```
+
+You can find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 29-for-each-blobs. The direct link is in the video description. Two files matter in this lesson: main dot T F holds the whole configuration, and terraform dot T F pins the providers.
+
+---
+
+## S005 — CONCEPT: The mental model: recipe cards
+
+- A stack of recipe cards — one per dish
+- The card's title is the key; the recipe is the value
+- for_each is the cook: one dish per card, title on the label
+
+**The mental model: recipe cards**
+
+Here's the mental model. Picture a stack of recipe cards. Each card has a title and a recipe. for_each is the cook: it picks up each card, cooks exactly what the recipe says, and labels the dish with the card's title. The title — the key — identifies the dish; the recipe — the value — decides what got made. Same cook, same kitchen, three different dishes.
+
+---
+
+## S006 — CODE
+
+Terraform dot T F pins the tooling: Terraform 1.5 or newer, the azurerm provider around version 3.70, and the random provider for the unique suffix. The provider block at the bottom is the bridge to Azure; the empty features block enables the provider's default behaviours. Nothing new here — on to main dot T F.
+
+---
+
+## S007 — CODE
+
+**Steps:**
+
+1. Locals first compute the storage account name — lowercase, random suffix appended, same pattern as the last two labs.
+   - active: [8, 9]
+2. Then the interesting one: files, a map keyed by filename. Each entry's value is that blob's content. And note the quotes around the keys — keys with dots in them must be quoted, or HCL reads the dot as a reference.
+   - active: [11, 12, 13, 14, 15, 16, 17]
+
+Locals first compute the storage account name — lowercase, random suffix appended, same pattern as the last two labs. Then the interesting one: files, a map keyed by filename. Each entry's value is that blob's content. And note the quotes around the keys — keys with dots in them must be quoted, or HCL reads the dot as a reference.
+
+---
+
+## S008 — CODE
+
+**Steps:**
+
+1. The suffix comes from random_string: six lowercase characters. It's a resource, so the value is saved in Terraform state.
+   - active: [23, 24, 25, 26, 27]
+2. Saved in state means stable: every future plan and apply keeps the same suffix, so the account name and every blob's home never drift between runs.
+   - active: [23, 24, 25, 26, 27]
+
+The suffix comes from random_string: six lowercase characters. It's a resource, so the value is saved in Terraform state. Saved in state means stable: every future plan and apply keeps the same suffix, so the account name and every blob's home never drift between runs.
+
+---
+
+## S009 — CODE
+
+**Steps:**
+
+1. The resource group gets a fixed name — rg dash foreach dash blobs.
+   - active: [30, 31, 32, 33]
+2. The storage account references the group for its name and location — an implicit dependency, so the group is always created first. Its own name comes from locals, random suffix baked in.
+   - active: [37, 38, 39, 40, 41, 42, 43]
+
+The resource group gets a fixed name — rg dash foreach dash blobs. The storage account references the group for its name and location — an implicit dependency, so the group is always created first. Its own name comes from locals, random suffix baked in.
+
+---
+
+## S010 — CODE
+
+One ordinary container — no for_each here. Config is the home all the blobs will live in. It references the storage account, so the account is always created first, and it's private. The fan-out is reserved for the blobs themselves.
+
+---
+
+## S011 — CODE
+
+**Steps:**
+
+1. And here's the fan-out: one blob block, for_each equals local dot files. Three map entries — three blobs. No count, no repetition, no copy-pasted blocks.
+   - active: [53, 54]
+2. Inside, key and value split apart. each dot key is the filename — readme dot m d, app dot json, note dot t x t. each dot value is that entry's content — the bytes the blob will hold. Name from the key, body from the value.
+   - active: [55, 59]
+3. Every blob also references the account and the config container — the dependency chain flows through, account first, container second, blobs last.
+   - active: [56, 57, 58]
+
+And here's the fan-out: one blob block, for_each equals local dot files. Three map entries — three blobs. No count, no repetition, no copy-pasted blocks. Inside, key and value split apart. each dot key is the filename — readme dot m d, app dot json, note dot t x t. each dot value is that entry's content — the bytes the blob will hold. Name from the key, body from the value. Every blob also references the account and the config container — the dependency chain flows through, account first, container second, blobs last.
+
+---
+
+## S012 — FOR_EACH_MAP: One map, one block, three configured blobs
+
+**One map, one block, three configured blobs**
+
+**Steps:**
+
+1. The collection is a map — three filenames, and each value is that file's content. The keys name the instances; the values configure them.
+2. for_each walks the map and expands the one blob block into one instance per key — three blobs from a single block.
+3. For each instance, each dot key is its filename and each dot value is its content — readme gets the generated markdown, app dot json gets the JSON, note gets its reminder.
+4. And the state addresses carry the filenames: file in brackets, quote, readme dot m d. To touch one blob — import it, remove it, read it — you address it by name.
+
+The collection is a map — three filenames, and each value is that file's content. The keys name the instances; the values configure them. for_each walks the map and expands the one blob block into one instance per key — three blobs from a single block. For each instance, each dot key is its filename and each dot value is its content — readme gets the generated markdown, app dot json gets the JSON, note gets its reminder. And the state addresses carry the filenames: file in brackets, quote, readme dot m d. To touch one blob — import it, remove it, read it — you address it by name.
+
+---
+
+## S013 — CODE
+
+The output is one line: keys of the blob resource. A for_each resource is a map of instances, and keys lists the map's keys — the three uploaded filenames. Change the map in locals, and this output follows automatically.
+
+---
+
+## S014 — CONCEPT: Key vs value: what each one controls
+
+- The KEY is the identity — the address, the name, the stability
+- The VALUE is the config — change it, Terraform updates in place
+- Set: key equals value. Map: the two split apart
+
+**Key vs value: what each one controls**
+
+Here's the concept worth pausing on: what the key controls versus what the value controls. The key is identity — it becomes the state address, it decides which instance is which, and it's what makes addresses stable. The value is configuration — change a blob's content in the map, and Terraform updates that blob in place; no destroy, no recreate. With a set the two were the same string. A map splits them: stable names on one side, editable config on the other. That's the whole power of for_each over a map.
+
+---
+
+## S015 — DIAGRAM: How the pieces connect
+
+**How the pieces connect**
+
+**Steps:**
+
+1. Here's how the pieces connect.
+2. Locals hold the files map and the account name.
+   - active: ['locals']
+3. The random string generates the suffix and saves it in state.
+   - active: ['random']
+4. Locals take that suffix and compute the account's name.
+   - active: ['locals']
+5. The resource group groups everything in Azure.
+   - active: ['rg']
+6. The storage account references the group — group first, account second — with its name from locals.
+   - active: ['st']
+7. One ordinary container, config, sits inside the account.
+   - active: ['cfg']
+8. And the blobs: for_each walks the files map — one blob per filename, each with its own content, inside config.
+   - active: ['blobs']
+9. The output lists the keys back — the three filenames.
+   - active: ['out']
+10. Everything lands inside your Azure subscription.
+
+Here's how the pieces connect. Locals hold the files map and the account name. The random string generates the suffix and saves it in state. Locals take that suffix and compute the account's name. The resource group groups everything in Azure. The storage account references the group — group first, account second — with its name from locals. One ordinary container, config, sits inside the account. And the blobs: for_each walks the files map — one blob per filename, each with its own content, inside config. The output lists the keys back — the three filenames. Everything lands inside your Azure subscription.
+
+---
+
+## S016 — TERMINAL
+
+Here's the plan — terraform plan, an illustrative view. Seven to add: the random string, the group, the account, the config container, and three blobs — file in brackets app dot json, brackets note dot t x t, brackets readme dot m d. One block in the code; three fully configured blobs in the plan.
+
+---
+
+## S017 — TERMINAL
+
+And here's state — terraform state list, an illustrative view. The blob addresses are the filenames: file in brackets app dot json, brackets note dot t x t, brackets readme dot m d. Want to import an existing blob into this configuration, or remove one from state? You address it by its name — exactly the key in the map.
+
+---
+
+## S018 — CONCEPT: Common pitfall
+
+- Map keys with dots or dashes MUST be quoted
+- The key is the identity — renaming a key destroys and recreates
+- Value edits update in place — but some attribute changes force replace
+
+**Common pitfall**
+
+One pitfall to understand before you map real files. One: keys with dots or dashes must be quoted — unquoted, HCL tries to read app dot json as a reference and the plan fails with a confusing error. Two, the familiar rule from last lab, now sharper: the key is the identity. Rename readme dot m d to intro dot m d in the map, and Terraform destroys the old blob and creates a new one — the content never moves. Three: value edits usually update in place, but watch the provider — some attribute changes, like a blob's type, force a replacement even though the key never changed. Keys are forever; values are editable.
+
+---
+
+## S019 — RECAP
+
+- for_each = local.files — one blob per map entry
+- each.key is the filename; each.value is the content
+- The key is the identity; the value is just config
+- Value edits update in place — key renames destroy and recreate
+- keys() on the resource lists every filename back
+
+Quick recap — five things. One: for_each equals local dot files — one blob per map entry. Two: each dot key is the filename, each dot value is the content — name from the key, body from the value. Three: the key is the instance's identity; the value is just configuration. Four: so editing a value updates in place, but renaming a key destroys and recreates. Five: keys on the resource lists every filename back. One block — and every blob gets its own recipe.
+
+---
+
+## S020 — NEXT
+
+Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure.
+
+---
+
+## S021 — CONCEPT: Thanks for watching
+
+**Thanks for watching**
+
+```
+github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies
+tree/master/labs/section-02-meta-arguments/29-for-each-blobs
+```
+
+Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one.
+
+---

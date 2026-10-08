@@ -1,0 +1,11 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan",
+  "output_file": "lab28-plan.txt",
+  "highlight": [
+    "stage[\"dev\"]",
+    "stage[\"prod\"]",
+    "stage[\"stg\"]",
+    "Plan: 6 to add"
+  ]
+}

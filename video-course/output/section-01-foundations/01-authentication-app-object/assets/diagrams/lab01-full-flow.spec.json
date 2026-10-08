@@ -1,0 +1,15 @@
+{
+  "nodes": [
+    {"id": "tf", "label": "Terraform configuration", "group": "terraform"},
+    {"id": "prov", "label": "azurerm provider"},
+    {"id": "arm", "label": "Azure Resource Manager"},
+    {"id": "sub", "label": "Subscription (data read)"},
+    {"id": "out", "label": "Outputs: id + name"}
+  ],
+  "edges": [
+    {"from": "tf", "to": "prov"},
+    {"from": "prov", "to": "arm", "label": "service principal"},
+    {"from": "arm", "to": "sub", "label": "reads"},
+    {"from": "sub", "to": "out"}
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "command": "terraform plan/apply with a validation failure",
+  "output_file": "lab18-apply.txt",
+  "highlight": [
+    "Apply complete",
+    "validation",
+    "Error"
+  ]
+}

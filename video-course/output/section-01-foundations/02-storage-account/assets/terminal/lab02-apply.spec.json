@@ -1,0 +1,5 @@
+{
+  "command": "terraform apply",
+  "output_file": "lab02-apply.txt",
+  "highlight": ["Apply complete", "storage_account_name", "primary_blob_endpoint"]
+}

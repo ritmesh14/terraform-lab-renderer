@@ -1,0 +1,48 @@
+{
+  "layers": [
+    [
+      "names",
+      "locals",
+      "data",
+      "out"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": "names",
+      "label": "var.rg_names (set of EXISTING group names)"
+    },
+    {
+      "id": "locals",
+      "label": "locals.by_name (name => name map)"
+    },
+    {
+      "id": "data",
+      "label": "data.azurerm_resource_group.each (one read per name)"
+    },
+    {
+      "id": "out",
+      "label": "outputs: count / names / ids"
+    }
+  ],
+  "edges": [
+    {
+      "id": "names-locals",
+      "from": "names",
+      "to": "locals",
+      "label": "set"
+    },
+    {
+      "id": "locals-data",
+      "from": "locals",
+      "to": "data",
+      "label": "for_each"
+    },
+    {
+      "id": "data-out",
+      "from": "data",
+      "to": "out",
+      "label": "[for rg : rg.id]"
+    }
+  ]
+}

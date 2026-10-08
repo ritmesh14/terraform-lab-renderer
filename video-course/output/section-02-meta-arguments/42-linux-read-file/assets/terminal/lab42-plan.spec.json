@@ -1,0 +1,10 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan",
+  "output_file": "lab42-plan.txt",
+  "highlight": [
+    "\"vm-readfile\"",
+    "public_key = \"ssh-rsa",
+    "Plan: 5 to add"
+  ]
+}

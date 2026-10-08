@@ -1,0 +1,10 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan -var=deploy_nsg=false",
+  "output_file": "lab47-flip.txt",
+  "highlight": [
+    "-var=deploy_nsg=false",
+    "\"nsg-conditional\"",
+    "2 to destroy"
+  ]
+}

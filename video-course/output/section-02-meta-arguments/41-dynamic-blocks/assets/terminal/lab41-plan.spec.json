@@ -1,0 +1,12 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan",
+  "output_file": "lab41-plan.txt",
+  "highlight": [
+    "\"nsg-dynamic\"",
+    "\"Allow-HTTP\"",
+    "\"Allow-HTTPS\"",
+    "destination_port_range   = \"80\"",
+    "Plan: 2 to add"
+  ]
+}

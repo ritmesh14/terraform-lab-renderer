@@ -1,0 +1,230 @@
+{
+ "title": "Your First Virtual Network",
+ "lesson_label": "Azure Foundations — Lab 06",
+ "scenes": [
+  {
+   "id": "S001",
+   "type": "TITLE",
+   "title": "Your First Virtual Network",
+   "lesson_label": "Azure Foundations — Lab 06",
+   "narration": "Everything we've built so far lives alone in its resource group. Today we start connecting things, with your first virtual network: private I P space in Azure, with subnets carved out for the workloads to come.",
+   "audio": "audio/S001.mp3"
+  },
+  {
+   "id": "S002",
+   "type": "CONCEPT",
+   "heading": "What you'll learn",
+   "points": [
+    "What a VNet is: your private IP space inside Azure",
+    "Reading a CIDR block: what 10.20.0.0/16 actually means",
+    "Inline subnet blocks — the quick way to add subnets",
+    "Why subnets matter for everything that follows"
+   ],
+   "narration": "Here's what you'll learn. One: what a VNet is — your private I P space inside Azure. Two: reading a C I D R block — what ten twenty dot zero slash sixteen actually means. Three: inline subnet blocks — the quick way to add subnets. Four: why subnets matter for everything that follows.",
+   "audio": "audio/S002.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S003",
+   "type": "CONCEPT",
+   "heading": "Where this lab fits",
+   "points": [
+    "Lab 6 of the Foundations section",
+    "First networking lab — the base for VMs and app workloads",
+    "Reference chain from Lab 4 reused: locals feed resources"
+   ],
+   "narration": "This is lab six, and it's the first networking lab of the course. From here on, most resources will live inside a network. Virtual machines, databases, app environments, they all need subnets to sit in. The code itself is small, but it's the foundation everything later stands on.",
+   "audio": "audio/S003.mp3"
+  },
+  {
+   "id": "S004",
+   "type": "CONCEPT",
+   "heading": "Reading a CIDR block in 60 seconds",
+   "points": [
+    "10.20.0.0/16 — network 10.20.x.x, 65,536 addresses",
+    "The /16 = how many bits are fixed; the rest is yours to slice",
+    "A /24 subnet fixes one more byte: 10.20.1.0/24 = 256 addresses",
+    "Subnets must fit inside the VNet's space and not overlap"
+   ],
+   "narration": "Sixty seconds on C I D R, because it's the only networking math this course needs. Ten twenty dot zero dot zero slash sixteen means: the first sixteen bits, the first two numbers, are the network. Everything after is yours. That's about sixty five thousand addresses. A slash twenty four subnet fixes one more number, so ten twenty dot one dot zero slash twenty four is a piece of that space, two hundred fifty six addresses big. The only rule to remember: subnets must fit inside the network, and they must not overlap.",
+   "audio": "audio/S004.mp3"
+  },
+  {
+   "id": "S005",
+   "type": "CONCEPT",
+   "heading": "Where to find this lab",
+   "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-01-foundations\n          └── 06-virtual-network\n              ├── README.md\n              └── main.tf\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-01-foundations/06-virtual-network",
+   "narration": "As always, the lab is in the course GitHub repository under Section 1, Foundations, link in the description. One file: main dot T F, with a resource group, a virtual network, and two subnets.",
+   "audio": "audio/S005.mp3"
+  },
+  {
+   "id": "S006",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 25,
+   "end_line": 36,
+   "highlight_lines": [
+    26,
+    33
+   ],
+   "asset": "assets/code/lab06-01-locals-rg.png",
+   "narration": "Locals first: the resource group name, the region, and the network's name. Then the resource group itself, referencing those locals. This is the same opening pattern as every lab since four: names live in one place, resources reference them.",
+   "audio": "audio/S006.mp3"
+  },
+  {
+   "id": "S007",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 38,
+   "end_line": 44,
+   "highlight_lines": [
+    40,
+    44
+   ],
+   "asset": "assets/code/lab06-02-vnet.png",
+   "narration": "Now the new resource: a virtual network. Its name comes from locals, and its location and resource group come from the group we just defined, the reference chain you already know. The new part is address space. It's a list, because a V N E T can hold several ranges, and here we give it one: ten twenty dot zero dot zero slash sixteen. That's this network's private territory inside Azure.",
+   "audio": "audio/S007.mp3"
+  },
+  {
+   "id": "S008",
+   "type": "DIAGRAM",
+   "caption": "One VNet, two subnets — how the space is sliced",
+   "asset": "assets/diagrams/lab06-vnet-subnets.svg",
+   "narration": "Here's the space as a picture. The big box is the V N E T, sixty five thousand addresses wide. Inside it, two subnets: the web subnet at ten twenty dot one dot zero, and the app subnet at ten twenty dot two dot zero, each a slash twenty four slice. Resources in the web subnet can talk to the app subnet, because they share this private space. And nothing here is reachable from the public internet unless we deliberately expose it later.",
+   "audio": "audio/S008.mp3",
+   "steps": [
+    {
+     "narration": "Here's the space as a picture.",
+     "nodes": [],
+     "edges": []
+    },
+    {
+     "narration": "The big box is the V N E T, sixty five thousand addresses wide.",
+     "nodes": [
+      "vnet"
+     ],
+     "edges": [
+      "rg-vnet"
+     ]
+    },
+    {
+     "narration": "Inside it, two subnets: the web subnet at ten twenty dot one dot zero, and the app subnet at ten twenty dot two dot zero, each a slash twenty four slice.",
+     "nodes": [
+      "web",
+      "app"
+     ],
+     "edges": [
+      "vnet-web",
+      "vnet-app"
+     ]
+    },
+    {
+     "narration": "Resources in the web subnet can talk to the app subnet, because they share this private space.",
+     "nodes": [
+      "vnet",
+      "web",
+      "app"
+     ],
+     "edges": [
+      "vnet-web",
+      "vnet-app"
+     ]
+    },
+    {
+     "narration": "And nothing here is reachable from the public internet unless we deliberately expose it later.",
+     "nodes": [
+      "rg",
+      "vnet",
+      "web",
+      "app"
+     ],
+     "edges": [
+      "rg-vnet",
+      "vnet-web",
+      "vnet-app"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "S009",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 46,
+   "end_line": 56,
+   "highlight_lines": [
+    48,
+    49,
+    53,
+    54
+   ],
+   "asset": "assets/code/lab06-03-subnets.png",
+   "narration": "The subnets are defined inside the V N E T block itself, one small block per subnet: a name and an address prefix. This inline style is the quick way, and for a small network it's perfectly fine. The trade-off, as the comment notes, is flexibility. Each inline subnet is welded to this V N E T resource. When you need subnets with their own lifecycles, route tables, or network security groups, you define them as separate resources, which is a later lab's topic.",
+   "audio": "audio/S009.mp3"
+  },
+  {
+   "id": "S010",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 59,
+   "end_line": 62,
+   "highlight_lines": [
+    60,
+    62
+   ],
+   "asset": "assets/code/lab06-04-outputs.png",
+   "narration": "Two outputs finish the file: the V N E T's I D and its name. The I D is the one to watch. Later labs and other resources reference a network by its I D, so printing it here is both a sanity check and a preview of the reference chains to come.",
+   "audio": "audio/S010.mp3"
+  },
+  {
+   "id": "S011",
+   "type": "TERMINAL",
+   "asset": "assets/terminal/lab06-apply.svg",
+   "narration": "Apply time. The resource group first, then the virtual network with both subnets inside it. Notice the plan shows the subnets as part of the V N E T, not as separate resources, because that's how we declared them: inline.",
+   "audio": "audio/S011.mp3"
+  },
+  {
+   "id": "S012",
+   "type": "CONCEPT",
+   "heading": "Common pitfall — overlapping address space",
+   "points": [
+    "Two subnets claiming 10.20.1.0/24 → Azure rejects the VNet",
+    "A subnet must sit inside the VNet's address_space",
+    "Plan your ranges before you write them: 10.20.1.x web, 10.20.2.x app",
+    "Peered VNets must not overlap either — ranges are forever-ish"
+   ],
+   "narration": "Here are the pitfalls in this lab. One: two subnets claiming the same range — ten twenty dot one dot zero slash twenty four — and Azure rejects the v net. Overlapping prefixes are the classic networking mistake, and Azure catches them at apply time. Two: a subnet must sit inside the v net's address space. Anything outside it fails the whole apply. Three: plan your ranges before you write them — ten twenty dot one for web, ten twenty dot two for app. A minute of planning beats renumbering later. Four: peered networks must not overlap either — address ranges are effectively forever. Renumbering a used network is a project of its own, so spend that minute planning before you write ranges down.",
+   "audio": "audio/S012.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S013",
+   "type": "RECAP",
+   "points": [
+    "A VNet is your private IP space inside Azure",
+    "address_space is a LIST of CIDR blocks — here one /16",
+    "A /24 subnet is a 256-address slice of that space",
+    "Inline subnet {} blocks are quick but welded to the VNet resource",
+    "Later labs reference the VNet by its id output"
+   ],
+   "narration": "Quick recap — five things. One: a v net is your private i p space inside Azure. Two: address space is a list of c i d r blocks — here one slash sixteen. Three: a slash twenty four subnet is a two hundred fifty six address slice of that space. Four: inline subnet blocks are quick, but welded to the v net resource. Five: later labs reference the v net by its i d output.",
+   "audio": "audio/S013.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S014",
+   "type": "NEXT",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure.",
+   "audio": "audio/S014.mp3"
+  },
+  {
+   "id": "S015",
+   "type": "CONCEPT",
+   "heading": "Thanks for watching",
+   "narration": "Thanks for watching. If this helped, the full lab, along with every lab in this course, is in the GitHub repository linked below. If you'd like more lessons like this one, give the video a like, share it with a friend who is learning Azure, and subscribe to the channel. It really helps the course grow. Thank you, and see you in the next lesson.",
+   "audio": "audio/S015.mp3",
+   "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-01-foundations/06-virtual-network",
+   "centered": true
+  }
+ ]
+}

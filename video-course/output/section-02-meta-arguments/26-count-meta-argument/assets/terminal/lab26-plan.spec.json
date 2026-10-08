@@ -1,0 +1,11 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan",
+  "output_file": "lab26-plan.txt",
+  "highlight": [
+    "data[0]",
+    "data[1]",
+    "data[2]",
+    "Plan: 6 to add"
+  ]
+}

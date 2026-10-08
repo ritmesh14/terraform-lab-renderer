@@ -1,0 +1,12 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan",
+  "output_file": "lab40-plan.txt",
+  "highlight": [
+    "\"nsg-webserver\"",
+    "\"pip-webserver\"",
+    "custom_data",
+    "(sensitive value)",
+    "Plan: 7 to add"
+  ]
+}

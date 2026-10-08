@@ -1,0 +1,39 @@
+{
+  "nodes": [
+    {
+      "id": "rg",
+      "label": "azurerm_resource_group.this\nrg-pip-foundation"
+    },
+    {
+      "id": "pip",
+      "label": "azurerm_public_ip.web\npip-web-01\nStatic · Standard"
+    },
+    {
+      "id": "out",
+      "label": "output.public_ip\ncomputed after apply"
+    }
+  ],
+  "edges": [
+    {
+      "from": "rg",
+      "to": "pip",
+      "label": "resource_group_name"
+    },
+    {
+      "from": "pip",
+      "to": "out",
+      "label": ".ip_address"
+    }
+  ],
+  "layers": [
+    [
+      "rg"
+    ],
+    [
+      "pip"
+    ],
+    [
+      "out"
+    ]
+  ]
+}

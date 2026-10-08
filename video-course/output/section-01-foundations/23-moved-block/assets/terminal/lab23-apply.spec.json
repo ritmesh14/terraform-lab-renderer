@@ -1,0 +1,8 @@
+{
+  "command": "terraform plan / apply",
+  "output_file": "lab23-apply.txt",
+  "highlight": [
+    "has moved to",
+    "0 to add"
+  ]
+}

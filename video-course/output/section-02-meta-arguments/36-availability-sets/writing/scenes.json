@@ -1,0 +1,488 @@
+{
+  "title": "Spreading the Risk: Availability Sets",
+  "lesson_label": "Terraform Meta-arguments — Lab 36",
+  "scenes": [
+    {
+      "id": "S001",
+      "type": "TITLE",
+      "title": "Spreading the Risk: Availability Sets",
+      "lesson_label": "Terraform Meta-arguments — Lab 36",
+      "audio": "audio/S001.mp3",
+      "narration": "Welcome back. Lab 35 taught count's classic idiom — two resources paired by index. This is Lab 36, and it adds the piece every real VM fleet needs: an availability set. Two counted VMs, and both point at ONE shared resource — so Azure spreads them across separate hardware. One resource, referenced by every instance. Let's build it."
+    },
+    {
+      "id": "S002",
+      "type": "CONCEPT",
+      "heading": "What you'll learn",
+      "numbered": true,
+      "audio": "audio/S002.mp3",
+      "points": [
+        "azurerm_availability_set — fault domains + update domains, declared",
+        "Both counted VMs share ONE availability_set_id",
+        "99.95% SLA — within a single datacenter, when VMs span the domains"
+      ],
+      "narration": "Three things in this lesson. One: the availability set resource — you declare how many fault domains and update domains it offers. Two: the shared reference — both counted VMs point at the same availability set id, and that's what makes them spread. Three: the payoff in numbers — VMs spread across fault and update domains within one datacenter take Microsoft's SLA for that pair up to 99.95 percent. No zones involved — that's the next lab."
+    },
+    {
+      "id": "S003",
+      "type": "CONCEPT",
+      "heading": "Where this lab fits",
+      "audio": "audio/S003.mp3",
+      "points": [
+        "Lab 35: count pairing — VM[i] ↔ NIC[i] by index",
+        "This lab: a third, UNcounted resource both instances reference",
+        "Next: zones — spreading across datacenters, not racks"
+      ],
+      "narration": "Placement. Lab 35 built the count pairing: VM i uses NIC i. This lab keeps that pairing and adds a third resource that is NOT counted — one availability set, created once, referenced by every VM instance. The mental model shifts from 'copies that pair' to 'copies that share'. The next lab goes bigger: availability zones, which spread VMs across whole datacenters instead of racks."
+    },
+    {
+      "id": "S004",
+      "type": "CONCEPT",
+      "heading": "Where to find this lab",
+      "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-02-meta-arguments\n          └── 36-availability-sets\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-02-meta-arguments/36-availability-sets",
+      "audio": "audio/S004.mp3",
+      "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 36-availability-sets. The direct link is in the video description. Main dot T F holds everything, including the variables; terraform dot T F pins the providers."
+    },
+    {
+      "id": "S005",
+      "type": "CODE",
+      "source_file": "terraform.tf",
+      "start_line": 1,
+      "end_line": 19,
+      "highlight_lines": [
+        6,
+        8,
+        10,
+        17,
+        18
+      ],
+      "asset": "assets/code/lab36-providers.png",
+      "audio": "audio/S005.mp3",
+      "narration": "Terraform dot T F pins the tooling: Terraform 1.5 or newer, and the azurerm provider around version 3.70 — no extra providers this time. The provider block at the bottom bridges to Azure; the empty features block enables the provider's defaults. Every interesting line lives in main dot T F."
+    },
+    {
+      "id": "S006",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 10,
+      "end_line": 18,
+      "highlight_lines": [
+        12,
+        16
+      ],
+      "asset": "assets/code/lab36-vars-rg.png",
+      "audio": "audio/S006.mp3",
+      "steps": [
+        {
+          "narration": "The one input: admin SSH key — a required sensitive string, exactly the pattern from lab 35. No default, so Terraform prompts, and sensitive keeps it out of the plan output.",
+          "active_lines": [
+            10,
+            11,
+            12,
+            13
+          ],
+          "active_tokens": [
+            "admin_ssh_key",
+            "sensitive = true"
+          ]
+        },
+        {
+          "narration": "The resource group is the container — rg dash availset. Everything this lab creates lands inside it.",
+          "active_lines": [
+            15,
+            16,
+            17,
+            18
+          ],
+          "active_tokens": [
+            "azurerm_resource_group"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S006.step1.mp3",
+        "audio/S006.step2.mp3"
+      ]
+    },
+    {
+      "id": "S007",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 22,
+      "end_line": 28,
+      "highlight_lines": [
+        26,
+        27
+      ],
+      "asset": "assets/code/lab36-availset.png",
+      "audio": "audio/S007.mp3",
+      "steps": [
+        {
+          "narration": "The availability set is ONE resource — no count, no for_each. Created exactly once, named as dash web.",
+          "active_lines": [
+            22,
+            23,
+            24,
+            25
+          ],
+          "active_tokens": [
+            "azurerm_availability_set"
+          ]
+        },
+        {
+          "narration": "And its two numbers are the whole point: platform fault domain count 2 — two separate power and network groups, so one hardware failure can't take both VMs. Platform update domain count 5 — five patch waves, so reboots never hit both VMs at once.",
+          "active_lines": [
+            26,
+            27
+          ],
+          "active_tokens": [
+            "platform_fault_domain_count",
+            "platform_update_domain_count"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S007.step1.mp3",
+        "audio/S007.step2.mp3"
+      ]
+    },
+    {
+      "id": "S008",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 31,
+      "end_line": 44,
+      "highlight_lines": [
+        35,
+        43
+      ],
+      "asset": "assets/code/lab36-network.png",
+      "audio": "audio/S008.mp3",
+      "steps": [
+        {
+          "narration": "The network base is familiar from lab 35: virtual network on 10.200 slash 16, one subnet — snet web on 10.200.1.0 slash 24. Shared by every counted NIC.",
+          "active_lines": [
+            35,
+            40,
+            43
+          ],
+          "active_tokens": [
+            "10.200.0.0/16",
+            "snet-web"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S008.step1.mp3"
+      ]
+    },
+    {
+      "id": "S009",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 47,
+      "end_line": 57,
+      "highlight_lines": [
+        48,
+        49
+      ],
+      "asset": "assets/code/lab36-nics.png",
+      "audio": "audio/S009.mp3",
+      "steps": [
+        {
+          "narration": "The NIC block is the count idiom again — count 2, written as a literal this time. Two instances: web bracket zero, web bracket one.",
+          "active_lines": [
+            48,
+            49
+          ],
+          "active_tokens": [
+            "count               = 2",
+            "nic-as-${count.index}"
+          ]
+        },
+        {
+          "narration": "Both attach to the same subnet with dynamic private IPs — identical copies, exactly what count is for.",
+          "active_lines": [
+            52,
+            53,
+            54,
+            55,
+            56
+          ],
+          "active_tokens": [
+            "ip_configuration"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S009.step1.mp3",
+        "audio/S009.step2.mp3"
+      ]
+    },
+    {
+      "id": "S010",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 60,
+      "end_line": 83,
+      "highlight_lines": [
+        67,
+        68
+      ],
+      "asset": "assets/code/lab36-vms.png",
+      "audio": "audio/S010.mp3",
+      "steps": [
+        {
+          "narration": "The VM block: count 2 again, names vm dash as dash count dot index — the pairing from lab 35 unchanged.",
+          "active_lines": [
+            61,
+            62,
+            67
+          ],
+          "active_tokens": [
+            "count                 = 2",
+            "azurerm_network_interface.web[count.index]"
+          ]
+        },
+        {
+          "narration": "And the line this lab exists for: availability set id equals azurerm_availability_set dot web dot id. ONE reference, shared by BOTH instances — because it's outside any count block, both VM instances read the same single id. That shared id is what tells Azure: spread these VMs across your fault and update domains.",
+          "active_lines": [
+            68
+          ],
+          "active_tokens": [
+            "availability_set_id"
+          ]
+        },
+        {
+          "narration": "Below it, the three nested blocks you know from lab 35: admin SSH key from the sensitive variable, os disk on standard SSD, and the Ubuntu 22.04 source image.",
+          "active_lines": [
+            69,
+            73,
+            77
+          ],
+          "active_tokens": [
+            "admin_ssh_key {",
+            "os_disk {",
+            "source_image_reference {"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S010.step1.mp3",
+        "audio/S010.step2.mp3",
+        "audio/S010.step3.mp3"
+      ]
+    },
+    {
+      "id": "S011",
+      "type": "ITERATION_EXPANSION",
+      "title": "Two counted resources, one shared set",
+      "expression": "count = 2  →  both instances reference the SAME availability set",
+      "audio": "audio/S011.mp3",
+      "stages": [
+        {
+          "id": "expr",
+          "label": "The expression",
+          "kind": "expression",
+          "items": [
+            {
+              "key": "e0",
+              "text": "count = 2 (NICs)  •  count = 2 (VMs)"
+            }
+          ]
+        },
+        {
+          "id": "inst",
+          "label": "Instances (state)",
+          "kind": "instances",
+          "items": [
+            {
+              "key": "i0",
+              "text": "nic web[0] ↔ vm web[0]"
+            },
+            {
+              "key": "i1",
+              "text": "nic web[1] ↔ vm web[1]"
+            }
+          ]
+        },
+        {
+          "id": "shared",
+          "label": "The shared reference",
+          "kind": "output",
+          "items": [
+            {
+              "key": "s0",
+              "text": "availability_set_id = azurerm_availability_set.web.id"
+            },
+            {
+              "key": "s1",
+              "text": "ONE id — both instances read the same value"
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "narration": "Both counted resources declare count 2 — the same expansion as lab 35.",
+          "focus": {
+            "stages": [
+              "expr"
+            ]
+          }
+        },
+        {
+          "narration": "Four instances total: NIC zero paired with VM zero, NIC one paired with VM one.",
+          "focus": {
+            "stages": [
+              "inst"
+            ]
+          }
+        },
+        {
+          "narration": "But the availability set is NOT counted — it exists once, and both VM instances reference the same id. Shared, not paired. Azure uses that to spread them.",
+          "focus": {
+            "stages": [
+              "shared"
+            ]
+          }
+        }
+      ],
+      "step_audio": [
+        "audio/S011.step1.mp3",
+        "audio/S011.step2.mp3",
+        "audio/S011.step3.mp3"
+      ]
+    },
+    {
+      "id": "S012",
+      "type": "DIAGRAM",
+      "caption": "How the pieces connect",
+      "asset": "assets/diagrams/lab36-resource-flow.svg",
+      "audio": "audio/S012.mp3",
+      "steps": [
+        {
+          "narration": "Here's how the pieces connect.",
+          "nodes": [],
+          "edges": []
+        },
+        {
+          "narration": "The variables provide the sensitive SSH key.",
+          "nodes": [
+            "vars"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The resource group groups everything in Azure.",
+          "nodes": [
+            "rg"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The availability set: ONE resource, two fault domains, five update domains.",
+          "nodes": [
+            "as"
+          ],
+          "edges": [
+            "rg-as"
+          ]
+        },
+        {
+          "narration": "The network: VNet and subnet at 10.200.1.0 slash 24.",
+          "nodes": [
+            "vnet"
+          ],
+          "edges": [
+            "rg-vnet"
+          ]
+        },
+        {
+          "narration": "Two counted NICs attach to the shared subnet.",
+          "nodes": [
+            "nics"
+          ],
+          "edges": [
+            "vnet-nics"
+          ]
+        },
+        {
+          "narration": "Two counted VMs: each pairs with its NIC by index, and BOTH reference the one availability set id — that's the spread.",
+          "nodes": [
+            "vms"
+          ],
+          "edges": [
+            "nics-vms",
+            "as-vms",
+            "vars-vms"
+          ]
+        },
+        {
+          "narration": "Everything lands inside your Azure subscription.",
+          "nodes": [],
+          "edges": []
+        }
+      ],
+      "step_audio": [
+        "audio/S012.step1.mp3",
+        "audio/S012.step2.mp3",
+        "audio/S012.step3.mp3",
+        "audio/S012.step4.mp3",
+        "audio/S012.step5.mp3",
+        "audio/S012.step6.mp3",
+        "audio/S012.step7.mp3",
+        "audio/S012.step8.mp3"
+      ]
+    },
+    {
+      "id": "S013",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab36-plan.svg",
+      "audio": "audio/S013.mp3",
+      "narration": "Here's the plan — terraform plan, an illustrative view. Resource group, availability set as dash web, VNet, subnet, then the counted pairs — NIC bracket zero and one, VM bracket zero and one, each VM showing a sensitive value for the SSH key. Eight to add, zero to destroy. One availability set in the whole plan — created once, referenced twice."
+    },
+    {
+      "id": "S014",
+      "type": "CONCEPT",
+      "heading": "Common pitfall",
+      "numbered": true,
+      "audio": "audio/S014.mp3",
+      "points": [
+        "Every VM must reference the SAME availability_set_id",
+        "Domain counts are declared by you: 2–3 fault, up to 20 update",
+        "A set spreads within ONE datacenter — region outage needs zones"
+      ],
+      "narration": "Three pitfalls. One: the spread only happens if every VM references the same availability set id — miss one VM and that instance lives outside the set, sharing no protection at all. Two: the domain counts are declared by you — two to three fault domains is typical, update domains go up to twenty; Azure distributes your VMs across what you declare. Three: keep the promise in scope — a set spreads VMs within ONE datacenter. If the whole region has a problem, no availability set helps; that's exactly what zones are for, and they're next."
+    },
+    {
+      "id": "S015",
+      "type": "RECAP",
+      "numbered": true,
+      "audio": "audio/S015.mp3",
+      "points": [
+        "azurerm_availability_set: ONE resource, declared fault + update domains",
+        "platform_fault_domain_count 2 — separate power/network groups",
+        "platform_update_domain_count 5 — separate patch waves",
+        "Both counted VMs share ONE availability_set_id — that's the spread",
+        "99.95% SLA within one datacenter — zones (next lab) go further"
+      ],
+      "narration": "Quick recap — five things. One: the availability set is a single, uncounted resource declaring its domain counts. Two: two fault domains mean separate power and network groups. Three: five update domains mean reboots never hit every VM at once. Four: the magic is the shared reference — both counted VMs read the same availability set id, and that's what spreads them. Five: the payoff is up to 99.95 percent SLA within a single datacenter — and when you need to survive a whole datacenter, zones are next."
+    },
+    {
+      "id": "S016",
+      "type": "NEXT",
+      "audio": "audio/S016.mp3",
+      "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+    },
+    {
+      "id": "S017",
+      "type": "CONCEPT",
+      "heading": "Thanks for watching",
+      "centered": true,
+      "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-02-meta-arguments/36-availability-sets",
+      "audio": "audio/S017.mp3",
+      "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+    }
+  ]
+}

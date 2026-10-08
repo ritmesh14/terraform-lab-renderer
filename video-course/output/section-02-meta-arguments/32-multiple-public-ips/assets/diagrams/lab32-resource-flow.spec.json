@@ -1,0 +1,52 @@
+{
+ "layers": [
+  [
+   "locals",
+   "rg"
+  ],
+  [
+   "pips"
+  ],
+  [
+   "out"
+  ]
+ ],
+ "nodes": [
+  {
+   "id": "locals",
+   "label": "locals: ip_count = 3"
+  },
+  {
+   "id": "rg",
+   "label": "rg-multi-pips"
+  },
+  {
+   "id": "pips",
+   "label": "public IPs: pip-01/02/03 (count + format)"
+  },
+  {
+   "id": "out",
+   "label": "output: ips (splat [*] list)"
+  }
+ ],
+ "edges": [
+  {
+   "id": "rg-pips",
+   "from": "rg",
+   "to": "pips",
+   "label": "reference"
+  },
+  {
+   "id": "locals-pips",
+   "from": "locals",
+   "to": "pips",
+   "label": "count"
+  },
+  {
+   "id": "pips-out",
+   "from": "pips",
+   "to": "out",
+   "label": "[*].ip_address"
+  }
+ ]
+}

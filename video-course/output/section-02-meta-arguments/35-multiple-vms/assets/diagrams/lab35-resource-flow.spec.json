@@ -1,0 +1,65 @@
+{
+ "layers": [
+  [
+   "vars",
+   "rg",
+   "vnet",
+   "nics",
+   "vms"
+  ]
+ ],
+ "nodes": [
+  {
+   "id": "vars",
+   "label": "variables: vm_count, admin_username, admin_ssh_key"
+  },
+  {
+   "id": "rg",
+   "label": "rg-multi-vms"
+  },
+  {
+   "id": "vnet",
+   "label": "vnet-multi-vms + snet-web"
+  },
+  {
+   "id": "nics",
+   "label": "NICs: nic-vm-0/1 (count)"
+  },
+  {
+   "id": "vms",
+   "label": "VMs: vm-web-0/1 (count, NIC[count.index])"
+  }
+ ],
+ "edges": [
+  {
+   "id": "rg-vnet",
+   "from": "rg",
+   "to": "vnet",
+   "label": "reference"
+  },
+  {
+   "id": "vnet-nics",
+   "from": "vnet",
+   "to": "nics",
+   "label": "subnet"
+  },
+  {
+   "id": "vars-nics",
+   "from": "vars",
+   "to": "nics",
+   "label": "count"
+  },
+  {
+   "id": "nics-vms",
+   "from": "nics",
+   "to": "vms",
+   "label": "[count.index]"
+  },
+  {
+   "id": "vars-vms",
+   "from": "vars",
+   "to": "vms",
+   "label": "count + key"
+  }
+ ]
+}

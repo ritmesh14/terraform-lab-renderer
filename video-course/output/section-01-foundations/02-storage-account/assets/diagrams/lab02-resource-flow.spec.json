@@ -1,0 +1,18 @@
+{
+  "layers": [
+    ["random", "locals", "rg", "st", "azure"]
+  ],
+  "nodes": [
+    {"id": "random", "label": "random_string.suffix"},
+    {"id": "locals", "label": "locals: names"},
+    {"id": "rg", "label": "rg-storage-foundation"},
+    {"id": "st", "label": "stfoundation<suffix>"},
+    {"id": "azure", "label": "Azure subscription"}
+  ],
+  "edges": [
+    {"from": "random", "to": "locals", "label": "stateful result"},
+    {"from": "locals", "to": "rg", "label": "name + region"},
+    {"from": "rg", "to": "st", "label": "reference"},
+    {"from": "st", "to": "azure", "label": "created in"}
+  ]
+}

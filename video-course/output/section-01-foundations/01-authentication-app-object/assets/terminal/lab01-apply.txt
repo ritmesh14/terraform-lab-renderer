@@ -1,0 +1,11 @@
+azurerm_subscription.current: Reading...
+azurerm_subscription.current: Read complete after 2s
+
+Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+display_name = "My Azure Subscription"
+subscription_id = "00000000-0000-0000-0000-000000000000"
+
+(Illustrative output — the real-world demo shows the real thing.)

@@ -1,0 +1,13 @@
+{
+  "nodes": [
+    {"id": "rg", "label": "azurerm_resource_group.this"},
+    {"id": "st", "label": "azurerm_storage_account.this"},
+    {"id": "cont", "label": "azurerm_storage_container.uploads"},
+    {"id": "blob", "label": "azurerm_storage_blob.hello"}
+  ],
+  "edges": [
+    {"from": "rg", "to": "st", "label": "name + location refs"},
+    {"from": "st", "to": "cont", "label": "account name"},
+    {"from": "cont", "to": "blob", "label": "container name"}
+  ]
+}

@@ -1,0 +1,19 @@
+$ terraform apply -auto-approve -no-color
+azurerm_resource_group.this: Creating...
+azurerm_resource_group.this: Creation complete after 2s [id=/subscriptions/<guid>/resourceGroups/rg-subnetmap-foundation]
+azurerm_virtual_network.this: Creating...
+azurerm_virtual_network.this: Creation complete after 8s [id=<guid>]
+azurerm_subnet.this["app"]: Creating...
+azurerm_subnet.this["data"]: Creating...
+azurerm_subnet.this["web"]: Creating...
+azurerm_subnet.this["app"]: Creation complete after 1s [id=<guid>]
+azurerm_subnet.this["data"]: Creation complete after 1s [id=<guid>]
+azurerm_subnet.this["web"]: Creation complete after 1s [id=<guid>]
+Apply complete! Resources: 5 added, 0 changed, 0 destroyed.
+Outputs:
+subnet_count = 3
+subnet_names = [
+  "app",
+  "data",
+  "web",
+]

@@ -1,0 +1,21 @@
+{
+  "layers": [
+    ["tfv", "var", "fe"],
+    ["web", "app", "data"]
+  ],
+  "nodes": [
+    {"id": "tfv", "label": "terraform.tfvars"},
+    {"id": "var", "label": "var.subnets"},
+    {"id": "fe", "label": "azurerm_subnet.this"},
+    {"id": "web", "label": "snet-web"},
+    {"id": "app", "label": "snet-app"},
+    {"id": "data", "label": "snet-data"}
+  ],
+  "edges": [
+    {"from": "tfv", "to": "var", "label": "auto-loaded"},
+    {"from": "var", "to": "fe", "label": "for_each"},
+    {"from": "fe", "to": "web", "label": "each.key"},
+    {"from": "fe", "to": "app", "label": "each.key"},
+    {"from": "fe", "to": "data", "label": "each.key"}
+  ]
+}

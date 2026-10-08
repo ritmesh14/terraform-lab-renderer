@@ -1,0 +1,90 @@
+{
+ "episode": "48-flatten-matrix",
+ "source": "writing/scenes.json",
+ "scenes": [
+  {
+   "id": "S001",
+   "narration": "Welcome back. for_each can only iterate a FLAT collection — and real infrastructure is often a grid. This is Lab 48: regions times tiers, a list of lists built by a nested for expression, then flattened into one list, then turned into a keyed map — and for_each stamps out one subnet per region-tier pair. Three transforms between the variables and the resources. Let's build it."
+  },
+  {
+   "id": "S002",
+   "narration": "Three things in this lesson. One: the nested for expression — for each region, a list of one entry per tier, each carrying region, tier, and a cidrsubnet-carved address; that's a list of lists. Two: flatten — it collapses the nesting into ONE flat list, the only shape for_each accepts. Three: the keyed map — a for expression builds a map whose keys are region dash tier, so every combination is uniquely addressable in state."
+  },
+  {
+   "id": "S003",
+   "narration": "Placement. Lab 28's for_each iterated a flat set — one dimension. This lab is two dimensions: regions and tiers, and every combination becomes a subnet. The bridge is flatten — and the keyed-map technique is the one from lab 33, now built from a computed list instead of a hand-written variable. Add a region or a tier to the inputs, re-apply, and ONLY the missing pairs get created."
+  },
+  {
+   "id": "S004",
+   "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 48-flatten-matrix. The direct link is in the video description. One main dot T F — the terraform block is inline at the top."
+  },
+  {
+   "id": "S005",
+   "narration": "No separate terraform dot T F this time — the tooling block is inline at the top of main dot T F: Terraform 1.5 or newer, and the azurerm provider around version 3.70. The provider block below bridges to Azure; the empty features block enables the provider's defaults."
+  },
+  {
+   "id": "S006",
+   "narration": "First axis: regions — a list of strings, defaulting to region A and region B. In this illustrative setting they're labels; in a real deployment they'd carry geography. Every entry here becomes one VNet."
+  },
+  {
+   "id": "S007",
+   "narration": "Second axis: tiers — web and app. Every tier becomes one subnet INSIDE each region's VNet. Two regions times two tiers: four subnets from two variables."
+  },
+  {
+   "id": "S008",
+   "narration": "Locals first hold the per-region address space: region A gets 172.20 slash 20, region B gets 172.21 slash 20. The map lets the nested expression look up each region's block by name."
+  },
+  {
+   "id": "S009",
+   "narration": "The nested for: OUTER loop over regions, INNER loop over tiers with index i. Each entry carries region, tier, and cidr — cidrsubnet takes the region's /20, adds six bits to a /26, and picks block number i. Region A web is 172.20.0.0/26, app is 172.20.0.64/26. But that's a list OF LISTS — one inner list per region. And for_each refuses nested lists. So flatten: line 51 collapses the nesting into ONE flat list of four objects. local dot flat is the shape for_each accepts."
+  },
+  {
+   "id": "S010",
+   "narration": "The resource group — its name comes from local dot rg, which the locals set to rg dash flatten. Everything in this lab lives in it."
+  },
+  {
+   "id": "S011",
+   "narration": "The VNets: for_each over toset of regions — the lab-28 pattern. Each key names its VNet, vnet dash region A, vnet dash region B, and each pulls its own address space from the region cidr map. One block, two VNets."
+  },
+  {
+   "id": "S012",
+   "narration": "Now the subnets — and the line the lab turns on. for_each is fed a for EXPRESSION that builds a map: for each s in local dot flat, the key is region dash tier — regionA dash web — and the value is the whole object. Keys must be unique; the compound key is what makes every combination addressable. Inside the block, each dot value is the object: the tier names the subnet, the cidr is its prefix — and the VNet lookup is keyed: azurerm virtual network dot this bracket each dot value dot region. Subnets land in the VNet of their OWN region — a keyed reference into another for_each resource."
+  },
+  {
+   "id": "S013",
+   "narration": "The output prints the keys — one region dash tier pair per subnet created. Four keys: the matrix, made visible."
+  },
+  {
+   "id": "S014",
+   "narration": "The nested for produces a list OF LISTS — one inner list per region. That shape is exactly what for_each refuses. flatten removes the nesting: one flat list of four objects, each carrying region, tier and cidr. A for expression turns the flat list into a map keyed region dash tier — unique keys, every combination addressable. And for_each stamps out one subnet per key — four subnets, each in its own region's VNet. Three transforms between the variables and Azure."
+  },
+  {
+   "id": "S015",
+   "narration": "Here's how the pieces connect. The two variables: regions and tiers — the axes of the matrix. Locals compute everything before any resource runs: region cidrs, the nested matrix, and its flattened form. The resource group groups it all in Azure. One VNet per region — for_each over the set of regions, each with its own /20. One subnet per pair — for_each over the flattened map, each landing in its own region's VNet. Everything lands inside your Azure subscription."
+  },
+  {
+   "id": "S016",
+   "narration": "Here's the plan — terraform plan, an illustrative view. Seven to add: the resource group, TWO VNets keyed by region, and FOUR subnets keyed region dash tier — each with the /26 its cidrsubnet computed. Look at the addresses: two per region, carved in order."
+  },
+  {
+   "id": "S017",
+   "narration": "And the output — terraform output subnet keys, an illustrative view. Four keys: region A web, region A app, region B web, region B app. Add a third region to the variable, re-apply, and only the two NEW pairs are created — nothing else moves."
+  },
+  {
+   "id": "S018",
+   "narration": "Three pitfalls. One: flatten isn't optional decoration — for_each rejects a list of lists outright, and the error message won't say flatten; you have to know the shape rule. Two: keys must be unique — if you key by tier alone, region A web and region B web collide; the compound region dash tier key is what makes each pair distinct. Three: the flip side of the matrix — growing it is additive. Add a region or tier and only the missing combinations are planned; existing subnets keep their addresses because their keys didn't change."
+  },
+  {
+   "id": "S019",
+   "narration": "Quick recap — five things. One: a nested for expression built the matrix — a list of lists of region, tier, cidr. Two: flatten collapsed it into the one flat list for_each demands. Three: a for expression keyed it region dash tier, so every combination is addressable in state. Four: cidrsubnet carved each tier's /26 out of its region's /20. Five: the VNet reference is keyed by region — subnets land in their own VNet. Two variables, four subnets, zero repetition."
+  },
+  {
+   "id": "S020",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+  },
+  {
+   "id": "S021",
+   "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+  }
+ ]
+}

@@ -1,0 +1,96 @@
+{
+  "layers": [
+    [
+      "rg",
+      "vnet"
+    ],
+    [
+      "snetvm",
+      "snetbast",
+      "pip"
+    ],
+    [
+      "bastion",
+      "nic",
+      "vm"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": "rg",
+      "label": "rg-bastion"
+    },
+    {
+      "id": "vnet",
+      "label": "vnet-bastion (10.252.0.0/16)"
+    },
+    {
+      "id": "snetvm",
+      "label": "snet-vm (10.252.1.0/24)"
+    },
+    {
+      "id": "snetbast",
+      "label": "AzureBastionSubnet (/26, exact name)"
+    },
+    {
+      "id": "pip",
+      "label": "pip-bastion (Static/Standard, 443)"
+    },
+    {
+      "id": "bastion",
+      "label": "bas-secure-access (Bastion host)"
+    },
+    {
+      "id": "nic",
+      "label": "nic-bastion-vm (private IP only)"
+    },
+    {
+      "id": "vm",
+      "label": "vm-bastion (Windows, password auth)"
+    }
+  ],
+  "edges": [
+    {
+      "id": "rg-vnet",
+      "from": "rg",
+      "to": "vnet",
+      "label": "reference"
+    },
+    {
+      "id": "vnet-snetvm",
+      "from": "vnet",
+      "to": "snetvm",
+      "label": "workload"
+    },
+    {
+      "id": "vnet-snetbast",
+      "from": "vnet",
+      "to": "snetbast",
+      "label": "reserved"
+    },
+    {
+      "id": "snetbast-bastion",
+      "from": "snetbast",
+      "to": "bastion",
+      "label": "subnet_id"
+    },
+    {
+      "id": "pip-bastion",
+      "from": "pip",
+      "to": "bastion",
+      "label": "ip_configuration"
+    },
+    {
+      "id": "snetvm-nic",
+      "from": "snetvm",
+      "to": "nic",
+      "label": "subnet_id"
+    },
+    {
+      "id": "nic-vm",
+      "from": "nic",
+      "to": "vm",
+      "label": "network_interface_ids"
+    }
+  ]
+}

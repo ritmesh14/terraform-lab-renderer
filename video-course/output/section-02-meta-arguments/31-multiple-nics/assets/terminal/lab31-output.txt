@@ -1,0 +1,7 @@
+terraform output nics
+
+nics = [
+  "app",
+  "data",
+  "web",
+]

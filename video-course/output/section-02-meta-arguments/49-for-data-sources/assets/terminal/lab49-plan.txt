@@ -1,0 +1,22 @@
+terraform plan -var='rg_names=["rg-already-here","rg-multi-subnets"]'
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+
+Terraform will perform the following actions:
+
+  # data.azurerm_resource_group.each["rg-already-here"] will be read during apply
+ <= data "azurerm_resource_group" "each" {
+      + id       = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-already-here"
+      + location = "eastus"
+      + name     = "rg-already-here"
+    }
+
+  # data.azurerm_resource_group.each["rg-multi-subnets"] will be read during apply
+ <= data "azurerm_resource_group" "each" {
+      + id       = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-multi-subnets"
+      + location = "eastus"
+      + name     = "rg-multi-subnets"
+    }
+
+Plan: 0 to add, 0 to change, 0 to destroy.

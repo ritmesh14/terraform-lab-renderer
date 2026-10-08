@@ -1,0 +1,8 @@
+{
+  "command": "terraform apply/plan -var-file",
+  "output_file": "lab19-apply.txt",
+  "highlight": [
+    "Apply complete",
+    "var-file"
+  ]
+}

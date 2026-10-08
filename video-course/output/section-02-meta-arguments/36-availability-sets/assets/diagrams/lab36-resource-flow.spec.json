@@ -1,0 +1,76 @@
+{
+  "layers": [
+    [
+      "vars",
+      "rg",
+      "as",
+      "vnet",
+      "nics",
+      "vms"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": "vars",
+      "label": "variable: admin_ssh_key (sensitive)"
+    },
+    {
+      "id": "rg",
+      "label": "rg-availset"
+    },
+    {
+      "id": "as",
+      "label": "as-web (2 fault / 5 update domains)"
+    },
+    {
+      "id": "vnet",
+      "label": "vnet-availset + snet-web"
+    },
+    {
+      "id": "nics",
+      "label": "NICs: nic-as-0/1 (count = 2)"
+    },
+    {
+      "id": "vms",
+      "label": "VMs: vm-as-0/1 (count = 2, shared set id)"
+    }
+  ],
+  "edges": [
+    {
+      "id": "rg-as",
+      "from": "rg",
+      "to": "as",
+      "label": "reference"
+    },
+    {
+      "id": "rg-vnet",
+      "from": "rg",
+      "to": "vnet",
+      "label": "reference"
+    },
+    {
+      "id": "vnet-nics",
+      "from": "vnet",
+      "to": "nics",
+      "label": "subnet"
+    },
+    {
+      "id": "nics-vms",
+      "from": "nics",
+      "to": "vms",
+      "label": "[count.index]"
+    },
+    {
+      "id": "as-vms",
+      "from": "as",
+      "to": "vms",
+      "label": "availability_set_id"
+    },
+    {
+      "id": "vars-vms",
+      "from": "vars",
+      "to": "vms",
+      "label": "ssh key"
+    }
+  ]
+}

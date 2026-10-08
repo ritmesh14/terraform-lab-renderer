@@ -1,0 +1,80 @@
+{
+  "nodes": [
+    {
+      "id": "vars",
+      "label": "var.admin_username\nvar.admin_password (sensitive)"
+    },
+    {
+      "id": "rg",
+      "label": "azurerm_resource_group.this\nrg-vm-foundation"
+    },
+    {
+      "id": "vnet",
+      "label": "azurerm_virtual_network.this\nvnet-vm 10.120.0.0/16"
+    },
+    {
+      "id": "sub",
+      "label": "azurerm_subnet.web\nsnet-web 10.120.1.0/24"
+    },
+    {
+      "id": "pip",
+      "label": "azurerm_public_ip.web\npip-vm-01 Static·Standard"
+    },
+    {
+      "id": "nic",
+      "label": "azurerm_network_interface.web\nnic-vm-01"
+    },
+    {
+      "id": "vm",
+      "label": "azurerm_windows_virtual_machine.web\nvm-web-01 · Standard_B1s"
+    }
+  ],
+  "edges": [
+    {
+      "from": "rg",
+      "to": "vnet",
+      "label": "resource_group_name"
+    },
+    {
+      "from": "vnet",
+      "to": "sub",
+      "label": "virtual_network_name"
+    },
+    {
+      "from": "sub",
+      "to": "nic",
+      "label": "subnet_id"
+    },
+    {
+      "from": "pip",
+      "to": "nic",
+      "label": "public_ip_address_id"
+    },
+    {
+      "from": "nic",
+      "to": "vm",
+      "label": "network_interface_ids"
+    }
+  ],
+  "layers": [
+    [
+      "vars"
+    ],
+    [
+      "rg"
+    ],
+    [
+      "vnet"
+    ],
+    [
+      "sub",
+      "pip"
+    ],
+    [
+      "nic"
+    ],
+    [
+      "vm"
+    ]
+  ]
+}

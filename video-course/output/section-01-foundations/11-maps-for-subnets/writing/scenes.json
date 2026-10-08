@@ -1,0 +1,250 @@
+{
+ "title": "Typed Map Variables",
+ "lesson_label": "Azure Foundations — Lab 11",
+ "scenes": [
+  {
+   "id": "S001",
+   "type": "TITLE",
+   "title": "Typed Map Variables",
+   "narration": "Last lesson the subnet map lived inside locals, and one field, N S G, was sitting unused. In this lesson that exact shape moves into its proper home: a typed input variable, fed by terraform dot t f vars. Same code, different data — the pattern every production Terraform codebase is built on.",
+   "audio": "audio/S001.mp3"
+  },
+  {
+   "id": "S002",
+   "type": "CONCEPT",
+   "heading": "What you'll learn",
+   "points": [
+    "map(object({...})): a map whose values must match an exact shape",
+    "terraform.tfvars supplies the data — no code edits needed",
+    "for_each over the variable map, same loop as Lab 10",
+    "Outputs that report the layout: length() and keys()"
+   ],
+   "narration": "Here's what you'll learn. One: map of object — a map whose values must match an exact shape. Two: t f vars supplies the data — no code edits needed. Three: for each over the variable map — the same loop as lab ten. Four: outputs that report the layout — length, and keys.",
+   "audio": "audio/S002.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S003",
+   "type": "CONCEPT",
+   "heading": "Where this lab fits",
+   "points": [
+    "Lab 11 of the Foundations section",
+    "Lab 10's locals map becomes a typed input variable",
+    "Data and code split apart: tfvars holds the layout, main.tf holds the logic"
+   ],
+   "narration": "This is lab eleven, the assignment lab that follows directly from last lesson. The map of subnets doesn't live in locals anymore: it's now an input variable, and its values come from a separate file. That one move — data out of code — is what turns a teaching example into a reusable pattern.",
+   "audio": "audio/S003.mp3"
+  },
+  {
+   "id": "S004",
+   "type": "CONCEPT",
+   "heading": "A type is a contract",
+   "points": [
+    "map(object({ prefix = string, nsg = bool })): every value must match exactly",
+    "Wrong field names or wrong types → error before any plan runs",
+    "The .tfvars file is data; the .tf files are logic",
+    "Change the subnet layout by editing data only"
+   ],
+   "narration": "A map of object is more than a container: it's a contract. Every key maps to an object with exactly the fields declared here — a prefix string and an N S G boolean. Get the shape wrong, and Terraform rejects the file before any plan runs. That's the point: the code guarantees the data is sane, so the logic below can trust it completely.",
+   "audio": "audio/S004.mp3"
+  },
+  {
+   "id": "S005",
+   "type": "CONCEPT",
+   "heading": "Where to find this lab",
+   "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-01-foundations\n          └── 11-maps-for-subnets\n              ├── README.md\n              ├── main.tf\n              ├── outputs.tf\n              ├── terraform.tf\n              └── terraform.tfvars\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-01-foundations/11-maps-for-subnets",
+   "narration": "As always, the lab is in the course GitHub repository under Section 1, Foundations, with the link in the description. Main dot t f, outputs dot t f, terraform dot t f, and — new since lab two — terraform dot t f vars, the data file this lesson is really about.",
+   "audio": "audio/S005.mp3"
+  },
+  {
+   "id": "S006",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 9,
+   "end_line": 24,
+   "highlight_lines": [
+    18,
+    19,
+    20,
+    21,
+    22
+   ],
+   "asset": "assets/code/11-01-variable.png",
+   "narration": "First the variable itself. Location is a plain string with a default. Subnets is the interesting one: a map of object, where every value must carry a prefix and an N S G flag. And notice — there's no default. The code refuses to guess a network layout. The data has to come from outside.",
+   "audio": "audio/S006.mp3"
+  },
+  {
+   "id": "S007",
+   "type": "CODE",
+   "source_file": "terraform.tfvars",
+   "start_line": 1,
+   "end_line": 7,
+   "highlight_lines": [
+    4,
+    5,
+    6
+   ],
+   "asset": "assets/code/11-02-tfvars.png",
+   "narration": "And here's the outside: terraform dot t f vars. Three keys — web, app, data — each an object with a prefix and an N S G flag, exactly the shape the variable demanded. Want a different layout for another environment? Edit this file and nothing else. Data changed, code untouched.",
+   "audio": "audio/S007.mp3"
+  },
+  {
+   "id": "S008",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 26,
+   "end_line": 47,
+   "highlight_lines": [
+    41,
+    42,
+    43,
+    44,
+    45,
+    46
+   ],
+   "asset": "assets/code/11-03-for-each.png",
+   "narration": "The resources are almost identical to last lesson. A resource group, a VNet, and one subnet resource with for each over the variable. Inside, each dot key names the subnet — s n e t, then the role — and each dot value dot prefix sets its address. The only thing that changed is where the map comes from.",
+   "audio": "audio/S008.mp3"
+  },
+  {
+   "id": "S009",
+   "type": "DIAGRAM",
+   "caption": "One variable, one layout — data drives the build",
+   "asset": "assets/diagrams/11-tfvars-to-subnets.svg",
+   "narration": "Here's what the split looks like drawn out. The data file feeds a typed variable, and for each turns it into three subnets named after their roles. Edit the data, and the plan reshapes itself. The code never moves.",
+   "steps": [
+    {
+     "narration": "Here's what the split looks like drawn out.",
+     "nodes": [],
+     "edges": []
+    },
+    {
+     "narration": "Terraform dot t f vars is auto-loaded, its map lands in the typed variable, and for each turns it into three subnets.",
+     "nodes": [
+      "tfv",
+      "var",
+      "fe",
+      "web",
+      "app",
+      "data"
+     ],
+     "edges": [
+      "tfv-var",
+      "var-fe",
+      "fe-web",
+      "fe-app",
+      "fe-data"
+     ]
+    },
+    {
+     "narration": "Edit the data file — change a prefix, add a role — and the diff appears at plan time. The code never moved.",
+     "nodes": [
+      "tfv",
+      "var"
+     ],
+     "edges": [
+      "tfv-var",
+      "var-fe"
+     ]
+    },
+    {
+     "narration": "Each key becomes one subnet, named after the role it serves: web, app, and data.",
+     "nodes": [
+      "fe",
+      "web",
+      "app",
+      "data"
+     ],
+     "edges": [
+      "fe-web",
+      "fe-app",
+      "fe-data"
+     ]
+    },
+    {
+     "narration": "One resource block, three instances — and the layout lives entirely in data.",
+     "nodes": [
+      "tfv",
+      "var",
+      "fe",
+      "web",
+      "app",
+      "data"
+     ],
+     "edges": [
+      "tfv-var",
+      "var-fe",
+      "fe-web",
+      "fe-app",
+      "fe-data"
+     ]
+    }
+   ],
+   "audio": "audio/S009.mp3"
+  },
+  {
+   "id": "S010",
+   "type": "CODE",
+   "source_file": "outputs.tf",
+   "start_line": 1,
+   "end_line": 4,
+   "highlight_lines": [
+    2,
+    4
+   ],
+   "asset": "assets/code/11-04-outputs.png",
+   "narration": "Two small outputs report the layout. Length counts the map entries, so subnet count is simply three. And keys lists the for each keys that became subnets — a quick, readable answer to the question, what did this configuration actually build?",
+   "audio": "audio/S010.mp3"
+  },
+  {
+   "id": "S011",
+   "type": "TERMINAL",
+   "asset": "assets/terminal/lab11-apply.svg",
+   "narration": "Apply time. Five resources — group, VNet, and three subnets — all from one block plus one data file. The outputs confirm the shape: three entries, and the keys are the roles. Change the t f vars file and the next plan reshapes itself; the code stays exactly as it is.",
+   "audio": "audio/S011.mp3"
+  },
+  {
+   "id": "S012",
+   "type": "CONCEPT",
+   "heading": "Common pitfall — treating the type as loose guidance",
+   "points": [
+    "tfvars must match map(object(...)) exactly — misspelled or missing fields are hard errors",
+    "The rejection happens before any plan — fail fast, by design",
+    "Keeping an unused field (nsg) in the shape is normal while a module grows",
+    "Adding a field later breaks every caller — design the shape up front"
+   ],
+   "narration": "Here are the pitfalls in this lab. One: t f vars must match the map of object type exactly — misspelled or missing fields are hard errors. The type is a contract, not loose guidance; Terraform refuses the whole file before planning anything. Two: the rejection happens before any plan — fail fast, by design. A string where a boolean belongs dies in seconds on your machine instead of in the cloud. Three: keeping an unused field in the shape is normal while a module grows. The n s g flag is still riding along unused — that's deliberate. Four: adding a field later breaks every caller — design the shape up front. Add fields when you design, not when you deploy.",
+   "audio": "audio/S012.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S013",
+   "type": "RECAP",
+   "points": [
+    "map(object({...})) is a shape-checked container — a contract, not a hint",
+    "terraform.tfvars supplies the data; main.tf holds the logic",
+    "for_each = var.subnets: same loop, data-driven source",
+    "length() and keys() report the built layout",
+    "Same code, different shapes per environment"
+   ],
+   "narration": "Quick recap — five things. One: map of object is a shape-checked container — a contract, not a hint. Two: terraform dot t f vars supplies the data; main dot t f holds the logic. Three: for each over var dot subnets — the same loop, with a data-driven source. Four: length and keys report the built layout. Five: same code, different shapes per environment.",
+   "audio": "audio/S013.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S014",
+   "type": "NEXT",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure.",
+   "audio": "audio/S014.mp3"
+  },
+  {
+   "id": "S015",
+   "type": "CONCEPT",
+   "heading": "Thanks for watching",
+   "narration": "Thanks for watching. If this helped, the full lab, along with every lab in this course, is in the GitHub repository linked below. If you'd like more lessons like this one, give the video a like, share it with a friend who is learning Azure, and subscribe to the channel. It really helps the course grow. Thank you, and see you in the next lesson.",
+   "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-01-foundations/11-maps-for-subnets",
+   "centered": true,
+   "audio": "audio/S015.mp3"
+  }
+ ]
+}

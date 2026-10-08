@@ -1,0 +1,530 @@
+{
+  "title": "A Map Built While You Watch: for_each over Computed Values",
+  "lesson_label": "Terraform Meta-arguments — Lab 31",
+  "scenes": [
+    {
+      "id": "S001",
+      "type": "TITLE",
+      "title": "A Map Built While You Watch: for_each over Computed Values",
+      "lesson_label": "Terraform Meta-arguments — Lab 31",
+      "audio": "audio/S001.mp3",
+      "narration": "Welcome back. So far, for_each has iterated collections you wrote by hand — a toset, a map in locals. But what if the map doesn't exist until the configuration runs? This is Lab 31, and we let Terraform build the map: a for expression computes one subnet CIDR per tier, and for_each consumes it. Then we go one step further — iterating a map of already-created resources. Let's build it."
+    },
+    {
+      "id": "S002",
+      "type": "CONCEPT",
+      "heading": "What you'll learn",
+      "numbered": true,
+      "audio": "audio/S002.mp3",
+      "points": [
+        "A for expression can BUILD the map for_each consumes",
+        "for_each over a resource map — each.value is a whole object",
+        "keys() reads the instance keys back out"
+      ],
+      "narration": "Three things in this lesson. One: a for expression that builds the map for_each consumes — we start from a plain list of tier names and compute a CIDR for each one on the fly. Two: for_each over a resource map — when the collection is other resource instances, each dot value isn't a string, it's a whole object with every attribute. Three: keys, to read the instance keys back out of the finished map."
+    },
+    {
+      "id": "S003",
+      "type": "CONCEPT",
+      "heading": "Where this lab fits",
+      "audio": "audio/S003.mp3",
+      "points": [
+        "Labs 28–30: for_each over sets and maps you wrote",
+        "This lab: the collection is computed — and can be resources",
+        "Next: for_each driven straight from input variables"
+      ],
+      "narration": "Quick placement. Labs 28 through 30 taught for_each over collections you wrote yourself — a toset of names, maps of files and subnets. This lab removes the constraint that the collection must exist before you type it: a for expression computes it from another list. And the second half goes further — the collection is the map of subnets Terraform itself created. The lab after this drives for_each straight from an input variable."
+    },
+    {
+      "id": "S004",
+      "type": "CONCEPT",
+      "heading": "Where to find this lab",
+      "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-02-meta-arguments\n          └── 31-multiple-nics\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-02-meta-arguments/31-multiple-nics",
+      "audio": "audio/S004.mp3",
+      "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 31-multiple-nics. The direct link is in the video description. Two files matter: main dot T F holds the whole configuration, and terraform dot T F pins the providers."
+    },
+    {
+      "id": "S005",
+      "type": "CODE",
+      "source_file": "terraform.tf",
+      "start_line": 1,
+      "end_line": 19,
+      "highlight_lines": [
+        6,
+        8,
+        10,
+        17,
+        18
+      ],
+      "asset": "assets/code/lab31-providers.png",
+      "audio": "audio/S005.mp3",
+      "narration": "Two files matter here, and the first is terraform dot T F. It pins the tooling: Terraform 1.5 or newer, and the azurerm provider around version 3.70 — nothing else, because this lab needs no extras. The provider block at the bottom is the bridge to Azure; the empty features block enables the provider's default behaviours. That's the whole file — every interesting line lives in main dot T F."
+    },
+    {
+      "id": "S006",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 4,
+      "end_line": 9,
+      "highlight_lines": [
+        8
+      ],
+      "asset": "assets/code/lab31-locals.png",
+      "audio": "audio/S006.mp3",
+      "narration": "The raw material is the smallest collection in the course so far: a locals block holding one list — tiers: web, app, data. Just three plain strings. No CIDRs anywhere yet — those get computed in a moment. Notice the comment: this is deliberately a list, not a set, because the next scene needs the numeric index each element sits at."
+    },
+    {
+      "id": "S007",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 11,
+      "end_line": 23,
+      "highlight_lines": [
+        13,
+        19,
+        22
+      ],
+      "asset": "assets/code/lab31-rg-vnet.png",
+      "audio": "audio/S007.mp3",
+      "steps": [
+        {
+          "narration": "The resource group is the usual container — rg dash multi dash nics.",
+          "active_lines": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "active_tokens": [
+            "azurerm_resource_group"
+          ]
+        },
+        {
+          "narration": "The virtual network gets one slash 16 address space, 10.160 slash 16. Every subnet we're about to compute must fit inside that space — and they will, each one is a slash 24.",
+          "active_lines": [
+            18,
+            19,
+            20,
+            21,
+            22,
+            23
+          ],
+          "active_tokens": [
+            "azurerm_virtual_network",
+            "10.160.0.0/16"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S007.step1.mp3",
+        "audio/S007.step2.mp3"
+      ]
+    },
+    {
+      "id": "S008",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 25,
+      "end_line": 33,
+      "highlight_lines": [
+        28,
+        29,
+        32
+      ],
+      "asset": "assets/code/lab31-computed-map.png",
+      "audio": "audio/S008.mp3",
+      "steps": [
+        {
+          "narration": "Here is the star: one subnet block, and its for_each is not a variable or a locals map — it's a for expression, written inline. For each element t of local dot tiers, with its index i, produce a key t and a value — the CIDR string built from i plus one.",
+          "active_lines": [
+            28
+          ],
+          "active_tokens": [
+            "for_each",
+            "for i, t in local.tiers",
+            "\"10.160.${i + 1}.0/24\""
+          ]
+        },
+        {
+          "narration": "Read the result as a map: web maps to 10.160.1.0 slash 24, app to 10.160.2.0 slash 24, data to 10.160.3.0 slash 24. The interpolation dollar-brace i plus one is what turns an index into an octet.",
+          "active_lines": [
+            28
+          ],
+          "active_tokens": [
+            "i + 1"
+          ]
+        },
+        {
+          "narration": "Inside the block, each dot key is the tier name — it names the subnet — and each dot value is the computed CIDR. One block, three subnets, and the addressing was never hand-written.",
+          "active_lines": [
+            29,
+            32
+          ],
+          "active_tokens": [
+            "each.key",
+            "each.value"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S008.step1.mp3",
+        "audio/S008.step2.mp3",
+        "audio/S008.step3.mp3"
+      ]
+    },
+    {
+      "id": "S009",
+      "type": "FOR_EACH_MAP",
+      "title": "A list becomes a computed map, then keyed instances",
+      "expression": "for_each = { for i, t in local.tiers : t => \"10.160.${i + 1}.0/24\" }",
+      "audio": "audio/S009.mp3",
+      "stages": [
+        {
+          "id": "list",
+          "label": "The list (locals)",
+          "kind": "expression",
+          "items": [
+            {
+              "key": "l0",
+              "text": "\"web\""
+            },
+            {
+              "key": "l1",
+              "text": "\"app\""
+            },
+            {
+              "key": "l2",
+              "text": "\"data\""
+            }
+          ]
+        },
+        {
+          "id": "map",
+          "label": "Computed map (for expression)",
+          "kind": "expression",
+          "items": [
+            {
+              "key": "m0",
+              "text": "web  → \"10.160.1.0/24\""
+            },
+            {
+              "key": "m1",
+              "text": "app  → \"10.160.2.0/24\""
+            },
+            {
+              "key": "m2",
+              "text": "data → \"10.160.3.0/24\""
+            }
+          ]
+        },
+        {
+          "id": "inst",
+          "label": "Instances (state)",
+          "kind": "instances",
+          "items": [
+            {
+              "key": "i0",
+              "text": "azurerm_subnet.this[\"web\"]"
+            },
+            {
+              "key": "i1",
+              "text": "azurerm_subnet.this[\"app\"]"
+            },
+            {
+              "key": "i2",
+              "text": "azurerm_subnet.this[\"data\"]"
+            }
+          ]
+        },
+        {
+          "id": "names",
+          "label": "Names",
+          "kind": "output",
+          "items": [
+            {
+              "key": "n0",
+              "text": "snet-web"
+            },
+            {
+              "key": "n1",
+              "text": "snet-app"
+            },
+            {
+              "key": "n2",
+              "text": "snet-data"
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "narration": "The input is a plain list — web, app, data. A list has order, and that's exactly what we need, because the index drives the second octet.",
+          "focus": {
+            "stages": [
+              "list"
+            ]
+          }
+        },
+        {
+          "narration": "The for expression walks it and emits a map: each tier paired with its computed CIDR. This map never existed in the source — Terraform built it while evaluating.",
+          "focus": {
+            "stages": [
+              "map"
+            ]
+          }
+        },
+        {
+          "narration": "for_each consumes the map and expands the one block into one instance per key — the addresses are the tier names.",
+          "focus": {
+            "stages": [
+              "inst"
+            ]
+          }
+        },
+        {
+          "narration": "And the names follow the keys: snet dash web, snet dash app, snet dash data. The list order decided the octets; the keys decided the addresses.",
+          "focus": {
+            "stages": [
+              "names"
+            ]
+          }
+        }
+      ],
+      "step_audio": [
+        "audio/S009.step1.mp3",
+        "audio/S009.step2.mp3",
+        "audio/S009.step3.mp3",
+        "audio/S009.step4.mp3"
+      ]
+    },
+    {
+      "id": "S010",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 35,
+      "end_line": 47,
+      "highlight_lines": [
+        38,
+        39,
+        44
+      ],
+      "asset": "assets/code/lab31-nics.png",
+      "audio": "audio/S010.mp3",
+      "steps": [
+        {
+          "narration": "Now the second trick: the NIC block's for_each iterates azurerm_subnet dot this — not a variable, not a locals map, but the map of subnet instances Terraform is creating. One NIC per subnet, keys inherited.",
+          "active_lines": [
+            37,
+            38,
+            39
+          ],
+          "active_tokens": [
+            "for_each            = azurerm_subnet.this",
+            "nic-${each.key}"
+          ]
+        },
+        {
+          "narration": "Because the collection is a resource map, each dot value is a whole subnet object — every attribute of the created subnet. We only need one: each dot value dot id drops straight into the ip configuration's subnet id.",
+          "active_lines": [
+            44
+          ],
+          "active_tokens": [
+            "each.value.id"
+          ]
+        },
+        {
+          "narration": "The dependency is implicit and automatic: a NIC can't be planned until its subnet exists in the graph, so Terraform orders subnet first, NIC second — three times over, once per key.",
+          "active_lines": [
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46
+          ],
+          "active_tokens": [
+            "ip_configuration"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S010.step1.mp3",
+        "audio/S010.step2.mp3",
+        "audio/S010.step3.mp3"
+      ]
+    },
+    {
+      "id": "S011",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 49,
+      "end_line": 50,
+      "highlight_lines": [
+        50
+      ],
+      "asset": "assets/code/lab31-output.png",
+      "audio": "audio/S011.mp3",
+      "steps": [
+        {
+          "narration": "The output reads the fan-out back. keys on the NIC resource map returns the key list — nic names in the same keys the subnets used: app, data, web.",
+          "active_lines": [
+            50
+          ],
+          "active_tokens": [
+            "keys("
+          ]
+        },
+        {
+          "narration": "Note the order in that output — keys of a map come back sorted, not in source order. Web, app, data went in; app, data, web comes out. Maps have no order — that's by design.",
+          "active_lines": [
+            50
+          ],
+          "active_tokens": [
+            "azurerm_network_interface.this"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S011.step1.mp3",
+        "audio/S011.step2.mp3"
+      ]
+    },
+    {
+      "id": "S012",
+      "type": "DIAGRAM",
+      "caption": "How the pieces connect",
+      "asset": "assets/diagrams/lab31-resource-flow.svg",
+      "audio": "audio/S012.mp3",
+      "steps": [
+        {
+          "narration": "Here's how the pieces connect.",
+          "nodes": [],
+          "edges": []
+        },
+        {
+          "narration": "Locals hold the tiers list — web, app, data.",
+          "nodes": [
+            "locals"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The resource group groups everything in Azure.",
+          "nodes": [
+            "rg"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The virtual network carves the 10.160 slash 16 space.",
+          "nodes": [
+            "vnet"
+          ],
+          "edges": [
+            "rg-vnet"
+          ]
+        },
+        {
+          "narration": "The subnets: a for expression turns the tiers list into a tier-to-CIDR map, and for_each expands it into three keyed subnets inside the VNet.",
+          "nodes": [
+            "subnets"
+          ],
+          "edges": [
+            "locals-subnets",
+            "vnet-subnets"
+          ]
+        },
+        {
+          "narration": "The NICs iterate the subnet map itself — one NIC per subnet key, each wired to its own subnet's id.",
+          "nodes": [
+            "nics"
+          ],
+          "edges": [
+            "subnets-nics"
+          ]
+        },
+        {
+          "narration": "The output lists the keys back — one NIC per tier.",
+          "nodes": [
+            "out"
+          ],
+          "edges": [
+            "nics-out"
+          ]
+        },
+        {
+          "narration": "Everything lands inside your Azure subscription.",
+          "nodes": [],
+          "edges": []
+        }
+      ],
+      "step_audio": [
+        "audio/S012.step1.mp3",
+        "audio/S012.step2.mp3",
+        "audio/S012.step3.mp3",
+        "audio/S012.step4.mp3",
+        "audio/S012.step5.mp3",
+        "audio/S012.step6.mp3",
+        "audio/S012.step7.mp3",
+        "audio/S012.step8.mp3"
+      ]
+    },
+    {
+      "id": "S013",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab31-plan.svg",
+      "audio": "audio/S013.mp3",
+      "narration": "Here's the plan — terraform plan, an illustrative view. Count the entries: the resource group, the virtual network, three keyed subnets — subnet this in brackets app, data, web — and three keyed NICs with the same keys. Eight to add, zero to destroy. Two blocks of fan-out code; eight real resources."
+    },
+    {
+      "id": "S014",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab31-output.svg",
+      "audio": "audio/S014.mp3",
+      "narration": "And the output — terraform output nics, an illustrative view. The list comes back sorted: app, data, web. Not the order we typed — the order maps keep. Every NIC name is the key it was built from."
+    },
+    {
+      "id": "S015",
+      "type": "CONCEPT",
+      "heading": "Common pitfall",
+      "numbered": true,
+      "audio": "audio/S015.mp3",
+      "points": [
+        "A for expression's keys must be unique — duplicates collide",
+        "Iterating a resource map: each.value is a full object, not a string",
+        "Hand-built ${i+1} octets work, but cidrsubnet() is the real tool"
+      ],
+      "narration": "Three pitfalls. One: the map a for expression builds must have unique keys — if two list elements produced the same key, the expression errors out instead of silently dropping one. Two: when for_each iterates a resource map, each dot value is the whole object — a string's dot-value habits will bite you; reach for dot id, dot name, whatever attribute you actually need. Three: this lab hand-builds octets with i plus one for teaching, but real CIDR math belongs to the cidrsubnet function — it handles host bits and sizing for you."
+    },
+    {
+      "id": "S016",
+      "type": "RECAP",
+      "numbered": true,
+      "audio": "audio/S016.mp3",
+      "points": [
+        "for_each can consume a map a for expression computes inline",
+        "each.key names the instance; each.value carries the computed value",
+        "for_each over a resource map: one instance per existing key",
+        "each.value.id — a resource object's attributes, not a string",
+        "keys() returns every instance key — sorted, because maps are"
+      ],
+      "narration": "Quick recap — five things. One: for_each doesn't need a collection you wrote — a for expression can compute the map inline. Two: each dot key names the instance, each dot value carries what the expression produced. Three: for_each can iterate a resource map — one copy per already-existing key. Four: there, each dot value is a full object, so each dot value dot id feeds references directly. Five: keys lists every key back — sorted, because maps have no order. The collection doesn't have to exist before you write the code — Terraform can build it while it plans."
+    },
+    {
+      "id": "S017",
+      "type": "NEXT",
+      "audio": "audio/S017.mp3",
+      "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+    },
+    {
+      "id": "S018",
+      "type": "CONCEPT",
+      "heading": "Thanks for watching",
+      "centered": true,
+      "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-02-meta-arguments/31-multiple-nics",
+      "audio": "audio/S018.mp3",
+      "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+    }
+  ]
+}

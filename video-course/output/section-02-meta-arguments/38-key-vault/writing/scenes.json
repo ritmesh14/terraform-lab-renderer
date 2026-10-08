@@ -1,0 +1,477 @@
+{
+  "title": "Secrets with Nowhere to Hide: Azure Key Vault",
+  "lesson_label": "Terraform Meta-arguments — Lab 38",
+  "scenes": [
+    {
+      "id": "S001",
+      "type": "TITLE",
+      "title": "Secrets with Nowhere to Hide: Azure Key Vault",
+      "lesson_label": "Terraform Meta-arguments — Lab 38",
+      "audio": "audio/S001.mp3",
+      "narration": "Welcome back. After five fan-out labs, a change of pace — and a change of subject: secrets. This is Lab 38, and we build a Key Vault with Terraform: a data source that reads who's signed in, a vault with an access policy, and a secret whose value comes from an input — never from the source code. Let's build it."
+    },
+    {
+      "id": "S002",
+      "type": "CONCEPT",
+      "heading": "What you'll learn",
+      "numbered": true,
+      "audio": "audio/S002.mp3",
+      "points": [
+        "A data source: azurerm_client_config reads who is signed in",
+        "The vault + a nested access_policy block granting YOUR user access",
+        "Secret value from a sensitive variable; sensitive output redacts"
+      ],
+      "narration": "Three things in this lesson. One: your first data source in this section — azurerm client config, which reads facts about the signed-in principal instead of creating anything. Two: the vault itself, with a nested access policy block that grants your user the secret permissions. Three: the secret-handling pattern — the value comes from a required sensitive variable, and the output is marked sensitive so the CLI redacts it."
+    },
+    {
+      "id": "S003",
+      "type": "CONCEPT",
+      "heading": "Where this lab fits",
+      "audio": "audio/S003.mp3",
+      "points": [
+        "Section 1, lab 20: secret VALUES belong in inputs, not source",
+        "This lab: the first data source + nested access_policy",
+        "Next lab: data sources get a full episode of their own"
+      ],
+      "narration": "Placement. Back in section 1, lab 20 established the rule: secret values come from inputs, never from source code. This lab puts that rule to work for real — a vault that stores the secret centrally. You also meet the first data source of section 2; the very next lab gives data sources a full episode. And note the random provider returns — it earned its keep in section 1 and does again here."
+    },
+    {
+      "id": "S004",
+      "type": "CONCEPT",
+      "heading": "Where to find this lab",
+      "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-02-meta-arguments\n          └── 38-key-vault\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-02-meta-arguments/38-key-vault",
+      "audio": "audio/S004.mp3",
+      "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 38-key-vault. The direct link is in the video description. Main dot T F holds everything; terraform dot T F pins both providers."
+    },
+    {
+      "id": "S005",
+      "type": "CODE",
+      "source_file": "terraform.tf",
+      "start_line": 1,
+      "end_line": 24,
+      "highlight_lines": [
+        6,
+        10,
+        15,
+        21,
+        22
+      ],
+      "asset": "assets/code/lab38-providers.png",
+      "audio": "audio/S005.mp3",
+      "narration": "Terraform dot T F first. It pins Terraform 1.5 or newer, and TWO providers this time: azurerm around version 3.70 for Azure, and random around 3.6 — this lab needs a stable random suffix, which we'll see why shortly. The provider block at the bottom bridges to Azure with the standard empty features block."
+    },
+    {
+      "id": "S006",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 8,
+      "end_line": 14,
+      "highlight_lines": [
+        11,
+        12,
+        13
+      ],
+      "asset": "assets/code/lab38-variable.png",
+      "audio": "audio/S006.mp3",
+      "steps": [
+        {
+          "narration": "The secret enters the same way it did in section 1: a variable called db password — required, no default, marked sensitive. Terraform prompts for it, or you pass it with dash var. The source code never sees a secret literal — and that's the whole point.",
+          "active_lines": [
+            11,
+            12,
+            13,
+            14
+          ],
+          "active_tokens": [
+            "db_password",
+            "sensitive = true"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S006.step1.mp3"
+      ]
+    },
+    {
+      "id": "S007",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 16,
+      "end_line": 17,
+      "highlight_lines": [
+        17
+      ],
+      "asset": "assets/code/lab38-data.png",
+      "audio": "audio/S007.mp3",
+      "steps": [
+        {
+          "narration": "Here's the data source — and its emptiness is the point. data azurerm client config, current, with an empty body. It creates nothing; it reads facts about whoever is signed in with az login: the tenant id and the object id — your user's identity in Azure AD.",
+          "active_lines": [
+            17
+          ],
+          "active_tokens": [
+            "data \"azurerm_client_config\" \"current\""
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S007.step1.mp3"
+      ]
+    },
+    {
+      "id": "S008",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 20,
+      "end_line": 32,
+      "highlight_lines": [
+        22,
+        28
+      ],
+      "asset": "assets/code/lab38-locals-random.png",
+      "audio": "audio/S008.mp3",
+      "steps": [
+        {
+          "narration": "The vault needs a globally unique name, 3 to 24 characters, alphanumerics and hyphens only. Locals builds it: kv dash, then a random suffix.",
+          "active_lines": [
+            20,
+            21,
+            22,
+            23
+          ],
+          "active_tokens": [
+            "kv-${random_string.suffix.result}"
+          ]
+        },
+        {
+          "narration": "And the suffix comes from the random provider — resource random string, six characters, no uppercase, no specials. The comment explains why it's a resource and not a function trick: the value is SAVED in state, so every plan and apply is stable — nothing gets unexpectedly replaced.",
+          "active_lines": [
+            28,
+            29,
+            30,
+            31,
+            32
+          ],
+          "active_tokens": [
+            "random_string",
+            "length  = 6"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S008.step1.mp3",
+        "audio/S008.step2.mp3"
+      ]
+    },
+    {
+      "id": "S009",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 35,
+      "end_line": 38,
+      "highlight_lines": [
+        36
+      ],
+      "asset": "assets/code/lab38-rg.png",
+      "audio": "audio/S009.mp3",
+      "steps": [
+        {
+          "narration": "The resource group — rg dash kv dash meta. The usual container, nothing new here.",
+          "active_lines": [
+            35,
+            36,
+            37,
+            38
+          ],
+          "active_tokens": [
+            "azurerm_resource_group"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S009.step1.mp3"
+      ]
+    },
+    {
+      "id": "S010",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 42,
+      "end_line": 57,
+      "highlight_lines": [
+        46,
+        47,
+        52,
+        55
+      ],
+      "asset": "assets/code/lab38-vault.png",
+      "audio": "audio/S010.mp3",
+      "steps": [
+        {
+          "narration": "The vault itself. Name from locals, standard SKU, and two settings worth pausing on: soft delete retention of 7 days — deleted secrets stay recoverable for a week — and purge protection off, which is fine for a lab but belongs ON in production.",
+          "active_lines": [
+            42,
+            43,
+            47,
+            48,
+            49
+          ],
+          "active_tokens": [
+            "sku_name",
+            "soft_delete_retention_days",
+            "purge_protection_enabled"
+          ]
+        },
+        {
+          "narration": "Tenant id comes straight from the data source — data dot azurerm client config dot current dot tenant id. The vault belongs to the tenant of whoever ran az login. The data source is doing real work already.",
+          "active_lines": [
+            46
+          ],
+          "active_tokens": [
+            "data.azurerm_client_config.current.tenant_id"
+          ]
+        },
+        {
+          "narration": "And the nested block: access policy. It grants a principal — here, you, via object id from the same data source — five secret permissions: get, list, set, delete, purge. Whoever deployed this vault can read and write its secrets.",
+          "active_lines": [
+            51,
+            52,
+            53,
+            54,
+            55,
+            56
+          ],
+          "active_tokens": [
+            "access_policy {",
+            "secret_permissions"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S010.step1.mp3",
+        "audio/S010.step2.mp3",
+        "audio/S010.step3.mp3"
+      ]
+    },
+    {
+      "id": "S011",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 61,
+      "end_line": 65,
+      "highlight_lines": [
+        62,
+        63,
+        64
+      ],
+      "asset": "assets/code/lab38-secret.png",
+      "audio": "audio/S011.mp3",
+      "steps": [
+        {
+          "narration": "The secret resource. Its name is db password; its value line is the one to read carefully: value equals var dot db password. The value comes from the input — there is no secret literal anywhere in this source.",
+          "active_lines": [
+            61,
+            62,
+            63
+          ],
+          "active_tokens": [
+            "azurerm_key_vault_secret",
+            "var.db_password"
+          ]
+        },
+        {
+          "narration": "Key vault id points at the vault we just created — the secret lives inside it. And be honest about the limit: the value still lands in Terraform state in plain text. Sensitive hides the CLI output, not the state file — the README gotchas say this plainly.",
+          "active_lines": [
+            64
+          ],
+          "active_tokens": [
+            "key_vault_id"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S011.step1.mp3",
+        "audio/S011.step2.mp3"
+      ]
+    },
+    {
+      "id": "S012",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 69,
+      "end_line": 74,
+      "highlight_lines": [
+        69,
+        71,
+        73
+      ],
+      "asset": "assets/code/lab38-outputs.png",
+      "audio": "audio/S012.mp3",
+      "steps": [
+        {
+          "narration": "Two outputs. Vault name is plain — a name is not a secret. The second output is the secret's versionless id, marked sensitive equals true.",
+          "active_lines": [
+            69,
+            71,
+            72,
+            73,
+            74
+          ],
+          "active_tokens": [
+            "output \"vault_name\"",
+            "sensitive = true"
+          ]
+        },
+        {
+          "narration": "Notice what's output and what isn't: the ID of the secret — a stable reference other configs can use — never the secret's value. The value leaves the vault only through the access policy, not through Terraform outputs.",
+          "active_lines": [
+            70,
+            71,
+            72
+          ],
+          "active_tokens": [
+            "versionless_id"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S012.step1.mp3",
+        "audio/S012.step2.mp3"
+      ]
+    },
+    {
+      "id": "S013",
+      "type": "DIAGRAM",
+      "caption": "How the pieces connect",
+      "asset": "assets/diagrams/lab38-resource-flow.svg",
+      "audio": "audio/S013.mp3",
+      "steps": [
+        {
+          "narration": "Here's how the pieces connect.",
+          "nodes": [],
+          "edges": []
+        },
+        {
+          "narration": "The sensitive variable carries the secret value in.",
+          "nodes": [
+            "vars"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The data source reads who is signed in — tenant id and object id, creating nothing.",
+          "nodes": [
+            "data"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "Random string makes a stable six-character suffix.",
+          "nodes": [
+            "random"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The resource group groups everything in Azure.",
+          "nodes": [
+            "rg"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The vault: named with the random suffix, owned by the data source's tenant, with an access policy granting YOUR object id five permissions.",
+          "nodes": [
+            "vault"
+          ],
+          "edges": [
+            "rg-vault",
+            "random-vault",
+            "data-vault"
+          ]
+        },
+        {
+          "narration": "The secret stores the variable's value inside the vault.",
+          "nodes": [
+            "secret"
+          ],
+          "edges": [
+            "vars-secret",
+            "vault-secret"
+          ]
+        },
+        {
+          "narration": "Everything lands inside your Azure subscription.",
+          "nodes": [],
+          "edges": []
+        }
+      ],
+      "step_audio": [
+        "audio/S013.step1.mp3",
+        "audio/S013.step2.mp3",
+        "audio/S013.step3.mp3",
+        "audio/S013.step4.mp3",
+        "audio/S013.step5.mp3",
+        "audio/S013.step6.mp3",
+        "audio/S013.step7.mp3",
+        "audio/S013.step8.mp3"
+      ]
+    },
+    {
+      "id": "S014",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab38-plan.svg",
+      "audio": "audio/S014.mp3",
+      "narration": "Here's the plan — terraform plan, an illustrative view. The random suffix, the resource group, the vault, and the secret — whose value shows as sensitive value, redacted. Four to add, zero to destroy. The data source appears in the refresh step, not as a resource to create."
+    },
+    {
+      "id": "S015",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab38-output.svg",
+      "audio": "audio/S015.mp3",
+      "narration": "And the outputs — terraform output, an illustrative view. Vault name shows plainly: kv dash, then the random suffix. The secret's id prints as sensitive value — redacted in the CLI, exactly as the sensitive flag promised."
+    },
+    {
+      "id": "S016",
+      "type": "CONCEPT",
+      "heading": "Common pitfall",
+      "numbered": true,
+      "audio": "audio/S016.mp3",
+      "points": [
+        "Soft delete: recreating the vault within 7 days fails unless purged",
+        "sensitive hides CLI output — the value is still plaintext in state",
+        "The access policy follows az login — whoever deployed gets access"
+      ],
+      "narration": "Three pitfalls. One: soft delete cuts both ways — destroy the vault and re-apply within seven days, and the create fails with a name conflict until you purge the soft-deleted vault or wait. Two: sensitive equals true redacts plan and apply output — it does NOT encrypt state; the secret value sits in the state file in plain text, so protect that file like the secret it holds. Three: the access policy is tied to whoever ran az login at deploy time — their object id is hard-wired into the policy; teammates get access only when the policy includes them too."
+    },
+    {
+      "id": "S017",
+      "type": "RECAP",
+      "numbered": true,
+      "audio": "audio/S017.mp3",
+      "points": [
+        "data \"azurerm_client_config\" reads the signed-in principal — creates nothing",
+        "random_string is stateful: saved in state, stable across applies",
+        "access_policy: a nested block granting YOUR object_id permissions",
+        "value = var.db_password — no secret literal in the source",
+        "sensitive = true redacts CLI output; state stays plaintext"
+      ],
+      "narration": "Quick recap — five things. One: the client config data source reads who's signed in and creates nothing. Two: random string is a stateful resource — saved in state, stable across applies. Three: the access policy is a nested block that grants your object id five secret permissions. Four: the secret's value comes from a sensitive input — no literal in the source. Five: sensitive redacts the CLI, not the state file. Secrets belong in a vault, values belong in inputs — and now you've built both halves."
+    },
+    {
+      "id": "S018",
+      "type": "NEXT",
+      "audio": "audio/S018.mp3",
+      "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+    },
+    {
+      "id": "S019",
+      "type": "CONCEPT",
+      "heading": "Thanks for watching",
+      "centered": true,
+      "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-02-meta-arguments/38-key-vault",
+      "audio": "audio/S019.mp3",
+      "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+    }
+  ]
+}

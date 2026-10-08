@@ -1,0 +1,87 @@
+{
+  "layers": [
+    [
+      "locals",
+      "random",
+      "rg",
+      "st",
+      "cfg",
+      "blobs",
+      "out"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": "locals",
+      "label": "locals: files map"
+    },
+    {
+      "id": "random",
+      "label": "random_string.suffix"
+    },
+    {
+      "id": "rg",
+      "label": "rg-foreach-blobs"
+    },
+    {
+      "id": "st",
+      "label": "stblobfe<suffix>"
+    },
+    {
+      "id": "cfg",
+      "label": "container: config"
+    },
+    {
+      "id": "blobs",
+      "label": "blobs ×3 (for_each)"
+    },
+    {
+      "id": "out",
+      "label": "output: blobs"
+    }
+  ],
+  "edges": [
+    {
+      "id": "random-locals",
+      "from": "random",
+      "to": "locals",
+      "label": "suffix"
+    },
+    {
+      "id": "locals-st",
+      "from": "locals",
+      "to": "st",
+      "label": "name"
+    },
+    {
+      "id": "rg-st",
+      "from": "rg",
+      "to": "st",
+      "label": "reference"
+    },
+    {
+      "id": "st-cfg",
+      "from": "st",
+      "to": "cfg",
+      "label": "storage account"
+    },
+    {
+      "id": "cfg-blobs",
+      "from": "cfg",
+      "to": "blobs",
+      "label": "container"
+    },
+    {
+      "id": "locals-blobs",
+      "from": "locals",
+      "to": "blobs",
+      "label": "for_each (map)"
+    },
+    {
+      "id": "blobs-out",
+      "from": "blobs",
+      "to": "out",
+      "label": "keys()"
+    }
+  ]
+}

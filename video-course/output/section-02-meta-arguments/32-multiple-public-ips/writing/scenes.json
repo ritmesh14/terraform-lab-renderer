@@ -1,0 +1,521 @@
+{
+  "title": "Same Copies, Polished Names: count + format()",
+  "lesson_label": "Terraform Meta-arguments — Lab 32",
+  "scenes": [
+    {
+      "id": "S001",
+      "type": "TITLE",
+      "title": "Same Copies, Polished Names: count + format()",
+      "lesson_label": "Terraform Meta-arguments — Lab 32",
+      "audio": "audio/S001.mp3",
+      "narration": "Welcome back. Four labs of for_each — now count gets its polish. This is Lab 32: three identical public IPs, created with count, named with format so they come out pip zero one, pip zero two, pip zero three — zero-padded, sorted, tidy. And the output teaches one more symbol: the splat. Let's build it."
+    },
+    {
+      "id": "S002",
+      "type": "CONCEPT",
+      "heading": "What you'll learn",
+      "numbered": true,
+      "audio": "audio/S002.mp3",
+      "points": [
+        "count driven by a local — one number scales the fan-out",
+        "format() with %02d — zero-padded names from count.index",
+        "The [*] splat — collect one attribute from every instance"
+      ],
+      "narration": "Three things in this lesson. One: count driven by a local — change one number, re-apply, and the fan-out scales. Two: format with the percent zero two d placeholder — zero-padded names computed from count dot index. Three: the splat — star in brackets — the short expression that collects one attribute from every count instance into a list."
+    },
+    {
+      "id": "S003",
+      "type": "CONCEPT",
+      "heading": "Where this lab fits",
+      "audio": "audio/S003.mp3",
+      "points": [
+        "Labs 28–31: for_each — named copies, keyed addresses",
+        "This lab: count again — right tool when copies are identical",
+        "The splat returns in the state-addressing lesson"
+      ],
+      "narration": "Placement. Labs 28 through 31 were all for_each — named copies, keyed addresses. This lab deliberately returns to count, because these three public IPs are truly identical: no copy has a meaning the others lack, so numbers are fine. Count is not the enemy — it's the right tool for identical things, and this lab shows its best form. The splat at the end returns again when we talk about state addressing."
+    },
+    {
+      "id": "S004",
+      "type": "CONCEPT",
+      "heading": "Where to find this lab",
+      "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-02-meta-arguments\n          └── 32-multiple-public-ips\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-02-meta-arguments/32-multiple-public-ips",
+      "audio": "audio/S004.mp3",
+      "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 32-multiple-public-ips. The direct link is in the video description. Main dot T F holds everything; terraform dot T F pins the providers."
+    },
+    {
+      "id": "S005",
+      "type": "CODE",
+      "source_file": "terraform.tf",
+      "start_line": 1,
+      "end_line": 19,
+      "highlight_lines": [
+        6,
+        8,
+        10,
+        17,
+        18
+      ],
+      "asset": "assets/code/lab32-providers.png",
+      "audio": "audio/S005.mp3",
+      "narration": "Two files matter here, and the first is terraform dot T F. It pins the tooling: Terraform 1.5 or newer, and the azurerm provider around version 3.70 — nothing else, because this lab needs no extras. The provider block at the bottom is the bridge to Azure; the empty features block enables the provider's default behaviours. That's the whole file — every interesting line lives in main dot T F."
+    },
+    {
+      "id": "S006",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 5,
+      "end_line": 15,
+      "highlight_lines": [
+        8,
+        13
+      ],
+      "asset": "assets/code/lab32-locals-rg.png",
+      "audio": "audio/S006.mp3",
+      "steps": [
+        {
+          "narration": "The whole fan-out is controlled by one number: locals holds ip count equals three. Change that number, re-apply, and Azure gains or loses public IPs — nothing else in the file mentions the count.",
+          "active_lines": [
+            7,
+            8,
+            9
+          ],
+          "active_tokens": [
+            "ip_count"
+          ]
+        },
+        {
+          "narration": "The resource group is the usual container — rg dash multi dash pips. Note this lab has no VNet at all: public IPs don't need one.",
+          "active_lines": [
+            12,
+            13,
+            14,
+            15
+          ],
+          "active_tokens": [
+            "azurerm_resource_group"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S006.step1.mp3",
+        "audio/S006.step2.mp3"
+      ]
+    },
+    {
+      "id": "S007",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 17,
+      "end_line": 25,
+      "highlight_lines": [
+        19,
+        20
+      ],
+      "asset": "assets/code/lab32-pips.png",
+      "audio": "audio/S007.mp3",
+      "steps": [
+        {
+          "narration": "One public IP block, count equals local dot ip count. Terraform will expand this single block into three instances — this[0], this[1], this[2].",
+          "active_lines": [
+            19
+          ],
+          "active_tokens": [
+            "count"
+          ]
+        },
+        {
+          "narration": "The name is where format earns its keep: format, quote pip percent zero two d quote, count dot index plus one. Percent zero two d means: print the number as an integer, padded with zeros to at least two digits. So index zero plus one gives pip dash zero one — not pip dash 1.",
+          "active_lines": [
+            20
+          ],
+          "active_tokens": [
+            "format(",
+            "count.index + 1"
+          ]
+        },
+        {
+          "narration": "Why pad? Because plain sorting would put pip dash 10 before pip dash 2. Zero-padded names sort correctly as strings — pip zero two always sits between pip zero one and pip zero three, no matter how far the count grows.",
+          "active_lines": [
+            20
+          ],
+          "active_tokens": [
+            "%02d"
+          ]
+        },
+        {
+          "narration": "The rest is standard: static allocation on the standard SKU, so each address survives deallocations — and the three instances stay independent.",
+          "active_lines": [
+            22,
+            23,
+            24,
+            25
+          ],
+          "active_tokens": [
+            "allocation_method"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S007.step1.mp3",
+        "audio/S007.step2.mp3",
+        "audio/S007.step3.mp3",
+        "audio/S007.step4.mp3"
+      ]
+    },
+    {
+      "id": "S008",
+      "type": "ITERATION_EXPANSION",
+      "title": "One block, three numbered instances",
+      "expression": "count = local.ip_count",
+      "audio": "audio/S008.mp3",
+      "stages": [
+        {
+          "id": "expr",
+          "label": "The expression",
+          "kind": "expression",
+          "items": [
+            {
+              "key": "e0",
+              "text": "count = local.ip_count  (= 3)"
+            }
+          ]
+        },
+        {
+          "id": "inst",
+          "label": "Instances (state)",
+          "kind": "instances",
+          "items": [
+            {
+              "key": "i0",
+              "text": "azurerm_public_ip.this[0]"
+            },
+            {
+              "key": "i1",
+              "text": "azurerm_public_ip.this[1]"
+            },
+            {
+              "key": "i2",
+              "text": "azurerm_public_ip.this[2]"
+            }
+          ]
+        },
+        {
+          "id": "names",
+          "label": "Names (format)",
+          "kind": "output",
+          "items": [
+            {
+              "key": "n0",
+              "text": "pip-01"
+            },
+            {
+              "key": "n1",
+              "text": "pip-02"
+            },
+            {
+              "key": "n2",
+              "text": "pip-03"
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "narration": "The expression is one line: count equals local dot ip count — the number three.",
+          "focus": {
+            "stages": [
+              "expr"
+            ]
+          }
+        },
+        {
+          "narration": "Terraform expands it into three instances addressed by position — this bracket zero, bracket one, bracket two.",
+          "focus": {
+            "stages": [
+              "inst"
+            ]
+          }
+        },
+        {
+          "narration": "And each instance's name comes from format and count dot index: index zero becomes pip zero one — plus one turns the zero-based index into a human count.",
+          "focus": {
+            "stages": [
+              "names"
+            ],
+            "items": [
+              "i0",
+              "n0"
+            ]
+          }
+        }
+      ],
+      "step_audio": [
+        "audio/S008.step1.mp3",
+        "audio/S008.step2.mp3",
+        "audio/S008.step3.mp3"
+      ]
+    },
+    {
+      "id": "S009",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 27,
+      "end_line": 30,
+      "highlight_lines": [
+        30
+      ],
+      "asset": "assets/code/lab32-output.png",
+      "audio": "audio/S009.mp3",
+      "steps": [
+        {
+          "narration": "The output uses the symbol this lab is really about: azurerm_public_ip dot this, star in brackets, dot ip_address. That star-in-brackets is the splat — it means: for every instance of this counted resource, take ip_address, and give me the list.",
+          "active_lines": [
+            30
+          ],
+          "active_tokens": [
+            "[*]"
+          ]
+        },
+        {
+          "narration": "One more thing the comment flags: ip_address is only known AFTER apply — Azure assigns it, not Terraform. So the plan shows a placeholder, and the real three addresses appear once the apply finishes.",
+          "active_lines": [
+            30
+          ],
+          "active_tokens": [
+            "ip_address"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S009.step1.mp3",
+        "audio/S009.step2.mp3"
+      ]
+    },
+    {
+      "id": "S010",
+      "type": "STATE_ADDRESS",
+      "title": "The splat: many instances, one attribute, one list",
+      "expression": "azurerm_public_ip.this[*].ip_address",
+      "audio": "audio/S010.mp3",
+      "stages": [
+        {
+          "id": "inst",
+          "label": "Instances (state)",
+          "kind": "instances",
+          "items": [
+            {
+              "key": "i0",
+              "text": "azurerm_public_ip.this[0]"
+            },
+            {
+              "key": "i1",
+              "text": "azurerm_public_ip.this[1]"
+            },
+            {
+              "key": "i2",
+              "text": "azurerm_public_ip.this[2]"
+            }
+          ]
+        },
+        {
+          "id": "attr",
+          "label": "Attribute per instance",
+          "kind": "expression",
+          "items": [
+            {
+              "key": "a0",
+              "text": "this[0].ip_address  (known after apply)"
+            },
+            {
+              "key": "a1",
+              "text": "this[1].ip_address  (known after apply)"
+            },
+            {
+              "key": "a2",
+              "text": "this[2].ip_address  (known after apply)"
+            }
+          ]
+        },
+        {
+          "id": "splat",
+          "label": "The splat (an expression)",
+          "kind": "expression",
+          "items": [
+            {
+              "key": "s0",
+              "text": "azurerm_public_ip.this[*].ip_address"
+            }
+          ]
+        },
+        {
+          "id": "out",
+          "label": "Result (a list)",
+          "kind": "output",
+          "items": [
+            {
+              "key": "o0",
+              "text": "[ \"203.0.113.10\", \"203.0.113.11\", \"203.0.113.12\" ]"
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "narration": "Start from the instances: three counted copies, addressed by index in state.",
+          "focus": {
+            "stages": [
+              "inst"
+            ]
+          }
+        },
+        {
+          "narration": "Each instance carries the same attribute — ip address — and each value is unknown until Azure assigns it at apply time.",
+          "focus": {
+            "stages": [
+              "attr"
+            ]
+          }
+        },
+        {
+          "narration": "The splat is the expression that walks all of them at once — star in brackets means every instance, no loop written by hand.",
+          "focus": {
+            "stages": [
+              "splat"
+            ]
+          }
+        },
+        {
+          "narration": "And the result is one list of three addresses — which is exactly what the output prints after apply.",
+          "focus": {
+            "stages": [
+              "out"
+            ]
+          }
+        }
+      ],
+      "step_audio": [
+        "audio/S010.step1.mp3",
+        "audio/S010.step2.mp3",
+        "audio/S010.step3.mp3",
+        "audio/S010.step4.mp3"
+      ]
+    },
+    {
+      "id": "S011",
+      "type": "DIAGRAM",
+      "caption": "How the pieces connect",
+      "asset": "assets/diagrams/lab32-resource-flow.svg",
+      "audio": "audio/S011.mp3",
+      "steps": [
+        {
+          "narration": "Here's how the pieces connect.",
+          "nodes": [],
+          "edges": []
+        },
+        {
+          "narration": "Locals hold the one number that scales everything: ip count three.",
+          "nodes": [
+            "locals"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The resource group groups everything in Azure.",
+          "nodes": [
+            "rg"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The public IPs: count expands one block into three instances, and format turns each index into a zero-padded name.",
+          "nodes": [
+            "pips"
+          ],
+          "edges": [
+            "locals-pips",
+            "rg-pips"
+          ]
+        },
+        {
+          "narration": "The output splats ip_address off every instance into a list.",
+          "nodes": [
+            "out"
+          ],
+          "edges": [
+            "pips-out"
+          ]
+        },
+        {
+          "narration": "Everything lands inside your Azure subscription.",
+          "nodes": [],
+          "edges": []
+        }
+      ],
+      "step_audio": [
+        "audio/S011.step1.mp3",
+        "audio/S011.step2.mp3",
+        "audio/S011.step3.mp3",
+        "audio/S011.step4.mp3",
+        "audio/S011.step5.mp3",
+        "audio/S011.step6.mp3"
+      ]
+    },
+    {
+      "id": "S012",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab32-plan.svg",
+      "audio": "audio/S012.mp3",
+      "narration": "Here's the plan — terraform plan, an illustrative view. The resource group, then three public IPs: pip dash zero one, pip dash zero two, pip dash zero three — each with a named argument marked sensitive where secrets would appear. Four to add, zero to destroy. One block in the code; three numbered copies in the plan."
+    },
+    {
+      "id": "S013",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab32-output.svg",
+      "audio": "audio/S013.mp3",
+      "narration": "And after apply, the output — terraform output ips, an illustrative view. The splat delivered exactly what it promised: a list of three addresses, in index order. During plan these were placeholders; Azure assigned the real values at apply."
+    },
+    {
+      "id": "S014",
+      "type": "CONCEPT",
+      "heading": "Common pitfall",
+      "numbered": true,
+      "audio": "audio/S014.mp3",
+      "points": [
+        "count.index is zero-based — the +1 in format() makes it human",
+        "Splat on a counted resource is a list — index it, don't map it",
+        "Removing the middle IP shifts every later address — recreations"
+      ],
+      "narration": "Three pitfalls. One: count dot index starts at zero — the plus one inside format is what makes pip zero one the first name; forget it and your first IP is pip zero zero. Two: the splat on a counted resource always yields a list — address elements by position; if you need named access, that's for_each territory. And three, the count classic: IPs are addressed by position, so destroying the middle one shifts every later address — Terraform sees new names at old positions and wants to recreate. Identical, interchangeable things only."
+    },
+    {
+      "id": "S015",
+      "type": "RECAP",
+      "numbered": true,
+      "audio": "audio/S015.mp3",
+      "points": [
+        "count = local.ip_count — one number scales the fan-out",
+        "format(\"pip-%02d\", count.index + 1) — zero-padded names",
+        "Zero padding keeps names sorting correctly as the count grows",
+        "this[*].ip_address — the splat collects one attribute into a list",
+        "ip_address is known after apply — placeholders during plan"
+      ],
+      "narration": "Quick recap — five things. One: count reads a local, so one number scales the whole fan-out. Two: format with percent zero two d turns count dot index plus one into zero-padded names. Three: the padding isn't decoration — it keeps names sorting correctly as the count grows past nine. Four: the splat collects one attribute from every instance into a single list. Five: that attribute is known after apply — plan shows placeholders, apply fills in the real values. Count for identical things — named and polished."
+    },
+    {
+      "id": "S016",
+      "type": "NEXT",
+      "audio": "audio/S016.mp3",
+      "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+    },
+    {
+      "id": "S017",
+      "type": "CONCEPT",
+      "heading": "Thanks for watching",
+      "centered": true,
+      "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-02-meta-arguments/32-multiple-public-ips",
+      "audio": "audio/S017.mp3",
+      "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+    }
+  ]
+}

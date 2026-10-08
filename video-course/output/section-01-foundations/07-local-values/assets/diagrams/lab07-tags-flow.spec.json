@@ -1,0 +1,49 @@
+{
+  "nodes": [
+    {
+      "id": "loc",
+      "label": "locals.common_tags\nproject / managedby / section"
+    },
+    {
+      "id": "rg",
+      "label": "azurerm_resource_group.this"
+    },
+    {
+      "id": "merge",
+      "label": "merge()\n+ tier = network"
+    },
+    {
+      "id": "vnet",
+      "label": "azurerm_virtual_network.this"
+    }
+  ],
+  "edges": [
+    {
+      "from": "loc",
+      "to": "rg",
+      "label": "tags = local.common_tags"
+    },
+    {
+      "from": "loc",
+      "to": "merge",
+      "label": "base map"
+    },
+    {
+      "from": "merge",
+      "to": "vnet",
+      "label": "merged tags"
+    }
+  ],
+  "layers": [
+    [
+      "loc"
+    ],
+    [
+      "rg",
+      "merge"
+    ],
+    [
+      "vnet"
+    ]
+  ]
+}

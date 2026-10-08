@@ -1,0 +1,74 @@
+{
+ "episode": "37-availability-zones",
+ "source": "writing/scenes.json",
+ "scenes": [
+  {
+   "id": "S001",
+   "narration": "Welcome back. Availability sets spread VMs across racks in ONE datacenter. This is Lab 37, and we go one level up: availability zones — whole separate datacenters. And count gets smarter: instead of a magic number, its size comes from a list, and count dot index becomes a LOOKUP into that list. One VM per zone, automatically. Let's build it."
+  },
+  {
+   "id": "S002",
+   "narration": "Three things in this lesson. One: count driven by length — the zones list decides how many VMs exist; add a zone, get a VM. Two: count dot index used as a lookup — instead of just numbering things, it reaches into the list to fetch each VM's zone. Three: the honest SLA picture — zone pinning counts toward the 99.99 percent VM SLA, but only when you use premium or ultra disks and span two or more zones; with standard SSD storage, like this lab, it alone doesn't qualify."
+  },
+  {
+   "id": "S003",
+   "narration": "Placement. Lab 36 spread VMs across fault domains — racks within a single building. Zones are physically separate datacenters with independent power, network and cooling. A region outage can't touch a VM in another zone. And technically, this lab is the bridge you've been building toward: count sized by a list is the halfway point between count and for_each — the collection, not a number, decides the fan-out."
+  },
+  {
+   "id": "S004",
+   "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 37-availability-zones. The direct link is in the video description. Main dot T F holds everything; terraform dot T F pins the providers."
+  },
+  {
+   "id": "S005",
+   "narration": "Terraform dot T F pins the tooling: Terraform 1.5 or newer, and the azurerm provider around version 3.70 — no extra providers this time. The provider block at the bottom bridges to Azure; the empty features block enables the provider's defaults. Every interesting line lives in main dot T F."
+  },
+  {
+   "id": "S006",
+   "narration": "The same sensitive SSH key variable as labs 35 and 36 — required, no default, hidden in output. And the new piece: a locals block holding one list — zones: one, two, three. Three plain numbers, but they carry the whole lab's meaning: this is WHERE the VMs will live. Not how many — where."
+  },
+  {
+   "id": "S007",
+   "narration": "The resource group gets a comment that matters: zones need a region that supports them. East US does — pick a region without zones and the plan fails with a clear error. The network is the familiar base: VNet on 10.210 slash 16, one subnet snet web. All three VMs — one per zone — attach to this one shared subnet."
+  },
+  {
+   "id": "S008",
+   "narration": "The NIC block's count is no longer a number: count equals length of local dot zones. The list decides — three entries, three NICs. Add a four to the list and a fourth NIC appears on the next plan. The comment above it says exactly that: adding a zone to the list scales NICs and VMs together. One list, two fan-outs, kept in sync by construction."
+  },
+  {
+   "id": "S009",
+   "narration": "The expression reads a length, not a number: three list entries mean count three. Three instances expand: VM web bracket zero, one, two — the usual count addressing. But each instance's ZONE comes from a lookup: instance zero reads zones bracket zero, which is one. Instance one gets zone two, instance two gets zone three. The index picks the meaning."
+  },
+  {
+   "id": "S010",
+   "narration": "The VM block: the same count — length of the zones list — and a name that already uses the lookup: vm dash az dash local dot zones, bracket, count dot index. VM zero is named vm dash az dash 1, because zones bracket zero is one. The name shows the zone, not the index. And here is the pin: zone equals tostring of local dot zones, bracket, count dot index. tostring because the zone attribute is a string and the list holds numbers. This one line places each VM in its own datacenter. The rest is the lab-35 anatomy: NIC picked by index — network interface ids bracket count dot index — then the three nested blocks: SSH key, os disk, image."
+  },
+  {
+   "id": "S011",
+   "narration": "Pause on the idea this lab really teaches. Until now, count dot index was just a counter — it numbered NICs and VMs. Here it becomes a lookup: zones bracket count dot index doesn't just label the VM, it decides WHERE the VM lives. The list carries meaning; the index fetches it. And notice what this enables: change the list and both the count and the meaning change together. That's one step away from for_each, where the data itself becomes the key — which is exactly where the course goes next."
+  },
+  {
+   "id": "S012",
+   "narration": "Here's how the pieces connect. The sensitive SSH key variable, as before. Locals hold the zones list — one, two, three. The resource group — in a region that supports zones. The network: VNet and subnet shared by all three VMs. Three counted NICs — count sized by length of the zones list. Three counted VMs, each pinned to its own zone by the lookup — zones bracket count dot index — and paired to its NIC by index. Everything lands inside your Azure subscription."
+  },
+  {
+   "id": "S013",
+   "narration": "Here's the plan — terraform plan, an illustrative view. Resource group, VNet, subnet, then three NICs and three VMs — and look at the VM names: vm dash az dash 1, vm dash az dash 2, vm dash az dash 3. The names come from the list values, not the indexes. Nine to add, zero to destroy."
+  },
+  {
+   "id": "S014",
+   "narration": "Three pitfalls. One: the SLA claim has conditions — 99.99 percent for zone-pinned VMs requires premium or ultra disks and VMs spanning two or more zones. This lab uses standard SSD storage deliberately, so it demonstrates the mechanism without claiming the number. Two: not every region has zones — and not every region has three. If the list says three but the region offers two, the plan fails immediately; that's Terraform protecting you before any deploy. Three: the zone attribute is a string, the list holds numbers — tostring makes the conversion explicit, and forgetting it is a type error."
+  },
+  {
+   "id": "S015",
+   "narration": "Quick recap — five things. One: count reads a length, so the zones list sizes the fan-out. Two: count dot index becomes a lookup into that list — it fetches each VM's zone. Three: the names prove it — vm dash az dash one through three, named from list values. Four: zones are separate datacenters with independent power — a bigger promise than availability sets. Five: the 99.99 percent SLA is conditional — premium disks and VMs across two or more zones. The list is now the source of truth for both how many and where."
+  },
+  {
+   "id": "S016",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+  },
+  {
+   "id": "S017",
+   "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+  }
+ ]
+}

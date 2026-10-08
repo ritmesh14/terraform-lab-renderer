@@ -1,0 +1,57 @@
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # azurerm_resource_group.this will be created
+  + resource "azurerm_resource_group" "this" {
+      + name     = "rg-provisioner"
+      + location = "eastus"
+    }
+
+  # azurerm_virtual_network.this will be created
+  + resource "azurerm_virtual_network" "this" {
+      + name          = "vnet-provisioner"
+      + address_space = ["10.251.0.0/16"]
+    }
+
+  # azurerm_subnet.web will be created
+  + resource "azurerm_subnet" "web" {
+      + name             = "snet-web"
+      + address_prefixes = ["10.251.1.0/24"]
+    }
+
+  # azurerm_network_security_group.web will be created
+  + resource "azurerm_network_security_group" "web" {
+      + name = "nsg-provisioner"
+
+      + security_rule {
+          + name                     = "Allow-SSH"
+          + destination_port_range   = "22"
+        }
+    }
+
+  # azurerm_public_ip.web will be created
+  + resource "azurerm_public_ip" "web" {
+      + name                = "pip-provisioner"
+      + allocation_method   = "Static"
+      + sku                 = "Standard"
+    }
+
+  # azurerm_network_interface.web will be created
+  + resource "azurerm_network_interface" "web" {
+      + name                          = "nic-provisioner"
+    }
+
+  # azurerm_linux_virtual_machine.web will be created
+  + resource "azurerm_linux_virtual_machine" "web" {
+      + name                  = "vm-provisioner"
+      + size                  = "Standard_B1s"
+
+      + admin_ssh_key {
+          + public_key = (sensitive value)
+        }
+    }
+
+Plan: 7 to add, 0 to change, 0 to destroy.

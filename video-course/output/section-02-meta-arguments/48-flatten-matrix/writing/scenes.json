@@ -1,0 +1,599 @@
+{
+ "title": "The Matrix: flatten() into for_each",
+ "lesson_label": "Terraform Meta-arguments — Lab 48",
+ "scenes": [
+  {
+   "id": "S001",
+   "type": "TITLE",
+   "title": "The Matrix: flatten() into for_each",
+   "lesson_label": "Terraform Meta-arguments — Lab 48",
+   "audio": "audio/S001.mp3",
+   "narration": "Welcome back. for_each can only iterate a FLAT collection — and real infrastructure is often a grid. This is Lab 48: regions times tiers, a list of lists built by a nested for expression, then flattened into one list, then turned into a keyed map — and for_each stamps out one subnet per region-tier pair. Three transforms between the variables and the resources. Let's build it."
+  },
+  {
+   "id": "S002",
+   "type": "CONCEPT",
+   "heading": "What you'll learn",
+   "numbered": true,
+   "audio": "audio/S002.mp3",
+   "points": [
+    "A nested `for` builds a list-of-lists — region × tier with a cidr each",
+    "flatten() removes the nesting — the shape for_each demands",
+    "A map keyed \"region-tier\" makes every combination addressable"
+   ],
+   "narration": "Three things in this lesson. One: the nested for expression — for each region, a list of one entry per tier, each carrying region, tier, and a cidrsubnet-carved address; that's a list of lists. Two: flatten — it collapses the nesting into ONE flat list, the only shape for_each accepts. Three: the keyed map — a for expression builds a map whose keys are region dash tier, so every combination is uniquely addressable in state."
+  },
+  {
+   "id": "S003",
+   "type": "CONCEPT",
+   "heading": "Where this lab fits",
+   "audio": "audio/S003.mp3",
+   "points": [
+    "Lab 28: for_each over a flat set/map — one dimension",
+    "This lab: a TWO-dimensional matrix flattened into for_each",
+    "Lab 33's for-expression maps return — now built from a nested source"
+   ],
+   "narration": "Placement. Lab 28's for_each iterated a flat set — one dimension. This lab is two dimensions: regions and tiers, and every combination becomes a subnet. The bridge is flatten — and the keyed-map technique is the one from lab 33, now built from a computed list instead of a hand-written variable. Add a region or a tier to the inputs, re-apply, and ONLY the missing pairs get created."
+  },
+  {
+   "id": "S004",
+   "type": "CONCEPT",
+   "heading": "Where to find this lab",
+   "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-02-meta-arguments\n          └── 48-flatten-matrix\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-02-meta-arguments/48-flatten-matrix",
+   "audio": "audio/S004.mp3",
+   "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 48-flatten-matrix. The direct link is in the video description. One main dot T F — the terraform block is inline at the top."
+  },
+  {
+   "id": "S005",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 4,
+   "end_line": 18,
+   "highlight_lines": [
+    5,
+    9,
+    17
+   ],
+   "asset": "assets/code/lab48-providers.png",
+   "audio": "audio/S005.mp3",
+   "narration": "No separate terraform dot T F this time — the tooling block is inline at the top of main dot T F: Terraform 1.5 or newer, and the azurerm provider around version 3.70. The provider block below bridges to Azure; the empty features block enables the provider's defaults."
+  },
+  {
+   "id": "S006",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 22,
+   "end_line": 25,
+   "highlight_lines": [
+    22,
+    23,
+    24
+   ],
+   "asset": "assets/code/lab48-vars-regions.png",
+   "audio": "audio/S006.mp3",
+   "steps": [
+    {
+     "narration": "First axis: regions — a list of strings, defaulting to region A and region B. In this illustrative setting they're labels; in a real deployment they'd carry geography. Every entry here becomes one VNet.",
+     "active_lines": [
+      22,
+      23,
+      24
+     ],
+     "active_tokens": [
+      "regions",
+      "list(string)",
+      "\"regionA\", \"regionB\""
+     ]
+    }
+   ],
+   "step_audio": [
+    "audio/S006.step1.mp3"
+   ]
+  },
+  {
+   "id": "S007",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 27,
+   "end_line": 30,
+   "highlight_lines": [
+    27,
+    28,
+    29
+   ],
+   "asset": "assets/code/lab48-vars-tiers.png",
+   "audio": "audio/S007.mp3",
+   "steps": [
+    {
+     "narration": "Second axis: tiers — web and app. Every tier becomes one subnet INSIDE each region's VNet. Two regions times two tiers: four subnets from two variables.",
+     "active_lines": [
+      27,
+      28,
+      29
+     ],
+     "active_tokens": [
+      "tiers",
+      "\"web\", \"app\""
+     ]
+    }
+   ],
+   "step_audio": [
+    "audio/S007.step1.mp3"
+   ]
+  },
+  {
+   "id": "S008",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 33,
+   "end_line": 38,
+   "highlight_lines": [
+    35,
+    36,
+    37
+   ],
+   "asset": "assets/code/lab48-locals-cidr.png",
+   "audio": "audio/S008.mp3",
+   "steps": [
+    {
+     "narration": "Locals first hold the per-region address space: region A gets 172.20 slash 20, region B gets 172.21 slash 20. The map lets the nested expression look up each region's block by name.",
+     "active_lines": [
+      34,
+      35,
+      36,
+      37,
+      38
+     ],
+     "active_tokens": [
+      "region_cidr",
+      "172.20.0.0/20",
+      "172.21.0.0/20"
+     ]
+    }
+   ],
+   "step_audio": [
+    "audio/S008.step1.mp3"
+   ]
+  },
+  {
+   "id": "S009",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 40,
+   "end_line": 51,
+   "highlight_lines": [
+    41,
+    42,
+    46,
+    51
+   ],
+   "asset": "assets/code/lab48-nested-flat.png",
+   "audio": "audio/S009.mp3",
+   "steps": [
+    {
+     "narration": "The nested for: OUTER loop over regions, INNER loop over tiers with index i. Each entry carries region, tier, and cidr — cidrsubnet takes the region's /20, adds six bits to a /26, and picks block number i. Region A web is 172.20.0.0/26, app is 172.20.0.64/26.",
+     "active_lines": [
+      41,
+      42,
+      43,
+      46
+     ],
+     "active_tokens": [
+      "for r in var.regions",
+      "for i, t in var.tiers",
+      "cidrsubnet(local.region_cidr[r], 6, i)"
+     ]
+    },
+    {
+     "narration": "But that's a list OF LISTS — one inner list per region. And for_each refuses nested lists. So flatten: line 51 collapses the nesting into ONE flat list of four objects. local dot flat is the shape for_each accepts.",
+     "active_lines": [
+      50,
+      51
+     ],
+     "active_tokens": [
+      "flat = flatten(local.nested)"
+     ]
+    }
+   ],
+   "step_audio": [
+    "audio/S009.step1.mp3",
+    "audio/S009.step2.mp3"
+   ]
+  },
+  {
+   "id": "S010",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 55,
+   "end_line": 58,
+   "highlight_lines": [
+    56
+   ],
+   "asset": "assets/code/lab48-rg.png",
+   "audio": "audio/S010.mp3",
+   "steps": [
+    {
+     "narration": "The resource group — its name comes from local dot rg, which the locals set to rg dash flatten. Everything in this lab lives in it.",
+     "active_lines": [
+      55,
+      56,
+      57,
+      58
+     ],
+     "active_tokens": [
+      "azurerm_resource_group",
+      "local.rg"
+     ]
+    }
+   ],
+   "step_audio": [
+    "audio/S010.step1.mp3"
+   ]
+  },
+  {
+   "id": "S011",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 61,
+   "end_line": 67,
+   "highlight_lines": [
+    62,
+    63,
+    66
+   ],
+   "asset": "assets/code/lab48-vnets.png",
+   "audio": "audio/S011.mp3",
+   "steps": [
+    {
+     "narration": "The VNets: for_each over toset of regions — the lab-28 pattern. Each key names its VNet, vnet dash region A, vnet dash region B, and each pulls its own address space from the region cidr map. One block, two VNets.",
+     "active_lines": [
+      62,
+      63,
+      66
+     ],
+     "active_tokens": [
+      "toset(var.regions)",
+      "vnet-${each.key}",
+      "local.region_cidr[each.key]"
+     ]
+    }
+   ],
+   "step_audio": [
+    "audio/S011.step1.mp3"
+   ]
+  },
+  {
+   "id": "S012",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 70,
+   "end_line": 76,
+   "highlight_lines": [
+    71,
+    72,
+    74,
+    75
+   ],
+   "asset": "assets/code/lab48-subnets.png",
+   "audio": "audio/S012.mp3",
+   "steps": [
+    {
+     "narration": "Now the subnets — and the line the lab turns on. for_each is fed a for EXPRESSION that builds a map: for each s in local dot flat, the key is region dash tier — regionA dash web — and the value is the whole object. Keys must be unique; the compound key is what makes every combination addressable.",
+     "active_lines": [
+      70,
+      71,
+      72
+     ],
+     "active_tokens": [
+      "{ for s in local.flat : \"${s.region}-${s.tier}\" => s }",
+      "snet-${each.value.tier}"
+     ]
+    },
+    {
+     "narration": "Inside the block, each dot value is the object: the tier names the subnet, the cidr is its prefix — and the VNet lookup is keyed: azurerm virtual network dot this bracket each dot value dot region. Subnets land in the VNet of their OWN region — a keyed reference into another for_each resource.",
+     "active_lines": [
+      73,
+      74,
+      75
+     ],
+     "active_tokens": [
+      "azurerm_virtual_network.this[each.value.region].name",
+      "each.value.cidr"
+     ]
+    }
+   ],
+   "step_audio": [
+    "audio/S012.step1.mp3",
+    "audio/S012.step2.mp3"
+   ]
+  },
+  {
+   "id": "S013",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 78,
+   "end_line": 79,
+   "highlight_lines": [
+    79
+   ],
+   "asset": "assets/code/lab48-output.png",
+   "audio": "audio/S013.mp3",
+   "steps": [
+    {
+     "narration": "The output prints the keys — one region dash tier pair per subnet created. Four keys: the matrix, made visible.",
+     "active_lines": [
+      79
+     ],
+     "active_tokens": [
+      "output \"subnet_keys\"",
+      "keys(azurerm_subnet.this)"
+     ]
+    }
+   ],
+   "step_audio": [
+    "audio/S013.step1.mp3"
+   ]
+  },
+  {
+   "id": "S014",
+   "type": "FOR_EACH_MAP",
+   "title": "flatten(): nested list → flat list → keyed map",
+   "expression": "flat = flatten(local.nested)",
+   "audio": "audio/S014.mp3",
+   "stages": [
+    {
+     "id": "nested",
+     "label": "The nested matrix",
+     "kind": "expression",
+     "items": [
+      {
+       "key": "n0",
+       "text": "for r in var.regions : [ for i, t in var.tiers : {...} ]"
+      },
+      {
+       "key": "n1",
+       "text": "list-of-lists — for_each refuses this"
+      }
+     ]
+    },
+    {
+     "id": "flat",
+     "label": "flatten() → one flat list",
+     "kind": "instances",
+     "items": [
+      {
+       "key": "f0",
+       "text": "{regionA, web, 172.20.0.0/26}"
+      },
+      {
+       "key": "f1",
+       "text": "{regionA, app, 172.20.0.64/26}"
+      },
+      {
+       "key": "f2",
+       "text": "{regionB, web, 172.21.0.0/26}"
+      },
+      {
+       "key": "f3",
+       "text": "{regionB, app, 172.21.0.64/26}"
+      }
+     ]
+    },
+    {
+     "id": "keys",
+     "label": "for_each map (compound keys)",
+     "kind": "addresses",
+     "items": [
+      {
+       "key": "k0",
+       "text": "\"regionA-web\" => {region, tier, cidr}"
+      },
+      {
+       "key": "k1",
+       "text": "\"regionA-app\" => {region, tier, cidr}"
+      },
+      {
+       "key": "k2",
+       "text": "\"regionB-web\" => {region, tier, cidr}"
+      },
+      {
+       "key": "k3",
+       "text": "\"regionB-app\" => {region, tier, cidr}"
+      }
+     ]
+    },
+    {
+     "id": "names",
+     "label": "Subnets created",
+     "kind": "output",
+     "items": [
+      {
+       "key": "s0",
+       "text": "snet-web in vnet-regionA"
+      },
+      {
+       "key": "s1",
+       "text": "snet-app in vnet-regionA"
+      },
+      {
+       "key": "s2",
+       "text": "snet-web in vnet-regionB"
+      },
+      {
+       "key": "s3",
+       "text": "snet-app in vnet-regionB"
+      }
+     ]
+    }
+   ],
+   "steps": [
+    {
+     "narration": "The nested for produces a list OF LISTS — one inner list per region. That shape is exactly what for_each refuses.",
+     "focus": {
+      "stages": [
+       "nested"
+      ]
+     }
+    },
+    {
+     "narration": "flatten removes the nesting: one flat list of four objects, each carrying region, tier and cidr.",
+     "focus": {
+      "stages": [
+       "flat"
+      ]
+     }
+    },
+    {
+     "narration": "A for expression turns the flat list into a map keyed region dash tier — unique keys, every combination addressable.",
+     "focus": {
+      "stages": [
+       "keys"
+      ]
+     }
+    },
+    {
+     "narration": "And for_each stamps out one subnet per key — four subnets, each in its own region's VNet. Three transforms between the variables and Azure.",
+     "focus": {
+      "stages": [
+       "names"
+      ]
+     }
+    }
+   ],
+   "step_audio": [
+    "audio/S014.step1.mp3",
+    "audio/S014.step2.mp3",
+    "audio/S014.step3.mp3",
+    "audio/S014.step4.mp3"
+   ]
+  },
+  {
+   "id": "S015",
+   "type": "DIAGRAM",
+   "caption": "How the pieces connect",
+   "asset": "assets/diagrams/lab48-resource-flow.svg",
+   "audio": "audio/S015.mp3",
+   "steps": [
+    {
+     "narration": "Here's how the pieces connect.",
+     "nodes": [],
+     "edges": []
+    },
+    {
+     "narration": "The two variables: regions and tiers — the axes of the matrix.",
+     "nodes": [
+      "vars"
+     ],
+     "edges": []
+    },
+    {
+     "narration:": "",
+     "narration": "Locals compute everything before any resource runs: region cidrs, the nested matrix, and its flattened form.",
+     "nodes": [
+      "locals"
+     ],
+     "edges": [
+      "vars-locals"
+     ]
+    },
+    {
+     "narration": "The resource group groups it all in Azure.",
+     "nodes": [
+      "rg"
+     ],
+     "edges": []
+    },
+    {
+     "narration": "One VNet per region — for_each over the set of regions, each with its own /20.",
+     "nodes": [
+      "vnets"
+     ],
+     "edges": [
+      "locals-vnets",
+      "rg-vnets"
+     ]
+    },
+    {
+     "narration": "One subnet per pair — for_each over the flattened map, each landing in its own region's VNet.",
+     "nodes": [
+      "subnets"
+     ],
+     "edges": [
+      "locals-subnets",
+      "vnets-subnets"
+     ]
+    },
+    {
+     "narration": "Everything lands inside your Azure subscription.",
+     "nodes": [],
+     "edges": []
+    }
+   ],
+   "step_audio": [
+    "audio/S015.step1.mp3",
+    "audio/S015.step2.mp3",
+    "audio/S015.step3.mp3",
+    "audio/S015.step4.mp3",
+    "audio/S015.step5.mp3",
+    "audio/S015.step6.mp3",
+    "audio/S015.step7.mp3"
+   ]
+  },
+  {
+   "id": "S016",
+   "type": "TERMINAL",
+   "asset": "assets/terminal/lab48-plan.svg",
+   "audio": "audio/S016.mp3",
+   "narration": "Here's the plan — terraform plan, an illustrative view. Seven to add: the resource group, TWO VNets keyed by region, and FOUR subnets keyed region dash tier — each with the /26 its cidrsubnet computed. Look at the addresses: two per region, carved in order."
+  },
+  {
+   "id": "S017",
+   "type": "TERMINAL",
+   "asset": "assets/terminal/lab48-output.svg",
+   "audio": "audio/S017.mp3",
+   "narration": "And the output — terraform output subnet keys, an illustrative view. Four keys: region A web, region A app, region B web, region B app. Add a third region to the variable, re-apply, and only the two NEW pairs are created — nothing else moves."
+  },
+  {
+   "id": "S018",
+   "type": "CONCEPT",
+   "heading": "Common pitfall",
+   "numbered": true,
+   "audio": "audio/S018.mp3",
+   "points": [
+    "for_each accepts only flat sets/maps — nested lists MUST be flattened first",
+    "Map keys must be unique — the \"region-tier\" compound key is what makes pairs addressable",
+    "Adding an axis entry creates ONLY the missing pairs — nothing else is touched"
+   ],
+   "narration": "Three pitfalls. One: flatten isn't optional decoration — for_each rejects a list of lists outright, and the error message won't say flatten; you have to know the shape rule. Two: keys must be unique — if you key by tier alone, region A web and region B web collide; the compound region dash tier key is what makes each pair distinct. Three: the flip side of the matrix — growing it is additive. Add a region or tier and only the missing combinations are planned; existing subnets keep their addresses because their keys didn't change."
+  },
+  {
+   "id": "S019",
+   "type": "RECAP",
+   "numbered": true,
+   "audio": "audio/S019.mp3",
+   "points": [
+    "Nested for expression → list-of-lists of {region, tier, cidr}",
+    "flatten() collapses the nesting — the shape for_each demands",
+    "for_each over a map keyed \"${region}-${tier}\" — every pair addressable",
+    "cidrsubnet(base, 6, i) carves each tier's /26 from the region's /20",
+    "azurerm_virtual_network.this[each.value.region] — keyed cross-reference"
+   ],
+   "narration": "Quick recap — five things. One: a nested for expression built the matrix — a list of lists of region, tier, cidr. Two: flatten collapsed it into the one flat list for_each demands. Three: a for expression keyed it region dash tier, so every combination is addressable in state. Four: cidrsubnet carved each tier's /26 out of its region's /20. Five: the VNet reference is keyed by region — subnets land in their own VNet. Two variables, four subnets, zero repetition."
+  },
+  {
+   "id": "S020",
+   "type": "NEXT",
+   "audio": "audio/S020.mp3",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+  },
+  {
+   "id": "S021",
+   "type": "CONCEPT",
+   "heading": "Thanks for watching",
+   "centered": true,
+   "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-02-meta-arguments/48-flatten-matrix",
+   "audio": "audio/S021.mp3",
+   "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+  }
+ ]
+}

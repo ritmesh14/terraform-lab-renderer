@@ -1,0 +1,81 @@
+{
+  "layers": [
+    [
+      "var",
+      "random",
+      "locals",
+      "rg",
+      "st",
+      "containers",
+      "out"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": "var",
+      "label": "variable: container_count = 3"
+    },
+    {
+      "id": "random",
+      "label": "random_string.suffix"
+    },
+    {
+      "id": "locals",
+      "label": "locals: names"
+    },
+    {
+      "id": "rg",
+      "label": "rg-multi-containers"
+    },
+    {
+      "id": "st",
+      "label": "stcont<suffix>"
+    },
+    {
+      "id": "containers",
+      "label": "containers ×N (count)"
+    },
+    {
+      "id": "out",
+      "label": "output: container_names"
+    }
+  ],
+  "edges": [
+    {
+      "id": "var-containers",
+      "from": "var",
+      "to": "containers",
+      "label": "count = var"
+    },
+    {
+      "id": "random-locals",
+      "from": "random",
+      "to": "locals",
+      "label": "suffix"
+    },
+    {
+      "id": "locals-st",
+      "from": "locals",
+      "to": "st",
+      "label": "name"
+    },
+    {
+      "id": "rg-st",
+      "from": "rg",
+      "to": "st",
+      "label": "reference"
+    },
+    {
+      "id": "st-containers",
+      "from": "st",
+      "to": "containers",
+      "label": "fan-out"
+    },
+    {
+      "id": "containers-out",
+      "from": "containers",
+      "to": "out",
+      "label": "length + splat [*]"
+    }
+  ]
+}

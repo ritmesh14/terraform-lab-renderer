@@ -1,0 +1,464 @@
+{
+  "title": "A Server Without SSH: cloud-init + custom_data",
+  "lesson_label": "Terraform Meta-arguments — Lab 40",
+  "scenes": [
+    {
+      "id": "S001",
+      "type": "TITLE",
+      "title": "A Server Without SSH: cloud-init + custom_data",
+      "lesson_label": "Terraform Meta-arguments — Lab 40",
+      "audio": "audio/S001.mp3",
+      "narration": "Welcome back. This is Lab 40, and it builds something you can actually open in a browser: a web server. No provisioner, no SSH session from Terraform — instead, cloud-init runs at first boot and installs nginx. A heredoc holds the script, base64encode feeds it to the VM, and a public IP plus an NSG rule make it reachable. Let's build it."
+    },
+    {
+      "id": "S002",
+      "type": "CONCEPT",
+      "heading": "What you'll learn",
+      "numbered": true,
+      "audio": "audio/S002.mp3",
+      "points": [
+        "A heredoc (<<-EOT) holds cloud-init YAML in locals",
+        "custom_data = base64encode(...) — script delivery at first boot",
+        "Public IP inside ip_configuration + an NSG rule for HTTP"
+      ],
+      "narration": "Three things in this lesson. One: the heredoc — a multi-line string written right into locals, holding cloud-init YAML. Two: custom data — the VM argument that carries the script, which must be base64-encoded, and which runs once at first boot. Three: the network path — a public IP attached inside the NIC's ip configuration, and an NSG rule opening port 80."
+    },
+    {
+      "id": "S003",
+      "type": "CONCEPT",
+      "heading": "Where this lab fits",
+      "audio": "audio/S003.mp3",
+      "points": [
+        "Labs 35–37: VMs with private IPs only",
+        "This lab: first internet-reachable VM — and first cloud-init",
+        "Provisioners come later (lab 45) — cloud-init first, on purpose"
+      ],
+      "narration": "Placement. Every VM so far — labs 35 through 37 — had a private IP and no way in. This lab builds the first internet-reachable server: public IP on the NIC, HTTP open. And it deliberately uses cloud-init BEFORE the course shows provisioners, in lab 45: cloud-init is the Terraform-native way to configure a VM at first boot — idempotent, no SSH dependency, and it belongs in your toolbox first."
+    },
+    {
+      "id": "S004",
+      "type": "CONCEPT",
+      "heading": "Where to find this lab",
+      "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-02-meta-arguments\n          └── 40-web-server\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-02-meta-arguments/40-web-server",
+      "audio": "audio/S004.mp3",
+      "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 40-web-server. The direct link is in the video description. Main dot T F holds everything; terraform dot T F pins the providers."
+    },
+    {
+      "id": "S005",
+      "type": "CODE",
+      "source_file": "terraform.tf",
+      "start_line": 1,
+      "end_line": 19,
+      "highlight_lines": [
+        6,
+        8,
+        10,
+        17,
+        18
+      ],
+      "asset": "assets/code/lab40-providers.png",
+      "audio": "audio/S005.mp3",
+      "narration": "Terraform dot T F pins the tooling: Terraform 1.5 or newer, and the azurerm provider around version 3.70 — no extra providers this time. The provider block at the bottom bridges to Azure; the empty features block enables the provider's defaults. Every interesting line lives in main dot T F."
+    },
+    {
+      "id": "S006",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 10,
+      "end_line": 13,
+      "highlight_lines": [
+        12
+      ],
+      "asset": "assets/code/lab40-variable.png",
+      "audio": "audio/S006.mp3",
+      "steps": [
+        {
+          "narration": "The familiar sensitive SSH key variable — required, no default. Even a server you'll reach by browser still needs key-based admin access.",
+          "active_lines": [
+            10,
+            11,
+            12,
+            13
+          ],
+          "active_tokens": [
+            "admin_ssh_key",
+            "sensitive = true"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S006.step1.mp3"
+      ]
+    },
+    {
+      "id": "S007",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 15,
+      "end_line": 26,
+      "highlight_lines": [
+        17,
+        20,
+        24
+      ],
+      "asset": "assets/code/lab40-cloudinit.png",
+      "audio": "audio/S007.mp3",
+      "steps": [
+        {
+          "narration": "The star of the setup: a heredoc. cloud init equals, then <<-EOT, the YAML lines, and EOT to close. The double dash in EOT means indentation is stripped — the YAML can sit neatly indented inside the locals block and still arrive clean.",
+          "active_lines": [
+            16,
+            17
+          ],
+          "active_tokens": [
+            "cloud_init = <<-EOT"
+          ]
+        },
+        {
+          "narration": "The content is cloud-init YAML — it must start with the hash cloud-config marker. First directive: package update true, then packages: nginx. Cloud-init installs the web server before anything else runs.",
+          "active_lines": [
+            18,
+            19,
+            20,
+            21
+          ],
+          "active_tokens": [
+            "#cloud-config",
+            "packages:",
+            "nginx"
+          ]
+        },
+        {
+          "narration": "Then runcmd — commands to run after boot: enable and start nginx, and write the homepage — an h1 line into var www html index dot html. That echo is the page you'll see in the browser later.",
+          "active_lines": [
+            22,
+            23,
+            24,
+            25
+          ],
+          "active_tokens": [
+            "runcmd:",
+            "systemctl enable --now nginx",
+            "/var/www/html/index.html"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S007.step1.mp3",
+        "audio/S007.step2.mp3",
+        "audio/S007.step3.mp3"
+      ]
+    },
+    {
+      "id": "S008",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 29,
+      "end_line": 48,
+      "highlight_lines": [
+        39,
+        47
+      ],
+      "asset": "assets/code/lab40-network.png",
+      "audio": "audio/S008.mp3",
+      "steps": [
+        {
+          "narration": "The network base: resource group rg dash webserver, VNet on 10.220 slash 16, subnet snet web. Standard shape — the differences come next.",
+          "active_lines": [
+            39,
+            44,
+            47
+          ],
+          "active_tokens": [
+            "10.220.0.0/16",
+            "snet-web"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S008.step1.mp3"
+      ]
+    },
+    {
+      "id": "S009",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 51,
+      "end_line": 66,
+      "highlight_lines": [
+        56,
+        62
+      ],
+      "asset": "assets/code/lab40-nsg.png",
+      "audio": "audio/S009.mp3",
+      "steps": [
+        {
+          "narration": "The NSG with one rule: allow HTTP. Name allow dash HTTP, priority 200, inbound, allow, TCP — and the destination port range 80. Nothing exotic — the classic web-server opening.",
+          "active_lines": [
+            55,
+            56,
+            57,
+            58,
+            59,
+            60,
+            61,
+            62
+          ],
+          "active_tokens": [
+            "Allow-HTTP",
+            "destination_port_range"
+          ]
+        },
+        {
+          "narration": "But notice the README's honest note: this NSG is created and left UNASSOCIATED — no subnet or NIC references it in this lab. With no NSG attached, Azure applies no filtering at all, so the site works; attaching the NSG — making the rule load-bearing — is a later lab's job. This one is scaffolding you'll wire up soon.",
+          "active_lines": [
+            51,
+            52
+          ],
+          "active_tokens": [
+            "azurerm_network_security_group"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S009.step1.mp3",
+        "audio/S009.step2.mp3"
+      ]
+    },
+    {
+      "id": "S010",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 70,
+      "end_line": 89,
+      "highlight_lines": [
+        74,
+        87
+      ],
+      "asset": "assets/code/lab40-pip-nic.png",
+      "audio": "audio/S010.mp3",
+      "steps": [
+        {
+          "narration": "The public IP: static allocation on the standard SKU, so the address survives restarts and redeploys. Named pip dash webserver.",
+          "active_lines": [
+            70,
+            71,
+            74,
+            75
+          ],
+          "active_tokens": [
+            "azurerm_public_ip",
+            "allocation_method"
+          ]
+        },
+        {
+          "narration": "And the NIC's ip configuration is where it attaches — public ip address id equals azurerm public ip dot web dot id. A public IP never attaches to a VM directly; it rides on the NIC's ip configuration. That's the line people forget.",
+          "active_lines": [
+            83,
+            84,
+            85,
+            86,
+            87,
+            88
+          ],
+          "active_tokens": [
+            "ip_configuration {",
+            "public_ip_address_id"
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S010.step1.mp3",
+        "audio/S010.step2.mp3"
+      ]
+    },
+    {
+      "id": "S011",
+      "type": "CODE",
+      "source_file": "main.tf",
+      "start_line": 92,
+      "end_line": 118,
+      "highlight_lines": [
+        99,
+        100,
+        118
+      ],
+      "asset": "assets/code/lab40-vm.png",
+      "audio": "audio/S011.mp3",
+      "steps": [
+        {
+          "narration": "The VM block — the lab-35 anatomy again: SSH key, os disk, source image. One line is new, and it's the point of the lab: custom data equals base64encode of local dot cloud init.",
+          "active_lines": [
+            92,
+            99
+          ],
+          "active_tokens": [
+            "custom_data",
+            "base64encode(local.cloud_init)"
+          ]
+        },
+        {
+          "narration": "custom data MUST be base64-encoded — Azure takes the encoded blob and decodes it at first boot, feeding it to cloud-init. And once: custom data runs on FIRST boot only. Re-apply with an edited script and an existing VM does nothing new — changing custom data forces a replacement.",
+          "active_lines": [
+            92,
+            99
+          ],
+          "active_tokens": [
+            "base64encode"
+          ]
+        },
+        {
+          "narration": "The final line outputs the public IP — unknown until apply completes. Open http slash slash that IP, and nginx's page — written by cloud-init — is waiting.",
+          "active_lines": [
+            118
+          ],
+          "active_tokens": [
+            "output \"public_ip\""
+          ]
+        }
+      ],
+      "step_audio": [
+        "audio/S011.step1.mp3",
+        "audio/S011.step2.mp3",
+        "audio/S011.step3.mp3"
+      ]
+    },
+    {
+      "id": "S012",
+      "type": "DIAGRAM",
+      "caption": "How the pieces connect",
+      "asset": "assets/diagrams/lab40-resource-flow.svg",
+      "audio": "audio/S012.mp3",
+      "steps": [
+        {
+          "narration": "Here's how the pieces connect.",
+          "nodes": [],
+          "edges": []
+        },
+        {
+          "narration": "The inputs: sensitive SSH key, and the cloud-init heredoc in locals.",
+          "nodes": [
+            "locals"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The resource group groups everything in Azure.",
+          "nodes": [
+            "rg"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The VNet and subnet at 10.220.1.0 slash 24.",
+          "nodes": [
+            "vnet"
+          ],
+          "edges": [
+            "rg-vnet"
+          ]
+        },
+        {
+          "narration": "The NSG with the Allow-HTTP rule — created but unassociated in this lab.",
+          "nodes": [
+            "nsg"
+          ],
+          "edges": []
+        },
+        {
+          "narration": "The public IP — static, standard — attaches inside the NIC's ip configuration.",
+          "nodes": [
+            "pip",
+            "nic"
+          ],
+          "edges": [
+            "rg-pip",
+            "pip-nic",
+            "vnet-nic"
+          ]
+        },
+        {
+          "narration": "The VM: NIC attached, and custom_data = base64encode of the heredoc — nginx installs at first boot.",
+          "nodes": [
+            "vm"
+          ],
+          "edges": [
+            "nic-vm",
+            "locals-vm"
+          ]
+        },
+        {
+          "narration": "Everything lands inside your Azure subscription.",
+          "nodes": [],
+          "edges": []
+        }
+      ],
+      "step_audio": [
+        "audio/S012.step1.mp3",
+        "audio/S012.step2.mp3",
+        "audio/S012.step3.mp3",
+        "audio/S012.step4.mp3",
+        "audio/S012.step5.mp3",
+        "audio/S012.step6.mp3",
+        "audio/S012.step7.mp3",
+        "audio/S012.step8.mp3"
+      ]
+    },
+    {
+      "id": "S013",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab40-plan.svg",
+      "audio": "audio/S013.mp3",
+      "narration": "Here's the plan — terraform plan, an illustrative view. Resource group, VNet, subnet, NSG, public IP, NIC, and the VM — seven to add, zero to destroy. The VM shows the sensitive SSH key redacted; the cloud-init script rides inside custom data, encoded."
+    },
+    {
+      "id": "S014",
+      "type": "TERMINAL",
+      "asset": "assets/terminal/lab40-output.svg",
+      "audio": "audio/S014.mp3",
+      "narration": "And after apply — terraform output public ip, an illustrative view. Azure assigned the address at apply time; the splat-free single value comes straight from the public IP resource. Point a browser at it and the cloud-init page loads."
+    },
+    {
+      "id": "S015",
+      "type": "CONCEPT",
+      "heading": "Common pitfall",
+      "numbered": true,
+      "audio": "audio/S015.mp3",
+      "points": [
+        "custom_data runs ONCE at first boot — edits force a VM replacement",
+        "custom_data must be base64encode()d — raw YAML is rejected",
+        "The NSG is unassociated here — no filtering until it's attached"
+      ],
+      "narration": "Three pitfalls. One: custom data runs once, at first boot. Edit the heredoc and re-apply, and Terraform doesn't rerun anything — it flags the VM for replacement, because custom data changed. Treat the script as part of the machine's identity. Two: the base64 encoding is mandatory — pass raw YAML and Azure rejects or ignores it; the encode call is not optional styling. Three: the unassociated NSG — it exists, its rule says allow HTTP, but nothing references it, so no filtering happens at all. When a later lab attaches it, the rule becomes load-bearing — expect traffic behavior to change the moment it's wired up."
+    },
+    {
+      "id": "S016",
+      "type": "RECAP",
+      "numbered": true,
+      "audio": "audio/S016.mp3",
+      "points": [
+        "<<-EOT heredoc — multi-line cloud-init YAML inside locals",
+        "custom_data = base64encode(local.cloud_init) — mandatory encoding",
+        "cloud-init runs once at first boot — package_update + nginx + runcmd",
+        "public_ip_address_id lives in the NIC's ip_configuration",
+        "The NSG Allow-HTTP rule is created but unassociated (later lab)"
+      ],
+      "narration": "Quick recap — five things. One: the heredoc holds multi-line cloud-init YAML right in locals, indentation stripped by the double-dash EOT. Two: custom data takes base64encode of that heredoc — the encoding is mandatory. Three: cloud-init runs at first boot — updates packages, installs nginx, writes the homepage. Four: the public IP attaches inside the NIC's ip configuration — never to the VM directly. Five: the NSG rule exists but is deliberately unassociated in this lab. No SSH, no provisioner — a server configured by its own first boot."
+    },
+    {
+      "id": "S017",
+      "type": "NEXT",
+      "audio": "audio/S017.mp3",
+      "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+    },
+    {
+      "id": "S018",
+      "type": "CONCEPT",
+      "heading": "Thanks for watching",
+      "centered": true,
+      "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-02-meta-arguments/40-web-server",
+      "audio": "audio/S018.mp3",
+      "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+    }
+  ]
+}

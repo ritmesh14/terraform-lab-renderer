@@ -1,0 +1,72 @@
+{
+  "layers": [
+    [
+      "flag",
+      "rg",
+      "vnet",
+      "subnet"
+    ],
+    [
+      "nsg",
+      "assoc"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": "flag",
+      "label": "var.deploy_nsg (bool, default true)"
+    },
+    {
+      "id": "rg",
+      "label": "rg-conditional"
+    },
+    {
+      "id": "vnet",
+      "label": "vnet-conditional (172.19.0.0/20)"
+    },
+    {
+      "id": "subnet",
+      "label": "snet-web (172.19.0.0/26)"
+    },
+    {
+      "id": "nsg",
+      "label": "nsg-conditional (count = flag ? 1 : 0)"
+    },
+    {
+      "id": "assoc",
+      "label": "subnet NSG association (same flag)"
+    }
+  ],
+  "edges": [
+    {
+      "id": "flag-nsg",
+      "from": "flag",
+      "to": "nsg",
+      "label": "count = ? 1 : 0"
+    },
+    {
+      "id": "rg-vnet",
+      "from": "rg",
+      "to": "vnet",
+      "label": "reference"
+    },
+    {
+      "id": "vnet-subnet",
+      "from": "vnet",
+      "to": "subnet",
+      "label": "subnet"
+    },
+    {
+      "id": "subnet-assoc",
+      "from": "subnet",
+      "to": "assoc",
+      "label": "subnet_id"
+    },
+    {
+      "id": "nsg-assoc",
+      "from": "nsg",
+      "to": "assoc",
+      "label": "web[0].id"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+ "episode": "25-cidrsubnet-for",
+ "source": "writing/scenes.json",
+ "scenes": [
+  {
+   "id": "S001",
+   "narration": "Twenty labs in, every subnet's address range was typed by hand. This lesson stops typing them. One base range, four tier names, and two functions — cidrsubnet and cidrhost — compute every subnet address and its first host automatically."
+  },
+  {
+   "id": "S002",
+   "narration": "Here's what you'll learn. One: cidrsubnet — carve a subnet from a base range, using a prefix, new bits, and an index. Two: new bits add to the prefix — slash twenty plus six new bits gives slash twenty-six. Three: the index picks which slice — zero, one, two, three. Four: a for-expression that builds the whole subnet set from a name list."
+  },
+  {
+   "id": "S003",
+   "narration": "This is lab twenty-five, and it closes a gap we've carried the whole section: every subnet so far had its address typed by hand — ten one forty dot one slash twenty-four, and friends. Hand-typed addresses don't scale and they invite typos. Today the addresses come from arithmetic."
+  },
+  {
+   "id": "S004",
+   "narration": "The mental model: addresses as arithmetic. Cidrsubnet takes a prefix, a number of new bits, and an index. Six new bits on a slash twenty gives slash twenty-six — sixty-four addresses per slice — and the index picks which slice you get. Cidrhost then walks inside a slice: host one is the first usable address. Together they replace every hand-typed subnet address in this course so far."
+  },
+  {
+   "id": "S005",
+   "narration": "The lab is in the course GitHub repository under Section 1, Foundations, link in the description. Readme and main dot t f — the entire lesson lives in the locals block."
+  },
+  {
+   "id": "S006",
+   "narration": "The whole computation. Base: one seventy-two dot eighteen dot zero slash twenty. Tiers: web, app, data, mgmt. The for-expression walks the list with an index, and for each name computes the C I D R — cidrsubnet of the base, six new bits, index i — and the first host, cidrhost of that same subnet, host one. Four subnets, zero typed addresses."
+  },
+  {
+   "id": "S007",
+   "narration": "The foundation: resource group, and the VNet whose address space is the base itself. Every subnet the loop produces will be carved out of exactly this range — the VNet is the canvas, cidrsubnet is the ruler."
+  },
+  {
+   "id": "S008",
+   "narration": "The payoff. One subnet resource — with for each. The map is built from the computed list, keyed by name. Each instance takes its name from the key and its address from the value. Four real subnets from a single resource block — and the output prints the whole map: name, C I D R, first host."
+  },
+  {
+   "id": "S009",
+   "narration": "The arithmetic, drawn out: one base range, slash twenty. Cidrsubnet adds six bits — slash twenty-six — and the index picks the slice: web at dot zero, app at dot sixty-four, data at dot one twenty-eight, mgmt at dot one ninety-two. Four subnets, computed, not typed."
+  },
+  {
+   "id": "S010",
+   "narration": "Apply time — six resources, and look at the subnet lines: one resource, four instances, each with its computed address. The output then shows the arithmetic paying off: web at dot zero slash twenty-six, app at dot sixty-four, data at dot one twenty-eight, mgmt at dot one ninety-two — and each slice's first host. Change the tier list, and the subnets recompute themselves."
+  },
+  {
+   "id": "S011",
+   "narration": "Here are the pitfalls in this lab. One: new bits plus the base prefix must stay at most thirty two — and leave room for Azure's reserves. The math has to fit inside the address space, with slack for what Azure takes. Two: a netnum beyond the available slices is a plan-time error. The index can't point at a slice the base doesn't contain. Three: Azure reserves five addresses per subnet — a slash twenty six really holds fifty nine usable. Sixty-four addresses per slice, minus the five Azure keeps for itself. Four: changing new bits or the index rewrites existing subnet addresses. On live networks, that's a destructive change — check the size before you commit to it."
+  },
+  {
+   "id": "S012",
+   "narration": "Quick recap — five things. One: cidrsubnet derives subnet addresses from a base, new bits, and an index. Two: slash twenty plus six new bits gives slash twenty six slices — the index selects the slice. Three: cidrhost finds the nth host inside a slice — dot one is the first usable. Four: one subnet resource plus for each gives n subnets from computed values. Five: derived addresses scale — hand-typed addresses don't."
+  },
+  {
+   "id": "S013",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+  },
+  {
+   "id": "S014",
+   "narration": "Thanks for watching. If this helped, the full lab, along with every lab in this course, is in the GitHub repository linked below. If you'd like more lessons like this one, give the video a like, share it with a friend who is learning Azure, and subscribe to the channel. It really helps the course grow. Thank you, and see you in the next lesson."
+  }
+ ]
+}

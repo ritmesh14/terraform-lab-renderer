@@ -1,0 +1,11 @@
+{
+  "resolution": { "width": 1920, "height": 1080 },
+  "fps": 30,
+  "background": "#0B1120",
+  "azure": { "primary": "#0078D4", "secondary": "#50E6FF" },
+  "terraform": { "primary": "#844FBA" },
+  "code": { "font": "JetBrains Mono", "fontSize": 36, "lineHeight": 1.5 },
+  "body": { "font": "Inter" },
+  "terminal": { "font": "JetBrains Mono", "fontSize": 34 },
+  "style_notes": "Dark technical background, clean Azure-inspired UI, large readable code, minimal clutter, smooth subtle transitions, high contrast. Stillness is sometimes better — important code stays visible long enough to read."
+}

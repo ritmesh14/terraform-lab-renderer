@@ -1,0 +1,236 @@
+{
+ "title": "Maps and for_each",
+ "lesson_label": "Azure Foundations — Lab 10",
+ "scenes": [
+  {
+   "id": "S001",
+   "type": "TITLE",
+   "title": "Maps and for_each",
+   "lesson_label": "Azure Foundations — Lab 10",
+   "narration": "Last lesson repeated blocks from a list. But lists address by position, and infrastructure usually addresses by role: web, app, data. In this lesson we meet the map, and the for each meta argument, the idiomatic way to create one resource per entry.",
+   "audio": "audio/S001.mp3"
+  },
+  {
+   "id": "S002",
+   "type": "CONCEPT",
+   "heading": "What you'll learn",
+   "points": [
+    "The map type: meaningful keys, each holding a value or object",
+    "for_each over a map: one resource per key",
+    "each.key and each.value inside the resource block",
+    "Why maps beat lists when entries have identity"
+   ],
+   "narration": "Here's what you'll learn. One: the map type — meaningful keys, each holding a value or an object. Two: for each over a map — one resource per key. Three: each dot key and each dot value inside the resource block. Four: why maps beat lists when entries have identity.",
+   "audio": "audio/S002.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S003",
+   "type": "CONCEPT",
+   "heading": "Where this lab fits",
+   "points": [
+    "Lab 10 of the Foundations section",
+    "Lab 9's list becomes a map — entries now have names",
+    "Subnets become separate resources with for_each (vs inline in Lab 6)"
+   ],
+   "narration": "This is lab ten, the last of the collection-type pair. In lab nine, a list generated subnets by position. Here a map generates them by role: web, app, and data. And notice the shape: each subnet is now its own standalone resource, not an inline block. That's the flexible version lab six promised was coming.",
+   "audio": "audio/S003.mp3"
+  },
+  {
+   "id": "S004",
+   "type": "CONCEPT",
+   "heading": "Lists vs maps: position vs identity",
+   "points": [
+    "List: \"give me the 2nd one\" — index-addressed, entries interchangeable",
+    "Map: \"give me web\" — key-addressed, entries have meaning",
+    "for_each on a map: remove a key → that resource is destroyed, others untouched",
+    "The map key is how Terraform tracks each instance in state"
+   ],
+   "narration": "The rule for choosing between last lesson and this one is simple. If you address entries by position, use a list. If you address them by role or name, use a map. The reason it matters is state: for each over a map creates one tracked instance per key. Delete the app key from the map, and Terraform destroys exactly the app subnet, leaving web and data alone. That kind of surgical change is what makes maps the professional default for repeated resources.",
+   "audio": "audio/S004.mp3"
+  },
+  {
+   "id": "S005",
+   "type": "CONCEPT",
+   "heading": "Where to find this lab",
+   "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-01-foundations\n          └── 10-types-map\n              ├── README.md\n              ├── main.tf\n              └── terraform.tf\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-01-foundations/10-types-map",
+   "narration": "As always, the lab is in the course GitHub repository under Section 1, Foundations, with the link in the description. Main dot T F and terraform dot T F, same split layout as the last two labs.",
+   "audio": "audio/S005.mp3"
+  },
+  {
+   "id": "S006",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 17,
+   "end_line": 28,
+   "highlight_lines": [
+    23,
+    24,
+    25,
+    26
+   ],
+   "asset": "assets/code/lab10-01-map.png",
+   "narration": "First the data, and it's a different shape this time. Subnets is a map: three keys, web, app, and data, and each value is an object with a prefix and an N S G flag. Compare this to last lab's list: there, position told you what a subnet was. Here, the key does. You'll see how much that buys us in a moment.",
+   "audio": "audio/S006.mp3"
+  },
+  {
+   "id": "S007",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 30,
+   "end_line": 43,
+   "highlight_lines": [
+    32,
+    38,
+    42
+   ],
+   "asset": "assets/code/lab10-02-rg-vnet.png",
+   "narration": "The resource group and virtual network are the familiar opening pair, same reference chains as the last several labs. One network, ten sixty dot zero dot zero slash sixteen, ready to hold three subnets. Nothing new here, so let's get to the main event.",
+   "audio": "audio/S007.mp3"
+  },
+  {
+   "id": "S008",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 45,
+   "end_line": 55,
+   "highlight_lines": [
+    49,
+    50,
+    51,
+    54
+   ],
+   "asset": "assets/code/lab10-03-for-each.png",
+   "narration": "This is the lesson: one subnet resource, no list, no dynamic block. For each equals the map, and Terraform creates one instance per key. Inside the block, each dot key is the role name, web, app, or data, and it builds the subnet name: snet dash web. Each dot value is that key's object, and the address prefixes line pulls its prefix. Three map entries, three real resources, one resource block.",
+   "audio": "audio/S008.mp3"
+  },
+  {
+   "id": "S009",
+   "type": "DIAGRAM",
+   "caption": "One resource block, three instances — one per key",
+   "asset": "assets/diagrams/lab10-map-to-subnets.svg",
+   "narration": "Here's what for each actually built. The map has three entries, so the single azurerm subnet resource becomes three instances: snet web, snet app, and snet data, each tracked in state under its key. Change the web entry's prefix, and only web is touched. Delete the data key, and only data is destroyed. Identity, not position.",
+   "audio": "audio/S009.mp3",
+   "steps": [
+    {
+     "narration": "Here's what for each actually built.",
+     "nodes": [],
+     "edges": []
+    },
+    {
+     "narration": "The map has three entries, so the single azurerm subnet resource becomes three instances: snet web, snet app, and snet data, each tracked in state under its key.",
+     "nodes": [
+      "map",
+      "fe",
+      "web",
+      "app",
+      "data"
+     ],
+     "edges": [
+      "map-fe",
+      "fe-web",
+      "fe-app",
+      "fe-data"
+     ]
+    },
+    {
+     "narration": "Change the web entry's prefix, and only web is touched.",
+     "nodes": [
+      "web"
+     ],
+     "edges": [
+      "fe-web"
+     ]
+    },
+    {
+     "narration": "Delete the data key, and only data is destroyed.",
+     "nodes": [
+      "data"
+     ],
+     "edges": [
+      "fe-data"
+     ]
+    },
+    {
+     "narration": "Identity, not position.",
+     "nodes": [
+      "map",
+      "fe",
+      "web",
+      "app",
+      "data"
+     ],
+     "edges": [
+      "map-fe",
+      "fe-web",
+      "fe-app",
+      "fe-data"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "S010",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 57,
+   "end_line": 60,
+   "highlight_lines": [
+    59
+   ],
+   "asset": "assets/code/lab10-04-output.png",
+   "narration": "The output closes with a for expression over the created resources. K is the key, S is each instance, and the result is a map from role to subnet I D. After apply you can hand any downstream module the data subnet's I D by asking for it by name.",
+   "audio": "audio/S010.mp3"
+  },
+  {
+   "id": "S011",
+   "type": "TERMINAL",
+   "asset": "assets/terminal/lab10-apply.svg",
+   "narration": "Apply time, and the plan tells the story: three separate subnet resources, each with its own address, created from one block. The output maps every role to its I D. That's for each doing in resources what for expressions did in data.",
+   "audio": "audio/S011.mp3"
+  },
+  {
+   "id": "S012",
+   "type": "CONCEPT",
+   "heading": "Common pitfall — lists where identity matters",
+   "points": [
+    "A list-based for_each re-indexes on removal: entries shift, state churns",
+    "Remove \"web\" from a list → every later subnet's address changes",
+    "Remove \"web\" from a map → only web is destroyed",
+    "The unused nsg flag is deliberate — Lab 11 turns this map into a variable"
+   ],
+   "narration": "Here are the pitfalls in this lab. One: a list-based for each re-indexes on removal — entries shift, and state churns. If you remove the first entry of a list, every following entry slides down an index. Two: remove web from a list, and every later subnet's address changes. Terraform thinks every subnet changed, even though nothing real did. Three: remove web from a map, and only web is destroyed. Map keys are stable names, so state follows the role, not the position. Four: the unused n s g flag is deliberate — lab eleven turns this map into a variable. The shape is already production-ready for it.",
+   "audio": "audio/S012.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S013",
+   "type": "RECAP",
+   "points": [
+    "Maps are key-addressed: web, app, data — role, not position",
+    "for_each = map creates one resource instance per key",
+    "each.key names the instance; each.value carries its object",
+    "Instance identity in state = the map key (surgical changes)",
+    "Prefer maps over lists whenever entries have identity"
+   ],
+   "narration": "Quick recap — five things. One: maps are key-addressed — web, app, data — by role, not position. Two: for each over a map creates one resource instance per key. Three: each dot key names the instance; each dot value carries its object. Four: instance identity in state is the map key — changes stay surgical. Five: prefer maps over lists whenever entries have identity.",
+   "audio": "audio/S013.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S014",
+   "type": "NEXT",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure.",
+   "audio": "audio/S014.mp3"
+  },
+  {
+   "id": "S015",
+   "type": "CONCEPT",
+   "heading": "Thanks for watching",
+   "narration": "Thanks for watching. If this helped, the full lab, along with every lab in this course, is in the GitHub repository linked below. If you'd like more lessons like this one, give the video a like, share it with a friend who is learning Azure, and subscribe to the channel. It really helps the course grow. Thank you, and see you in the next lesson.",
+   "audio": "audio/S015.mp3",
+   "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-01-foundations/10-types-map",
+   "centered": true
+  }
+ ]
+}

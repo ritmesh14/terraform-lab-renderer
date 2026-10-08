@@ -1,0 +1,4 @@
+terraform output
+
+vm_name = "vm-structured"
+vm_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-linux-structure/providers/Microsoft.Compute/virtualMachines/vm-structured"

@@ -1,0 +1,62 @@
+{
+ "episode": "19-variable-definition-file",
+ "source": "writing/scenes.json",
+ "scenes": [
+  {
+   "id": "S001",
+   "narration": "Lab 18's variables all had defaults. But production configurations usually refuse to guess: variables declared with no default must be supplied — and the standard supplier is a file. This lesson is terraform dot t f vars, the definition file Terraform loads automatically."
+  },
+  {
+   "id": "S002",
+   "narration": "Here's what you'll learn. One: variables without defaults are required — Terraform prompts, or errors. Two: t f vars is auto-loaded by name on every plan and apply. Three: var dash file selects alternate files — prod, staging. Four: one declaration, many value files — environments without copies."
+  },
+  {
+   "id": "S003",
+   "narration": "This is lab nineteen. Last lesson made the inputs strict — validation rejecting bad values. Today's question: where do good values come from? Terraform's answer is a file it loads by convention, plus a flag for everything else."
+  },
+  {
+   "id": "S004",
+   "narration": "The convention is the feature. Name the file terraform dot t f vars, and Terraform loads it on every plan and apply — no flags, no scripts. Any file ending in dot auto dot t f vars loads too. Need a different environment? Keep a prod t f vars and pass var dash file. And if a required variable has no value anywhere, Terraform stops and asks. The declaration stays in code; the values stay in data."
+  },
+  {
+   "id": "S005",
+   "narration": "As always, the lab is in the course GitHub repository under Section 1, Foundations, with the link in the description. Main dot t f declares three variables with no defaults — and terraform dot t f vars is where the values live."
+  },
+  {
+   "id": "S006",
+   "narration": "Three variables, and notice what's missing: no type keyword beyond the bare minimum, and no defaults anywhere. Location, name prefix, tier — declared and required. Terraform will not invent values for these. The configuration refuses to run until someone supplies them."
+  },
+  {
+   "id": "S007",
+   "narration": "The consumption is familiar from lab eighteen: the storage account's name assembles the prefix with a random suffix, and the tier flows straight from the variable. The only difference is upstream — nothing here has a fallback. Every value in this block came from outside."
+  },
+  {
+   "id": "S008",
+   "narration": "And here's the outside: terraform dot t f vars. Three assignments — one per variable, matching names exactly. No flags needed: Terraform loads this file by name, automatically, on every run. Rename it and it stops loading — the name is the contract."
+  },
+  {
+   "id": "S009",
+   "narration": "The data flow, drawn out: the definition file is picked up by name, its values land in the required variables, and the resources consume them — no defaults involved anywhere."
+  },
+  {
+   "id": "S010",
+   "narration": "Two runs, one configuration. The apply picked up terraform dot t f vars automatically — no flags at all. Then the same code with a different file: var dash file, prod t f vars, and the plan targets a different region, a different prefix, a different tier. Nothing edited. Environments are files, not copies of the code."
+  },
+  {
+   "id": "S011",
+   "narration": "Here are the pitfalls in this lab. One: only terraform dot t f vars auto-loads — the example file does not. The dot example suffix means Terraform ignores it completely; copy it, rename it, and fill it in. Two: no default and a missing value means an interactive prompt — or a hard error in c i. In c i there's no one to answer the prompt, so the missing variable stops the run — which is exactly why the file convention matters. Three: a var file flag can be passed multiple times — later files win. That lets you layer a base file with an environment override. Four: values on the command line beat every file. The var flag has the highest precedence of all."
+  },
+  {
+   "id": "S012",
+   "narration": "Quick recap — five things. One: no default means a required variable — Terraform prompts, or errors. Two: terraform dot t f vars auto-loads by name on every plan and apply. Three: the var file flag swaps in environment files, like prod dot t f vars. Four: precedence — a var flag beats a var file, which beats auto-loaded files. Five: code declares, data supplies — environments are files, not copies."
+  },
+  {
+   "id": "S013",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+  },
+  {
+   "id": "S014",
+   "narration": "Thanks for watching. If this helped, the full lab, along with every lab in this course, is in the GitHub repository linked below. If you'd like more lessons like this one, give the video a like, share it with a friend who is learning Azure, and subscribe to the channel. It really helps the course grow. Thank you, and see you in the next lesson."
+  }
+ ]
+}

@@ -1,0 +1,6 @@
+terraform output discovered_rg_ids
+
+discovered_rg_ids = [
+  "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-already-here",
+  "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-multi-subnets",
+]

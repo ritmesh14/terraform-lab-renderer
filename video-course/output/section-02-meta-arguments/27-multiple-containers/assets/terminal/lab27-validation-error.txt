@@ -1,0 +1,13 @@
+Terraform used the selected providers to generate the following
+execution plan.
+╷
+│ Error: Invalid value for variable
+│ 
+│   on main.tf line 8, in variable "container_count":
+│   8: variable "container_count" {
+│ 
+│ Keep between 1 and 10.
+│ 
+│ This was checked by the validation rule for
+│ variable "container_count".
+╵

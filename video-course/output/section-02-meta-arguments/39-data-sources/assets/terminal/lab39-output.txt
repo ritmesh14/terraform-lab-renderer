@@ -1,0 +1,4 @@
+terraform output
+
+rg_location = "eastus"
+rg_tags = {}

@@ -1,0 +1,5 @@
+terraform output public_ip
+
+public_ip = "203.0.113.77"
+
+# ssh azureadmin@203.0.113.77  (key read from id_rsa.pub)

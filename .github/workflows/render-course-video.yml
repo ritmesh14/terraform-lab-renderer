@@ -1,0 +1,162 @@
+# Render one Terraform lab video through the NEW deterministic pipeline
+# (global improvement pass, instruction §20/§44).
+#
+# Differences from the legacy render-video.yml (which remains for backward
+# compatibility):
+#   - edge-tts is the canonical FREE narrator (word-boundary timing captured);
+#     MiniMax is optional via --provider and stays disabled by default.
+#   - Audio is loudness-normalized to -16 LUFS / -1.5 dBTP BEFORE timing;
+#     the normalized audio is the timing authority.
+#   - SRT must pass the >=99.5% word-coverage gate or the run FAILS.
+#   - The demo layer (same-video demo scenes) is REQUIRED for FINAL; a run
+#     without demo material can only reach RENDERED (QC reports the gap).
+#   - Two-part delivery is ALWAYS produced by render_parts.py inside the
+#     render stage: *-part1-main.mp4 + *-part2-thankyou.mp4 (+ per-part SRTs);
+#     episode.mp4 remains the archive full cut. The real-world demo recording
+#     is inserted manually between the two parts before publishing.
+#   - qc-frames evidence is exported for human review before FINAL approval.
+#   - The `section` input scopes lab resolution (2026-09-26 global renumbering:
+#     lab numbers run continuously 01-126 across sections; `section` defaults
+#     to section-01-foundations so old dispatches keep working).
+
+name: Render Course Video (new pipeline)
+
+on:
+  workflow_dispatch:
+    inputs:
+      lab:
+        description: "Lab number (global), for example 02 or 26"
+        required: true
+        type: string
+      section:
+        description: "Section (scopes lab resolution; default keeps old behavior)"
+        required: false
+        default: "section-01-foundations"
+        type: string
+      provider:
+        description: "Narration provider (default: config = edge-tts)"
+        required: false
+        default: "config"
+        type: choice
+        options:
+          - config
+          - edge
+          - minimax
+
+permissions:
+  contents: read
+
+concurrency:
+  group: terraform-video-new-${{ github.event.inputs.section }}-${{ github.event.inputs.lab }}
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    env:
+      CI: "true"
+      PYTHONUNBUFFERED: "1"
+      COURSE_SOURCE_ROOT: ${{ github.workspace }}/labs
+      VIDEO_COURSE_ROOT: ${{ github.workspace }}/video-course
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: video-course/remotion/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Linux media tools and fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            ffmpeg \
+            fonts-inter \
+            fonts-jetbrains-mono
+          ffmpeg -version
+          ffprobe -version
+          fc-match Inter
+          fc-match "JetBrains Mono"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r video-course/requirements-ci.txt
+
+      - name: Install Playwright Chromium
+        run: |
+          python -m playwright install --with-deps chromium
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.16.3"
+          terraform_wrapper: false
+
+      - name: Install Remotion dependencies
+        working-directory: video-course/remotion
+        run: npm ci
+
+      - name: Verify CI source layout
+        shell: bash
+        run: |
+          test -d "$COURSE_SOURCE_ROOT"
+          test -d "$VIDEO_COURSE_ROOT"
+          test -f "$VIDEO_COURSE_ROOT/remotion/package.json"
+          test -f "$VIDEO_COURSE_ROOT/config/theme.json"
+          test -f "$VIDEO_COURSE_ROOT/tools/generate_voice.py"
+          echo "CI source root: $COURSE_SOURCE_ROOT"
+          echo "Video course root: $VIDEO_COURSE_ROOT"
+
+      - name: Run complete CI media pipeline (four-gate validation first)
+        shell: bash
+        run: |
+          python video-course/tools/generate_course.py \
+            --source-root "$COURSE_SOURCE_ROOT" \
+            --lab "${{ github.event.inputs.lab }}" \
+            --section "${{ github.event.inputs.section }}" \
+            --mode ci \
+            --provider "${{ github.event.inputs.provider }}" \
+            --force
+
+      - name: Upload final video deliverables
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-${{ github.event.inputs.section }}-${{ github.event.inputs.lab }}-video-${{ github.run_number }}
+          path: |
+            video-course/output/**/final/episode.mp4
+            video-course/output/**/final/episode.srt
+            video-course/output/**/final/*-part1-main.mp4
+            video-course/output/**/final/*-part1-main.srt
+            video-course/output/**/final/*-part2-thankyou.mp4
+            video-course/output/**/final/*-part2-thankyou.srt
+            video-course/output/**/validation/
+            video-course/output/**/timing/
+            video-course/output/**/preview/qc-frames/
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+
+      - name: Upload QC evidence on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-${{ github.event.inputs.section }}-${{ github.event.inputs.lab }}-failure-${{ github.run_number }}
+          path: |
+            video-course/output/**/validation/
+            video-course/output/**/writing/
+            video-course/output/**/timing/
+          if-no-files-found: warn
+          retention-days: 7

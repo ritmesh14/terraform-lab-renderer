@@ -1,0 +1,70 @@
+{
+  "layers": [
+    [
+      "random",
+      "locals",
+      "rg",
+      "st",
+      "containers",
+      "out"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": "random",
+      "label": "random_string.suffix"
+    },
+    {
+      "id": "locals",
+      "label": "locals: names"
+    },
+    {
+      "id": "rg",
+      "label": "rg-count-meta"
+    },
+    {
+      "id": "st",
+      "label": "stcount<suffix>"
+    },
+    {
+      "id": "containers",
+      "label": "containers ×3 (count)"
+    },
+    {
+      "id": "out",
+      "label": "output: container_names"
+    }
+  ],
+  "edges": [
+    {
+      "id": "random-locals",
+      "from": "random",
+      "to": "locals",
+      "label": "suffix"
+    },
+    {
+      "id": "locals-rg",
+      "from": "locals",
+      "to": "rg",
+      "label": "name"
+    },
+    {
+      "id": "rg-st",
+      "from": "rg",
+      "to": "st",
+      "label": "reference"
+    },
+    {
+      "id": "st-containers",
+      "from": "st",
+      "to": "containers",
+      "label": "count = 3"
+    },
+    {
+      "id": "containers-out",
+      "from": "containers",
+      "to": "out",
+      "label": "splat [*]"
+    }
+  ]
+}

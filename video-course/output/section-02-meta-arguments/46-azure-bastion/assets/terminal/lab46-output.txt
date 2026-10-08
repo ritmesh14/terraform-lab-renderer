@@ -1,0 +1,6 @@
+terraform output
+
+bastion_dns = "bas-secure-access-8d3f21.eastus.bastion.azure.com"
+vm_name = "vm-bastion"
+
+# Connect via portal: VM → Connect → Bastion → azureadmin + password (over 443)

@@ -1,0 +1,86 @@
+{
+  "episode": "26-count-meta-argument",
+  "source": "writing/scenes.json",
+  "scenes": [
+    {
+      "id": "S001",
+      "narration": "Welcome back to the course. Through all of Section 1, every resource block you wrote created exactly one thing. Today that changes. This is Lab 26, and it opens the Meta-arguments section with the most-used one of them all: count. One block of code — three containers in Azure. Let's see how."
+    },
+    {
+      "id": "S002",
+      "narration": "Here's what you'll learn in this lesson — three things. One: count — a meta-argument that runs one resource block N times, so three lines of code become three real containers. Two: count dot index — inside each copy, this tells you which number you're on, and that's how each container gets its own name. Three: the splat — star inside square brackets — which collects a value from every copy into one list, so a single output can show all three container names. Write once, create many, read them all back — that's the whole lab."
+    },
+    {
+      "id": "S003",
+      "narration": "This is the first lab of Section 2, Meta-arguments. Throughout Section 1, every resource block you wrote created exactly one thing — one resource group, one storage account. Meta-arguments change that. They are special arguments every resource understands, and count is the one that turns one block into many. It's the foundation the rest of this section builds on."
+    },
+    {
+      "id": "S004",
+      "narration": "You can find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 26-count-meta-argument. The direct link is in the video description. Open the two files we'll read in this lesson: main dot T F holds the whole configuration, and terraform dot T F pins the providers."
+    },
+    {
+      "id": "S005",
+      "narration": "Before any code, here's the mental model. Think of count as a photocopier. You write the resource block once — that's your original. Terraform presses copy three times, and each copy becomes a real, separate resource in Azure. And just like pages coming out of a copier, each copy is numbered: copy zero, copy one, copy two. Nothing inside the block changes — only how many times Terraform stamps it out."
+    },
+    {
+      "id": "S006",
+      "narration": "The configuration lives in two files. Terraform dot T F pins the tooling: Terraform 1.5 or newer, the azurerm provider around version 3.70, and the random provider — that one matters here, because we'll use it to generate a unique suffix for our names. The provider block at the bottom is the bridge to Azure; the empty features block enables the provider's default behaviours."
+    },
+    {
+      "id": "S007",
+      "narration": "At the top of main dot T F, the locals block computes names once. The resource group gets a fixed name, and the storage account name is lowercased with a random suffix appended — locals simply hold the values so we write them in one place. That suffix comes from random_string: six lowercase characters. Because it's a resource — not a function — the value is saved in state. Every future plan and apply keeps the same suffix, so names never drift between runs."
+    },
+    {
+      "id": "S008",
+      "narration": "Then the two single-instance blocks — the same pattern you know from Section 1. The resource group takes its name from locals. And the storage account. Notice it references the resource group by attribute — name and location — instead of repeating strings. Those references create implicit dependencies, so Terraform always creates the group first, without you listing any order."
+    },
+    {
+      "id": "S009",
+      "narration": "And here is the star of the lab. An ordinary container block — with one extra line. count equals 3. That single line tells Terraform: create three copies of this block. Inside a counted resource, count dot index is the number of the current copy — zero for the first, one for the second, two for the third. We use it in the name: data dash, then the index interpolated in. Copy zero becomes data-0, copy one becomes data-1, copy two becomes data-2. Three containers, one block, and every copy named automatically."
+    },
+    {
+      "id": "S010",
+      "narration": "Watch what count equals 3 does to this one block. Terraform expands it into three instances, and each instance gets a state address with its index in brackets: data zero, data one, data two. Inside copy two — the one at index one — count dot index is one, so its name becomes data-1. The other copies do the same with their own numbers. Three names, derived from three indexes — and not one line of copy-paste in the source."
+    },
+    {
+      "id": "S011",
+      "narration": "After apply, you'll want the names back. The output block does that. But here's the twist: once a resource uses count, Terraform stores it as a list — not one object. The address azurerm_storage_container dot data now points at all three instances at once. The splat — star in square brackets — says: walk every instance in that list, take dot name from each, and hand me all of them. One expression, three values."
+    },
+    {
+      "id": "S012",
+      "narration": "In state, the three containers live at resource instance addresses: data zero, data one, data two — one entry per copy. Then the splat expression — star inside square brackets — stands for every instance, all of them, no matter how many count created. From each instance it selects the name attribute, and the result is one tidy list — exactly what the output prints after apply."
+    },
+    {
+      "id": "S013",
+      "narration": "One thing worth slowing down for: the order Terraform creates things. We never told it an order anywhere in the code. The storage account references the resource group's name and location — that reference is an implicit dependency, so the group is always created first. The containers reference the storage account's name, so they come after it. References define the order; Terraform builds the graph, and you never maintain it by hand."
+    },
+    {
+      "id": "S014",
+      "narration": "Here's how the pieces connect. The random string generates the suffix and saves it in state. Locals take that suffix and compute the names. The resource group takes its name from locals. The storage account references the group — that's the dependency: group first, account second. Its own name came from locals, with the random suffix baked in. And count equals 3 stamps three containers out of one block, all inside the storage account. The output splats all three names into one list. Everything lands inside your Azure subscription."
+    },
+    {
+      "id": "S015",
+      "narration": "Here's the plan this configuration produces — an illustrative view, of course. Count the entries: the random string, the group, the account, and three containers. And look at the addresses: data in brackets zero, data in brackets one, data in brackets two. That's count at work — one block in the code, three entries in the plan."
+    },
+    {
+      "id": "S016",
+      "narration": "Apply it, and the same story lands in Azure — illustrative again. Six resources created. And the output prints the splat's result: one list holding data-0, data-1 and data-2. One expression in the code, all three names in your terminal."
+    },
+    {
+      "id": "S017",
+      "narration": "One pitfall to understand before you lean on count in production. One: count's addresses are positional — data in brackets one is simply whatever sits second in the list. So if you reorder the block, or remove a copy from the middle, every later address shifts: what used to be data-2 suddenly becomes data-1. Terraform sees the address change and will destroy and recreate those containers to match. That's harmless for throwaway names like these — it's a real problem when the resource holds data. The fix is a different meta-argument: for_each, which addresses instances by a stable key instead of a position. We'll cover it later in this section."
+    },
+    {
+      "id": "S018",
+      "narration": "Quick recap — five things. One: count equals 3 turned one container block into three identical copies. Two: count dot index is the copy's number — zero, one, two. Three: the names came straight from that index — data-0, data-1, data-2. Four: a counted resource is a list, and the splat collected all three names into the output. Five: the addresses are positional — data in brackets zero through two — so for count, position is identity."
+    },
+    {
+      "id": "S019",
+      "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+    },
+    {
+      "id": "S020",
+      "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # azurerm_resource_group.this will be created
+  + resource "azurerm_resource_group" "this" {
+      + name     = "rg-availzones"
+      + location = "eastus"
+    }
+
+  # azurerm_virtual_network.this will be created
+  + resource "azurerm_virtual_network" "this" {
+      + name          = "vnet-availzones"
+      + address_space = ["10.210.0.0/16"]
+    }
+
+  # azurerm_subnet.web will be created
+  + resource "azurerm_subnet" "web" {
+      + name             = "snet-web"
+      + address_prefixes = ["10.210.1.0/24"]
+    }
+
+  # azurerm_network_interface.web[0] will be created
+  + resource "azurerm_network_interface" "web" {
+      + name                          = "nic-az-0"
+    }
+
+  # azurerm_network_interface.web[1] will be created
+  + resource "azurerm_network_interface" "web" {
+      + name                          = "nic-az-1"
+    }
+
+  # azurerm_network_interface.web[2] will be created
+  + resource "azurerm_network_interface" "web" {
+      + name                          = "nic-az-2"
+    }
+
+  # azurerm_linux_virtual_machine.web[0] will be created
+  + resource "azurerm_linux_virtual_machine" "web" {
+      + name                  = "vm-az-1"
+      + zone                  = "1"
+    }
+
+  # azurerm_linux_virtual_machine.web[1] will be created
+  + resource "azurerm_linux_virtual_machine" "web" {
+      + name                  = "vm-az-2"
+      + zone                  = "2"
+    }
+
+  # azurerm_linux_virtual_machine.web[2] will be created
+  + resource "azurerm_linux_virtual_machine" "web" {
+      + name                  = "vm-az-3"
+      + zone                  = "3"
+    }
+
+Plan: 9 to add, 0 to change, 0 to destroy.

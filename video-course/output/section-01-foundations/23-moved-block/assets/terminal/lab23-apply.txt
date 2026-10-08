@@ -1,0 +1,16 @@
+$ terraform plan -no-color
+azurerm_storage_account.legacy: Refreshing state... [id=<guid>]
+random_string.suffix: Refreshing state... [id=<result>]
+
+Terraform will perform the following actions:
+
+  # azurerm_storage_account.legacy has moved to azurerm_storage_account.this
+    resource "azurerm_storage_account" "this" {
+        name = "stmovedk4x2p9" -> (unchanged)
+    }
+
+Plan: 0 to add, 0 to change, 0 to destroy.
+
+$ terraform apply -auto-approve -no-color
+
+Apply complete! Resources: 0 added, 0 changed, 0 destroyed.

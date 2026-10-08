@@ -1,0 +1,52 @@
+var.container_count: 5
+
+Terraform used the selected providers to generate the following
+execution plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # random_string.suffix will be created
+  + resource "random_string" "suffix" {
+      + length  = 6
+      + result  = (known after apply)
+    }
+
+  # azurerm_resource_group.this will be created
+  + resource "azurerm_resource_group" "this" {
+      + name     = "rg-multi-containers"
+      + location = "eastus"
+    }
+
+  # azurerm_storage_account.this will be created
+  + resource "azurerm_storage_account" "this" {
+      + name                     = (known after apply)
+      + resource_group_name      = "rg-multi-containers"
+    }
+
+  # azurerm_storage_container.data[0] will be created
+  + resource "azurerm_storage_container" "data" {
+      + name                  = "tier-0"
+    }
+
+  # azurerm_storage_container.data[1] will be created
+  + resource "azurerm_storage_container" "data" {
+      + name                  = "tier-1"
+    }
+
+  # azurerm_storage_container.data[2] will be created
+  + resource "azurerm_storage_container" "data" {
+      + name                  = "tier-2"
+    }
+
+  # azurerm_storage_container.data[3] will be created
+  + resource "azurerm_storage_container" "data" {
+      + name                  = "tier-3"
+    }
+
+  # azurerm_storage_container.data[4] will be created
+  + resource "azurerm_storage_container" "data" {
+      + name                  = "tier-4"
+    }
+
+Plan: 8 to add, 0 to change, 0 to destroy.

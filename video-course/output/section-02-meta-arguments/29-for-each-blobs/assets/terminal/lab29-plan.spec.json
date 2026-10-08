@@ -1,0 +1,11 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan",
+  "output_file": "lab29-plan.txt",
+  "highlight": [
+    "file[\"app.json\"]",
+    "file[\"note.txt\"]",
+    "file[\"readme.md\"]",
+    "Plan: 7 to add"
+  ]
+}

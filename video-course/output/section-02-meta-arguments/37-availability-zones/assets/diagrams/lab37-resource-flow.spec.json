@@ -1,0 +1,76 @@
+{
+  "layers": [
+    [
+      "vars",
+      "locals",
+      "rg",
+      "vnet",
+      "nics",
+      "vms"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": "vars",
+      "label": "variable: admin_ssh_key (sensitive)"
+    },
+    {
+      "id": "locals",
+      "label": "locals: zones = [1, 2, 3]"
+    },
+    {
+      "id": "rg",
+      "label": "rg-availzones"
+    },
+    {
+      "id": "vnet",
+      "label": "vnet-availzones + snet-web"
+    },
+    {
+      "id": "nics",
+      "label": "NICs: nic-az-0/1/2 (count = length)"
+    },
+    {
+      "id": "vms",
+      "label": "VMs: vm-az-1/2/3 (zone lookup)"
+    }
+  ],
+  "edges": [
+    {
+      "id": "rg-vnet",
+      "from": "rg",
+      "to": "vnet",
+      "label": "reference"
+    },
+    {
+      "id": "locals-nics",
+      "from": "locals",
+      "to": "nics",
+      "label": "length()"
+    },
+    {
+      "id": "vnet-nics",
+      "from": "vnet",
+      "to": "nics",
+      "label": "subnet"
+    },
+    {
+      "id": "nics-vms",
+      "from": "nics",
+      "to": "vms",
+      "label": "[count.index]"
+    },
+    {
+      "id": "locals-vms",
+      "from": "locals",
+      "to": "vms",
+      "label": "zones[count.index]"
+    },
+    {
+      "id": "vars-vms",
+      "from": "vars",
+      "to": "vms",
+      "label": "ssh key"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+ "episode": "40-web-server",
+ "source": "writing/scenes.json",
+ "scenes": [
+  {
+   "id": "S001",
+   "narration": "Welcome back. This is Lab 40, and it builds something you can actually open in a browser: a web server. No provisioner, no SSH session from Terraform — instead, cloud-init runs at first boot and installs nginx. A heredoc holds the script, base64encode feeds it to the VM, and a public IP plus an NSG rule make it reachable. Let's build it."
+  },
+  {
+   "id": "S002",
+   "narration": "Three things in this lesson. One: the heredoc — a multi-line string written right into locals, holding cloud-init YAML. Two: custom data — the VM argument that carries the script, which must be base64-encoded, and which runs once at first boot. Three: the network path — a public IP attached inside the NIC's ip configuration, and an NSG rule opening port 80."
+  },
+  {
+   "id": "S003",
+   "narration": "Placement. Every VM so far — labs 35 through 37 — had a private IP and no way in. This lab builds the first internet-reachable server: public IP on the NIC, HTTP open. And it deliberately uses cloud-init BEFORE the course shows provisioners, in lab 45: cloud-init is the Terraform-native way to configure a VM at first boot — idempotent, no SSH dependency, and it belongs in your toolbox first."
+  },
+  {
+   "id": "S004",
+   "narration": "You'll find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 40-web-server. The direct link is in the video description. Main dot T F holds everything; terraform dot T F pins the providers."
+  },
+  {
+   "id": "S005",
+   "narration": "Terraform dot T F pins the tooling: Terraform 1.5 or newer, and the azurerm provider around version 3.70 — no extra providers this time. The provider block at the bottom bridges to Azure; the empty features block enables the provider's defaults. Every interesting line lives in main dot T F."
+  },
+  {
+   "id": "S006",
+   "narration": "The familiar sensitive SSH key variable — required, no default. Even a server you'll reach by browser still needs key-based admin access."
+  },
+  {
+   "id": "S007",
+   "narration": "The star of the setup: a heredoc. cloud init equals, then <<-EOT, the YAML lines, and EOT to close. The double dash in EOT means indentation is stripped — the YAML can sit neatly indented inside the locals block and still arrive clean. The content is cloud-init YAML — it must start with the hash cloud-config marker. First directive: package update true, then packages: nginx. Cloud-init installs the web server before anything else runs. Then runcmd — commands to run after boot: enable and start nginx, and write the homepage — an h1 line into var www html index dot html. That echo is the page you'll see in the browser later."
+  },
+  {
+   "id": "S008",
+   "narration": "The network base: resource group rg dash webserver, VNet on 10.220 slash 16, subnet snet web. Standard shape — the differences come next."
+  },
+  {
+   "id": "S009",
+   "narration": "The NSG with one rule: allow HTTP. Name allow dash HTTP, priority 200, inbound, allow, TCP — and the destination port range 80. Nothing exotic — the classic web-server opening. But notice the README's honest note: this NSG is created and left UNASSOCIATED — no subnet or NIC references it in this lab. With no NSG attached, Azure applies no filtering at all, so the site works; attaching the NSG — making the rule load-bearing — is a later lab's job. This one is scaffolding you'll wire up soon."
+  },
+  {
+   "id": "S010",
+   "narration": "The public IP: static allocation on the standard SKU, so the address survives restarts and redeploys. Named pip dash webserver. And the NIC's ip configuration is where it attaches — public ip address id equals azurerm public ip dot web dot id. A public IP never attaches to a VM directly; it rides on the NIC's ip configuration. That's the line people forget."
+  },
+  {
+   "id": "S011",
+   "narration": "The VM block — the lab-35 anatomy again: SSH key, os disk, source image. One line is new, and it's the point of the lab: custom data equals base64encode of local dot cloud init. custom data MUST be base64-encoded — Azure takes the encoded blob and decodes it at first boot, feeding it to cloud-init. And once: custom data runs on FIRST boot only. Re-apply with an edited script and an existing VM does nothing new — changing custom data forces a replacement. The final line outputs the public IP — unknown until apply completes. Open http slash slash that IP, and nginx's page — written by cloud-init — is waiting."
+  },
+  {
+   "id": "S012",
+   "narration": "Here's how the pieces connect. The inputs: sensitive SSH key, and the cloud-init heredoc in locals. The resource group groups everything in Azure. The VNet and subnet at 10.220.1.0 slash 24. The NSG with the Allow-HTTP rule — created but unassociated in this lab. The public IP — static, standard — attaches inside the NIC's ip configuration. The VM: NIC attached, and custom_data = base64encode of the heredoc — nginx installs at first boot. Everything lands inside your Azure subscription."
+  },
+  {
+   "id": "S013",
+   "narration": "Here's the plan — terraform plan, an illustrative view. Resource group, VNet, subnet, NSG, public IP, NIC, and the VM — seven to add, zero to destroy. The VM shows the sensitive SSH key redacted; the cloud-init script rides inside custom data, encoded."
+  },
+  {
+   "id": "S014",
+   "narration": "And after apply — terraform output public ip, an illustrative view. Azure assigned the address at apply time; the splat-free single value comes straight from the public IP resource. Point a browser at it and the cloud-init page loads."
+  },
+  {
+   "id": "S015",
+   "narration": "Three pitfalls. One: custom data runs once, at first boot. Edit the heredoc and re-apply, and Terraform doesn't rerun anything — it flags the VM for replacement, because custom data changed. Treat the script as part of the machine's identity. Two: the base64 encoding is mandatory — pass raw YAML and Azure rejects or ignores it; the encode call is not optional styling. Three: the unassociated NSG — it exists, its rule says allow HTTP, but nothing references it, so no filtering happens at all. When a later lab attaches it, the rule becomes load-bearing — expect traffic behavior to change the moment it's wired up."
+  },
+  {
+   "id": "S016",
+   "narration": "Quick recap — five things. One: the heredoc holds multi-line cloud-init YAML right in locals, indentation stripped by the double-dash EOT. Two: custom data takes base64encode of that heredoc — the encoding is mandatory. Three: cloud-init runs at first boot — updates packages, installs nginx, writes the homepage. Four: the public IP attaches inside the NIC's ip configuration — never to the VM directly. Five: the NSG rule exists but is deliberately unassociated in this lab. No SSH, no provisioner — a server configured by its own first boot."
+  },
+  {
+   "id": "S017",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+  },
+  {
+   "id": "S018",
+   "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+  }
+ ]
+}

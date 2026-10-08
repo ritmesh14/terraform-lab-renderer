@@ -1,0 +1,43 @@
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # azurerm_resource_group.this will be created
+  + resource "azurerm_resource_group" "this" {
+      + name     = "rg-multi-subnets"
+      + location = "eastus"
+    }
+
+  # azurerm_subnet.this["app"] will be created
+  + resource "azurerm_subnet" "this" {
+      + name             = "snet-app"
+      + address_prefixes = ["10.150.2.0/24"]
+    }
+
+  # azurerm_subnet.this["data"] will be created
+  + resource "azurerm_subnet" "this" {
+      + name             = "snet-data"
+      + address_prefixes = ["10.150.3.0/24"]
+    }
+
+  # azurerm_subnet.this["mgmt"] will be created
+  + resource "azurerm_subnet" "this" {
+      + name             = "snet-mgmt"
+      + address_prefixes = ["10.150.4.0/24"]
+    }
+
+  # azurerm_subnet.this["web"] will be created
+  + resource "azurerm_subnet" "this" {
+      + name             = "snet-web"
+      + address_prefixes = ["10.150.1.0/24"]
+    }
+
+  # azurerm_virtual_network.this will be created
+  + resource "azurerm_virtual_network" "this" {
+      + name          = "vnet-multi-subnets"
+      + address_space = ["10.150.0.0/16"]
+    }
+
+Plan: 6 to add, 0 to change, 0 to destroy.

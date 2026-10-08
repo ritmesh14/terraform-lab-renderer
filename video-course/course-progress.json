@@ -1,0 +1,321 @@
+{
+  "concepts_already_taught": [
+    "arm-environment-variables",
+    "authentication-service-principal",
+    "built-in-functions",
+    "cidr-notation",
+    "cidrsubnet",
+    "computed-values",
+    "conventional-file-layout",
+    "data-disk",
+    "data-vs-resource-blocks",
+    "depends-on",
+    "dynamic-blocks",
+    "for-each",
+    "for-expressions",
+    "implicit-vs-explicit-dependencies",
+    "inline-subnets",
+    "input-variables",
+    "interpolation",
+    "list-type",
+    "locals",
+    "map-type",
+    "merge",
+    "moved-block",
+    "multi-file-merge",
+    "named-value-references",
+    "network-interface",
+    "nsg",
+    "nsg-association",
+    "output-values-api",
+    "outputs",
+    "provider-block",
+    "public-ip",
+    "random-provider-stateful-suffix",
+    "references-create-dependencies",
+    "resource-block",
+    "resource-group",
+    "secret-handling",
+    "sensitive-values",
+    "standalone-subnet",
+    "state-addressing",
+    "storage-containers-blobs",
+    "tags",
+    "templatefile",
+    "terraform-block-version-pinning",
+    "terraform-import",
+    "tfvars",
+    "tfvars-auto-load",
+    "type-constraints",
+    "variable-validation",
+    "virtual-machine",
+    "vnet",
+    "volatile-values-drift"
+  ],
+  "episodes_completed": [],
+  "current_section": 2,
+  "current_episode": 1,
+  "episodes": {
+    "section-01-foundations/01-authentication-app-object": {
+      "status": "FINAL",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/01-authentication-app-object",
+      "notes": " Two-part delivery format (course-wide, since Lab 01, 2026-09-24): every episode renders part1-main (lesson, ends before outro) + part2-thankyou (centered outro with repo link), each with its own SRT, filenames carrying lab number+name; user inserts real demo between parts before publishing.",
+      "pipeline": "legacy",
+      "legacy_pipeline": true,
+      "needs_revalidation": true
+    },
+    "section-01-foundations/02-storage-account": {
+      "status": "RENDERED",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/02-storage-account",
+      "notes": " First narration-synchronized diagram episode (2026-09-24): S009 uses steps + per-step TTS + step_frames; DiagramScene highlights the block being narrated and dims the rest; build_diagram.py collision QC gate (exit 3) now blocks any label-overlapping diagram.",
+      "pipeline": "new",
+      "pilot_note": "2026-09-24 pilot: legacy RENDERED deliverables backed up in episode legacy-backup/",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/03-upload-blob": {
+      "status": "RENDERED",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/03-upload-blob",
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/04-named-value-references": {
+      "status": "RENDERED",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/04-named-value-references",
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/05-depends-on": {
+      "status": "RENDERED",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/05-depends-on",
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/06-virtual-network": {
+      "status": "RENDERED",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/06-virtual-network",
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/07-local-values": {
+      "status": "RENDERED",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/07-local-values",
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/08-split-config-files": {
+      "status": "RENDERED",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/08-split-config-files",
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/09-types-list": {
+      "status": "RENDERED",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/09-types-list",
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/10-types-map": {
+      "status": "RENDERED",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/10-types-map",
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/11-maps-for-subnets": {
+      "status": "RENDERED",
+      "public_lab_url": null,
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/12-subnet-resource": {
+      "status": "RENDERED",
+      "public_lab_url": null,
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/13-network-interface": {
+      "status": "RENDERED",
+      "public_lab_url": null,
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/14-output-values": {
+      "status": "RENDERED",
+      "public_lab_url": null,
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/15-public-ip": {
+      "status": "RENDERED",
+      "public_lab_url": null,
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/16-network-security-group": {
+      "status": "RENDERED",
+      "public_lab_url": null,
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/17-virtual-machine": {
+      "status": "RENDERED",
+      "public_lab_url": null,
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/18-input-variables": {
+      "status": "RENDERED",
+      "public_lab_url": null,
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/19-variable-definition-file": {
+      "status": "RENDERED",
+      "public_lab_url": null,
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/20-secret-values": {
+      "status": "RENDERED",
+      "public_lab_url": null,
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/21-data-disk": {
+      "status": "RENDERED",
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/22-terraform-import": {
+      "status": "RENDERED",
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/23-moved-block": {
+      "status": "RENDERED",
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/24-templatefile": {
+      "status": "RENDERED",
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-01-foundations/25-cidrsubnet-for": {
+      "status": "RENDERED",
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-02-meta-arguments/26-count-meta-argument": {
+      "status": "RENDERED",
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/26-count-meta-argument"
+    },
+    "section-02-meta-arguments/27-multiple-containers": {
+      "status": "RENDERED",
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/27-multiple-containers"
+    },
+    "section-02-meta-arguments/28-for-each-meta-argument": {
+      "status": "RENDERED",
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/28-for-each-meta-argument"
+    },
+    "section-02-meta-arguments/29-for-each-blobs": {
+      "status": "RENDERED",
+      "pipeline": "new"
+    },
+    "section-02-meta-arguments/30-multiple-subnets": {
+      "status": "RENDERED",
+      "pipeline": "new"
+    },
+    "section-02-meta-arguments/31-multiple-nics": {
+      "status": "RENDERED",
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/31-multiple-nics"
+    },
+    "section-02-meta-arguments/32-multiple-public-ips": {
+      "status": "RENDERED",
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/32-multiple-public-ips"
+    },
+    "section-02-meta-arguments/33-for-each-variables": {
+      "status": "RENDERED",
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/33-for-each-variables"
+    },
+    "section-02-meta-arguments/34-network-security-groups": {
+      "status": "RENDERED",
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/34-network-security-groups"
+    },
+    "section-02-meta-arguments/35-multiple-vms": {
+      "status": "RENDERED",
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/35-multiple-vms"
+    },
+    "section-02-meta-arguments/36-availability-sets": {
+      "status": "RENDERED",
+      "pipeline": "new"
+    },
+    "section-02-meta-arguments/37-availability-zones": {
+      "status": "RENDERED",
+      "pipeline": "new"
+    },
+    "section-02-meta-arguments/38-key-vault": {
+      "status": "RENDERED",
+      "pipeline": "new"
+    },
+    "section-02-meta-arguments/39-data-sources": {
+      "status": "RENDERED",
+      "pipeline": "new"
+    },
+    "section-02-meta-arguments/40-web-server": {
+      "status": "RENDERED",
+      "pipeline": "new"
+    },
+    "section-02-meta-arguments/41-dynamic-blocks": {
+      "status": "RENDERED",
+      "pipeline": "new"
+    },
+    "section-02-meta-arguments/42-linux-read-file": {
+      "status": "RENDERED",
+      "pipeline": "new"
+    },
+    "section-02-meta-arguments/43-linux-restructure": {
+      "status": "RENDERED",
+      "pipeline": "new"
+    },
+    "section-02-meta-arguments/44-linux-deployment": {
+      "status": "RENDERED",
+      "pipeline": "new"
+    },
+    "section-02-meta-arguments/45-provisioners": {
+      "status": "RENDERED",
+      "pipeline": "new"
+    },
+    "section-02-meta-arguments/46-azure-bastion": {
+      "status": "RENDERED",
+      "pipeline": "new"
+    },
+    "section-02-meta-arguments/47-conditional-resources": {
+      "status": "RENDERED",
+      "pipeline": "new"
+    },
+    "section-02-meta-arguments/49-for-data-sources": {
+      "status": "RENDERED",
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-02-meta-arguments/50-dynamic-multi": {
+      "status": "RENDERED",
+      "pipeline": "new",
+      "rendered_via": "ci"
+    },
+    "section-02-meta-arguments/48-flatten-matrix": {
+      "status": "RENDERED",
+      "pipeline": "new",
+      "rendered_via": "ci"
+    }
+  },
+  "notes": "Global course memory only: concepts/terminology/style. Lab-specific facts (resource names, variables, architecture) must NEVER be recorded here \u2014 per critical memory separation rule. Outro convention (since Lab 01, 2026-09-23): final scene always includes a calm like/share/subscribe CTA before sign-off. Diagram rule (since Lab 02, 2026-09-24): diagrams are narration-synchronized (steps + step_frames active highlighting) and must pass the build_diagram.py label-collision gate before rendering.\n2026-09-24 USER CORRECTION: two-part delivery format RESTORED (same-video retired). render_parts.py is back in the default render/ci pipeline; publishing deliverables are <lab>-<name>-part1-main.mp4(+srt) + <lab>-<name>-part2-thankyou.mp4(+srt); episode.mp4/.srt = archive full cut; demo inserted manually between parts; demo-gate QC checks are record-only. 2026-09-25: CI run 36004465310 green \u2014 artifact terraform-lab-02-video-3 copied into episode folder (final/ now holds the two-part publishing deliverables 02-storage-account-part1-main + part2-thankyou with per-part SRTs, both 1920x1080@30 h264; qc_passed=true, validation=pass, 77 cues); part2 outro frame-verified (public GitHub breadcrumb, no internal paths)."
+}

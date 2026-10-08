@@ -1,0 +1,63 @@
+{
+  "nodes": [
+    {
+      "id": "rg",
+      "label": "azurerm_resource_group.this\nrg-nic-foundation"
+    },
+    {
+      "id": "vnet",
+      "label": "azurerm_virtual_network.this\nvnet-nic 10.90.0.0/16"
+    },
+    {
+      "id": "sub",
+      "label": "azurerm_subnet.web\nsnet-web 10.90.1.0/24"
+    },
+    {
+      "id": "nic",
+      "label": "azurerm_network_interface.web\nnic-web-01"
+    },
+    {
+      "id": "ip",
+      "label": "ip_configuration\nDynamic private IP\n(from subnet range)"
+    }
+  ],
+  "edges": [
+    {
+      "from": "rg",
+      "to": "vnet",
+      "label": "resource_group_name"
+    },
+    {
+      "from": "vnet",
+      "to": "sub",
+      "label": "virtual_network_name"
+    },
+    {
+      "from": "sub",
+      "to": "nic",
+      "label": "subnet_id"
+    },
+    {
+      "from": "nic",
+      "to": "ip",
+      "label": "carries"
+    }
+  ],
+  "layers": [
+    [
+      "rg"
+    ],
+    [
+      "vnet"
+    ],
+    [
+      "sub"
+    ],
+    [
+      "nic"
+    ],
+    [
+      "ip"
+    ]
+  ]
+}

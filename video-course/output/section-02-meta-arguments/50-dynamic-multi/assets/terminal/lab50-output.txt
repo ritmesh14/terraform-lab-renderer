@@ -1,0 +1,10 @@
+terraform output
+
+rule_names = [
+  "Allow-SSH",
+  "Allow-HTTPS",
+]
+nic_ips = [
+  "172.22.0.10",
+  "172.22.0.11",
+]

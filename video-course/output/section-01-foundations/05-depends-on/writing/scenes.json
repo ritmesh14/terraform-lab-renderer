@@ -1,0 +1,234 @@
+{
+ "title": "Ordering with depends_on",
+ "lesson_label": "Azure Foundations — Lab 05",
+ "scenes": [
+  {
+   "id": "S001",
+   "type": "TITLE",
+   "title": "Ordering with depends_on",
+   "lesson_label": "Azure Foundations — Lab 05",
+   "narration": "Terraform has ordered every resource for you so far, just by following references. But sometimes there is no reference to follow. In this lesson you'll learn when that happens, and how the depends on meta argument forces the order explicitly.",
+   "audio": "audio/S001.mp3"
+  },
+  {
+   "id": "S002",
+   "type": "CONCEPT",
+   "heading": "What you'll learn",
+   "points": [
+    "Implicit dependency — Terraform infers order from references",
+    "The gap: a plain-string value creates no ordering",
+    "depends_on — forcing order explicitly",
+    "Why a real reference is almost always the better fix"
+   ],
+   "narration": "Here's what you'll learn. One: implicit dependency — Terraform infers order from references. Two: the gap — a plain-string value creates no ordering. Three: depends on — forcing order explicitly. Four: why a real reference is almost always the better fix.",
+   "audio": "audio/S002.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S003",
+   "type": "CONCEPT",
+   "heading": "Where this lab fits",
+   "points": [
+    "Lab 5 of the Foundations section",
+    "Names the rule behind Lab 3's automatic ordering",
+    "Deliberately breaks the reference to show the difference"
+   ],
+   "narration": "This is lab five of the Foundations section. Lab three already used implicit dependencies, when the container referenced the storage account's name attribute. This lab deliberately breaks that reference, so you can see exactly what Terraform stops knowing, and how depends on gives the knowledge back.",
+   "audio": "audio/S003.mp3"
+  },
+  {
+   "id": "S004",
+   "type": "CONCEPT",
+   "heading": "Two ways Terraform learns about order",
+   "points": [
+    "Implicit: A references B's attribute → B is created first",
+    "Explicit: depends_on = [B] inside A → same promise, written by hand",
+    "A plain literal like local.st_name carries no ordering at all",
+    "Terraform parallelizes everything it doesn't see a reason to wait for"
+   ],
+   "narration": "Terraform learns about order in exactly two ways. Implicitly: when one resource references another's attribute, the referenced one is built first. Explicitly: when you write depends on. Anything else, like a plain literal from locals, tells Terraform nothing about order. And remember, Terraform parallelizes aggressively. Anything it has no reason to wait for, it won't.",
+   "audio": "audio/S004.mp3"
+  },
+  {
+   "id": "S005",
+   "type": "CONCEPT",
+   "heading": "Where to find this lab",
+   "github_path": "RIT-MESH / Terraform-Azure-Labs-and-Case_Studies\n  └── labs\n      └── section-01-foundations\n          └── 05-depends-on\n              ├── README.md\n              └── main.tf\n\nhttps://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\n/tree/master/labs/section-01-foundations/05-depends-on",
+   "narration": "The lab is in the course GitHub repository under Section 1, Foundations, with the link in the description. One file again: main dot T F. The interesting part is at the very bottom, but we'll build up to it in order.",
+   "audio": "audio/S005.mp3"
+  },
+  {
+   "id": "S006",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 30,
+   "end_line": 35,
+   "highlight_lines": [
+    34
+   ],
+   "asset": "assets/code/lab05-01-locals.png",
+   "narration": "The locals block holds the two names. The storage account name combines a prefix with the random suffix and goes through lower, exactly the pattern from labs two and three. Keep an eye on local dot st name. It's about to play two very different roles in this file.",
+   "audio": "audio/S006.mp3"
+  },
+  {
+   "id": "S007",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 37,
+   "end_line": 44,
+   "highlight_lines": [
+    40
+   ],
+   "asset": "assets/code/lab05-02-random-string.png",
+   "narration": "The random string is familiar by now: six lowercase characters, saved in state, stable across runs. Nothing new. It feeds the local above it, which feeds the storage account below.",
+   "audio": "audio/S007.mp3"
+  },
+  {
+   "id": "S008",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 46,
+   "end_line": 50,
+   "highlight_lines": [
+    47,
+    48
+   ],
+   "asset": "assets/code/lab05-03-resource-group.png",
+   "narration": "The resource group takes its name from locals and a literal region. This is now the third time you've typed this block, which is exactly why later labs will show you how to stop repeating yourself. For now, routine.",
+   "audio": "audio/S008.mp3"
+  },
+  {
+   "id": "S009",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 52,
+   "end_line": 60,
+   "highlight_lines": [
+    56,
+    57
+   ],
+   "asset": "assets/code/lab05-04-storage-account.png",
+   "narration": "The storage account gets its name and location from the resource group's attributes. Those two references are the implicit dependency from lab three: Terraform reads them and schedules the group first, automatically. So far, everything in this file orders itself.",
+   "audio": "audio/S009.mp3"
+  },
+  {
+   "id": "S010",
+   "type": "CODE",
+   "source_file": "main.tf",
+   "start_line": 62,
+   "end_line": 71,
+   "highlight_lines": [
+    67,
+    70
+   ],
+   "asset": "assets/code/lab05-05-container.png",
+   "narration": "And here's the lesson. The container needs the storage account's name. But this time we pass the local, the plain string, instead of referencing the account's attribute. Terraform can't tell that this string happens to be an existing resource's name, so it sees no reason to wait, and might create both at once. Depends on closes the gap: it makes the container explicitly wait for the account. Same order as before, but now you had to ask for it.",
+   "audio": "audio/S010.mp3"
+  },
+  {
+   "id": "S011",
+   "type": "DIAGRAM",
+   "caption": "What Terraform sees: with and without depends_on",
+   "asset": "assets/diagrams/lab05-dependency-graph.svg",
+   "narration": "Here's the dependency graph Terraform builds. The solid arrows are references it can see: the group feeds the account. The account also feeds the random suffix, through the local. But the container's link would be invisible, because a local carries no ordering. The dashed arrow is the depends on edge, the one promise you wrote by hand. Remove it, and the container could race the account.",
+   "audio": "audio/S011.mp3",
+   "steps": [
+    {
+     "narration": "Here's the dependency graph Terraform builds.",
+     "nodes": [],
+     "edges": []
+    },
+    {
+     "narration": "The solid arrows are references it can see: the group feeds the account.",
+     "nodes": [
+      "rg",
+      "st"
+     ],
+     "edges": [
+      "rg-st"
+     ]
+    },
+    {
+     "narration": "The account also feeds the random suffix, through the local.",
+     "nodes": [
+      "rand",
+      "st"
+     ],
+     "edges": [
+      "rand-st"
+     ]
+    },
+    {
+     "narration": "But the container's link would be invisible, because a local carries no ordering. The dashed arrow is the depends on edge, the one promise you wrote by hand.",
+     "nodes": [
+      "st",
+      "cont"
+     ],
+     "edges": [
+      "st-cont"
+     ]
+    },
+    {
+     "narration": "Remove it, and the container could race the account.",
+     "nodes": [
+      "st",
+      "cont"
+     ],
+     "edges": [
+      "st-cont"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "S012",
+   "type": "TERMINAL",
+   "asset": "assets/terminal/lab05-apply.svg",
+   "narration": "Running it: init pulls the providers, and apply creates the group, then the account, then the container. With depends on in place, the container's turn comes strictly after the account exists, every run, in every pipeline.",
+   "audio": "audio/S012.mp3"
+  },
+  {
+   "id": "S013",
+   "type": "CONCEPT",
+   "heading": "Common pitfall — depends_on as a habit",
+   "points": [
+    "Lab 3 solved this same problem with a real reference (account's .name)",
+    "depends_on hides WHY the order exists — future readers must guess",
+    "It can also force waits Terraform would have parallelized",
+    "Rule: references first; depends_on only when no reference is possible"
+   ],
+   "narration": "Here are the pitfalls in this lab. One: lab three solved this same problem with a real reference — the storage account's name. By referencing the attribute directly, the order came for free, and the code explained itself. Two: depends on hides why the order exists — future readers have to guess. The reason for the dependency is invisible; a reference, by contrast, is self-documenting. Three: it can also force waits that Terraform would have parallelized. Work that has no real dependency gets serialized, and your runs slow down. Four: the rule — references first; depends on only when no reference is possible. Use it when you need ordering against something your config doesn't own.",
+   "audio": "audio/S013.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S014",
+   "type": "RECAP",
+   "points": [
+    "References create implicit dependencies — Terraform orders from them",
+    "A plain literal (local.st_name) carries no ordering information",
+    "depends_on = [resource] forces the wait explicitly",
+    "Prefer real references; keep depends_on for the cases that need it",
+    "Terraform parallelizes everything without a dependency edge"
+   ],
+   "narration": "Quick recap — five things. One: references create implicit dependencies — Terraform orders the plan from them. Two: a plain literal, like local st name, carries no ordering information. Three: depends on with a resource forces the wait explicitly. Four: prefer real references — keep depends on for the cases that need it. Five: everything without a dependency edge runs in parallel.",
+   "audio": "audio/S014.mp3",
+   "numbered": true
+  },
+  {
+   "id": "S015",
+   "type": "NEXT",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure.",
+   "audio": "audio/S015.mp3"
+  },
+  {
+   "id": "S016",
+   "type": "CONCEPT",
+   "heading": "Thanks for watching",
+   "narration": "Thanks for watching. If this helped, the full lab, along with every lab in this course, is in the GitHub repository linked below. If you'd like more lessons like this one, give the video a like, share it with a friend who is learning Azure, and subscribe to the channel. It really helps the course grow. Thank you, and see you in the next lesson.",
+   "audio": "audio/S016.mp3",
+   "github_path": "github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies\ntree/master/labs/section-01-foundations/05-depends-on",
+   "centered": true
+  }
+ ]
+}

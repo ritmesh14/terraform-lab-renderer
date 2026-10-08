@@ -1,0 +1,23 @@
+$ terraform apply -auto-approve -no-color
+azurerm_resource_group.this: Creating...
+azurerm_resource_group.this: Creation complete after 2s [id=/subscriptions/<guid>/resourceGroups/rg-cidrsubnet]
+azurerm_virtual_network.this: Creating...
+azurerm_virtual_network.this: Creation complete after 8s [id=<guid>]
+azurerm_subnet.this["snet-web"]: Creating...
+azurerm_subnet.this["snet-app"]: Creating...
+azurerm_subnet.this["snet-data"]: Creating...
+azurerm_subnet.this["snet-mgmt"]: Creating...
+azurerm_subnet.this["snet-web"]: Creation complete after 2s [id=<guid>]
+azurerm_subnet.this["snet-app"]: Creation complete after 2s [id=<guid>]
+azurerm_subnet.this["snet-data"]: Creation complete after 3s [id=<guid>]
+azurerm_subnet.this["snet-mgmt"]: Creation complete after 3s [id=<guid>]
+
+Apply complete! Resources: 6 added, 0 changed, 0 destroyed.
+
+$ terraform output subnets
+{
+  "snet-app"  = { "cidr" = "172.18.0.64/26", "first_host" = "172.18.0.65" }
+  "snet-data" = { "cidr" = "172.18.0.128/26", "first_host" = "172.18.0.129" }
+  "snet-mgmt" = { "cidr" = "172.18.0.192/26", "first_host" = "172.18.0.193" }
+  "snet-web"  = { "cidr" = "172.18.0.0/26", "first_host" = "172.18.0.1" }
+}

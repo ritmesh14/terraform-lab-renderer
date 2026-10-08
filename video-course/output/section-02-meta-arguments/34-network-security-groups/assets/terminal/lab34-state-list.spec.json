@@ -1,0 +1,11 @@
+{
+  "mode": "illustrative",
+  "command": "terraform state list",
+  "output_file": "lab34-state-list.txt",
+  "highlight": [
+    "security_group.this[\"app\"]",
+    "security_group.this[\"web\"]",
+    "association.this[\"app\"]",
+    "association.this[\"web\"]"
+  ]
+}

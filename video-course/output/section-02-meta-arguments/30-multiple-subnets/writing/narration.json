@@ -1,0 +1,82 @@
+{
+ "episode": "30-multiple-subnets",
+ "source": "writing/scenes.json",
+ "scenes": [
+  {
+   "id": "S001",
+   "narration": "Welcome back to the course. for_each has walked a set and a map of blobs — this is Lab 30, and it's the pattern you'll reuse on almost every Azure network: one virtual network, and four subnets carved out of it by a single for_each over a map. Plus the for expression that turns the instances back into a clean output. Let's build it."
+  },
+  {
+   "id": "S002",
+   "narration": "Here's what you'll learn — three things. One: for_each over a map of tier to C I D R — the most-reused networking pattern in Terraform. Two: how each dot key and each dot value split the work — the key names the subnet, the value sizes it. Three: the for expression — a compact loop that reshapes the for_each map into exactly the output shape you want."
+  },
+  {
+   "id": "S003",
+   "narration": "This is the fifth lab of Section 2, Meta-arguments. Labs 28 and 29 built the for_each foundation — first over a set, then over a map where values carry config. This lab applies it to the pattern you'll meet in almost every real Azure project: one virtual network, and every subnet defined as one line in a map. Add a tier to the map, and the network grows — no new resource blocks."
+  },
+  {
+   "id": "S004",
+   "narration": "You can find this lab in the course GitHub repository under Section 2, Meta-arguments — the lab named 30-multiple-subnets. The direct link is in the video description. Two files matter in this lesson: main dot T F holds the whole configuration, and terraform dot T F pins the provider."
+  },
+  {
+   "id": "S005",
+   "narration": "Here's the mental model. Picture one plot of land — that's the virtual network, with its big slash sixteen address space. Subnets are the fenced lots carved out of that land — web, app, data, mgmt. And the locals map is the plot plan: each line says a lot's name and its size. Terraform is the surveyor — it reads the plan once and fences every lot. Change the plan, and the next apply re-fences the land."
+  },
+  {
+   "id": "S006",
+   "narration": "Terraform dot T F pins the tooling: Terraform 1.5 or newer and the azurerm provider around version 3.70 — this lab needs no random provider, since subnet names come straight from the map. The provider block at the bottom is the bridge to Azure; the empty features block enables the provider's default behaviours."
+  },
+  {
+   "id": "S007",
+   "narration": "The whole fan-out is one locals map. Subnets maps tier names to C I D R blocks — each entry becomes one subnet. Read the entries: web gets ten dot one-fifty dot one dot zero slash twenty-four, app the two, data the three, mgmt the four. Four tiers, four lines — that's the entire network design."
+  },
+  {
+   "id": "S008",
+   "narration": "The resource group gets a fixed name — rg dash multi dash subnets. Then the virtual network: one big slash sixteen space, ten dot one-fifty dot zero dot zero slash sixteen. It references the group for its location and name — so the group is always created first."
+  },
+  {
+   "id": "S009",
+   "narration": "And the fan-out: one subnet block, for_each equals local dot subnets. Four map entries — four subnets, all inside the one VNet. The name builds from the key: s-n-e-t dash, then each dot key — snet dash web, snet dash app, snet dash data, snet dash mgmt. The key labels the tier; the prefix keeps them consistent. And the size comes from the value: address_prefixes takes a list, so each dot value — the C I D R string — goes inside brackets. That's the one line people forget: it's a list of prefixes, not a single string."
+  },
+  {
+   "id": "S010",
+   "narration": "The collection is the map — four tiers, each with its own C I D R. The keys will name the subnets; the values will size them. for_each walks the map and expands the one block into one instance per key — four subnets from a single resource block. For each instance, each dot key lands in the name — s-n-e-t dash web and friends — and each dot value becomes the address prefix. The state addresses are the tier names: this in brackets, quote, web, quote. Need the management subnet's ID later? this in brackets mgmt — no counting positions."
+  },
+  {
+   "id": "S011",
+   "narration": "The output is a for expression. Read it as: for each key k and subnet s in the for_each map, produce k, arrow, s dot id. Old key in, new value out. The result is a reshaped map: web maps to that subnet's full Azure ID, app to its own, and so on. Same keys as the locals map — different values: real resource IDs instead of C I D Rs."
+  },
+  {
+   "id": "S012",
+   "narration": "A one-minute tour of the for expression, since it appears right in the output. The general shape: curly for, a key and a value name, in a collection, colon, key arrow expression. Terraform walks the collection once per element; the key usually stays the same, and the expression decides the new value. Here the collection is the for_each map, and the expression is s dot id — so tier names in, full Azure resource IDs out. You'll meet this expression again when outputs need reshaping."
+  },
+  {
+   "id": "S013",
+   "narration": "Here's how the pieces connect. Locals hold the subnets map — the plot plan. The resource group groups everything in Azure. The virtual network references the group, and owns the big slash sixteen space the subnets will carve from. And the subnets: for_each walks the map — one subnet per tier, each fenced out of the VNet's space. The for expression in the output reshapes the map: tier names in, full subnet IDs out. Everything lands inside your Azure subscription."
+  },
+  {
+   "id": "S014",
+   "narration": "Here's the plan — terraform plan, an illustrative view. Six to add: the resource group, the virtual network, and four subnets — this in brackets app, brackets data, brackets mgmt, brackets web. One subnet block in the code; four carved subnets in the plan. Add a fifth tier to the map, and this plan grows by exactly one entry."
+  },
+  {
+   "id": "S015",
+   "narration": "And here's the output after apply — terraform output subnet underscore ids, an illustrative view. The for expression did its reshaping: tier names on the left, full Azure subnet IDs on the right. Downstream modules or configs can now say: give me the web subnet — and read it straight from this map by name."
+  },
+  {
+   "id": "S016",
+   "narration": "One pitfall to understand before you carve networks. One: address prefixes is a list — write each dot value alone and the plan fails a type check; it must be bracket, each dot value, bracket. Two: subnets depend on their VNet — here the reference to the VNet's name handles that ordering for you; break the reference and Terraform might race the network. Three: the C I D Rs are your contract — each must sit inside the VNet's slash sixteen, and none may overlap another. Azure rejects collisions at apply time, after the plan already looked green."
+  },
+  {
+   "id": "S017",
+   "narration": "Quick recap — five things. One: for_each equals local dot subnets — one subnet per map entry. Two: each dot key names the subnet, each dot value sizes it. Three: the state address is the tier name — this bracket web — readable and stable. Four: the for expression reshaped the instances into a clean map of tier to full I D. Five: adding a tier is adding one line to the map. One plot of land — fenced exactly as the plan says."
+  },
+  {
+   "id": "S018",
+   "narration": "Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure."
+  },
+  {
+   "id": "S019",
+   "narration": "Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one."
+  }
+ ]
+}

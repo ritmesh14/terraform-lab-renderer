@@ -1,0 +1,9 @@
+{
+  "mode": "illustrative",
+  "command": "terraform output public_ip",
+  "output_file": "lab44-output.txt",
+  "highlight": [
+    "\"203.0.113.77\"",
+    "ssh azureadmin"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan",
+  "output_file": "lab33-plan.txt",
+  "highlight": [
+    "this[\"app\"]",
+    "this[\"web\"]",
+    "\"nsg-app\"",
+    "Plan: 6 to add"
+  ]
+}

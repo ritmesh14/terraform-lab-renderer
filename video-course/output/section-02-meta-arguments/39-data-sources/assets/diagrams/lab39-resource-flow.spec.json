@@ -1,0 +1,59 @@
+{
+  "layers": [
+    [
+      "vars",
+      "data",
+      "random",
+      "st",
+      "out"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": "vars",
+      "label": "variable: existing_rg_name"
+    },
+    {
+      "id": "data",
+      "label": "data: azurerm_resource_group.existing (READS)"
+    },
+    {
+      "id": "random",
+      "label": "random_string.suffix"
+    },
+    {
+      "id": "st",
+      "label": "storage account (created INSIDE existing RG)"
+    },
+    {
+      "id": "out",
+      "label": "outputs: rg_location, rg_tags"
+    }
+  ],
+  "edges": [
+    {
+      "id": "vars-data",
+      "from": "vars",
+      "to": "data",
+      "label": "name"
+    },
+    {
+      "id": "data-st",
+      "from": "data",
+      "to": "st",
+      "label": ".name / .location"
+    },
+    {
+      "id": "random-st",
+      "from": "random",
+      "to": "st",
+      "label": "name suffix"
+    },
+    {
+      "id": "data-out",
+      "from": "data",
+      "to": "out",
+      "label": ".location / .tags"
+    }
+  ]
+}

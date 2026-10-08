@@ -1,0 +1,10 @@
+{
+  "mode": "illustrative",
+  "command": "terraform output nics",
+  "output_file": "lab31-output.txt",
+  "highlight": [
+    "\"app\"",
+    "\"data\"",
+    "\"web\""
+  ]
+}

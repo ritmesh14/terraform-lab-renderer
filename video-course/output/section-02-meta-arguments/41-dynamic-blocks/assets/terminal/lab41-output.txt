@@ -1,0 +1,6 @@
+terraform output rule_names
+
+rule_names = [
+  "Allow-HTTP",
+  "Allow-HTTPS",
+]

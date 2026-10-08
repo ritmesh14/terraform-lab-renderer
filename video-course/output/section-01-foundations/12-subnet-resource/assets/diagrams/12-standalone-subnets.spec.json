@@ -1,0 +1,21 @@
+{
+  "layers": [
+    ["rg"],
+    ["vnet"],
+    ["web", "app"],
+    ["out"]
+  ],
+  "nodes": [
+    {"id": "rg", "label": "rg-separes-foundation"},
+    {"id": "vnet", "label": "vnet-separes"},
+    {"id": "web", "label": "snet-web /24"},
+    {"id": "app", "label": "snet-app /24"},
+    {"id": "out", "label": "output.web_subnet_id"}
+  ],
+  "edges": [
+    {"from": "rg", "to": "vnet", "label": "contains"},
+    {"from": "vnet", "to": "web", "label": "vnet_name"},
+    {"from": "vnet", "to": "app", "label": "vnet_name"},
+    {"from": "web", "to": "out", "label": ".id"}
+  ]
+}

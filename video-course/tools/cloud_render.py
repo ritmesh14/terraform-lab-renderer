@@ -3,9 +3,12 @@
 GitHub Actions ubuntu-latest runner for the public repository.
 
 Responsibilities:
-  resolve lab (shared course_index) -> sync CI inputs -> verify no
-  secrets/internal paths -> trigger .github/workflows/render-course-video.yml
-  -> show run URL -> optionally wait -> download the final artifact.
+  resolve lab (shared course_index) -> sync CI inputs -> commit + push them
+  -> verify the clone provably matches the authoring source and origin
+  (drift / unpushed / dirty guards, verify_ci_inputs) -> dispatch
+  .github/workflows/render-course-video.yml -> show run URL -> optionally
+  wait -> download the final artifact. A dispatch is impossible while the
+  clone is stale: commit+push+verify all run before the run is triggered.
 
 Uses the GitHub CLI (`gh`) when available. If gh is missing, prints the exact
 commands instead of silently falling back to heavy local rendering.
@@ -47,10 +50,69 @@ def gh(*gh_args, check=True):
     return subprocess.run(["gh", *gh_args], check=check)
 
 
+def commit_and_push(clone, changed, ep):
+    """Commit the synced input into the clone and push it. Returns False when
+    there was nothing to do (clone already matches origin). Aborts hard on a
+    push failure — dispatching without the input pushed renders stale content,
+    which is the one mismatch this pipeline must never hit."""
+    branch = subprocess.run(["git", "-C", clone, "rev-parse", "--abbrev-ref", "HEAD"],
+                            capture_output=True, text=True).stdout.strip()
+    if not branch or branch == "HEAD":
+        sys.exit(f"clone is in detached-HEAD state, refusing to dispatch: {clone}")
+    if subprocess.run(["git", "-C", clone, "fetch", "origin", "--quiet"]).returncode != 0:
+        sys.exit("git fetch failed (network or credentials)")
+    ahead = subprocess.run(["git", "-C", clone, "rev-list", f"origin/{branch}..HEAD"],
+                           capture_output=True, text=True).stdout.split()
+    if not ahead and not changed:
+        return False
+    if changed:
+        subprocess.run(["git", "-C", clone, "add", "--", *changed], check=True)
+        pub = os.path.basename(public_rel_path(ep).replace("\\", "/"))
+        msg = f"ci: sync lab {lab_number(ep)} ({pub}) render inputs"
+        c = subprocess.run(["git", "-C", clone, "commit", "-m", msg],
+                           capture_output=True, text=True)
+        if c.returncode != 0:
+            sys.exit(f"git commit failed: {c.stderr.strip()}")
+        print(f"[cloud] committed: {msg} ({len(changed)} file(s))")
+    p = subprocess.run(["git", "-C", clone, "push", "origin", branch],
+                       capture_output=True, text=True)
+    if p.returncode != 0:
+        sys.exit(f"git push failed: {p.stderr.strip()}\n"
+                 "The active gh/git account may lack write access to the "
+                 "render repo:\n"
+                 "  gh auth switch -u ritmesh14   # render-repo owner\n"
+                 "then rerun the same command.")
+    local = subprocess.run(["git", "-C", clone, "rev-parse", "HEAD"],
+                           capture_output=True, text=True).stdout.strip()
+    r = subprocess.run(["git", "-C", clone, "ls-remote", "origin",
+                        f"refs/heads/{branch}"], capture_output=True, text=True, check=True)
+    remote = r.stdout.split()[0] if r.stdout.split() else ""
+    if remote != local:
+        sys.exit(f"push not reflected on origin (local {local[:8]} vs "
+                 f"origin {remote[:8]}) — aborting dispatch")
+    return True
+
+
+def _verify_ready(ep, source_root, clone):
+    """Refuse to dispatch unless the clone provably matches the authoring
+    source (drift check + git freshness + remote identity)."""
+    from verify_ci_inputs import verify
+    problems = verify(ep, source_root, clone, expected_repo=DEFAULT_REPO)
+    if problems:
+        sys.exit(f"pre-dispatch verification failed with {len(problems)} "
+                 f"problem(s) — fix them (or rerun, cloud_render re-syncs "
+                 f"first) before dispatching")
+
+
 def trigger(ep, source_root, section=None):
-    """Sync CI inputs + dispatch the workflow. Returns the run id."""
+    """Sync CI inputs -> commit + push them -> verify the clone -> dispatch.
+    Abort means abort: no dispatch without a verified, pushed input state."""
     clone = DEFAULT_CLONE
-    sync_episode(ep, source_root, clone)
+    changed = sync_episode(ep, source_root, clone)
+    pushed = commit_and_push(clone, changed, ep)
+    if not pushed:
+        print("[cloud] render inputs already in sync; nothing to commit/push")
+    _verify_ready(ep, source_root, clone)
     lab_ref = lab_number(ep)
     args = ["gh", "workflow", "run", WORKFLOW, "--repo", _origin_repo(),
             "-f", f"lab={lab_ref}"]

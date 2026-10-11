@@ -239,8 +239,10 @@ def verify(ep, source_root, clone, expected_repo=None):
                 f"before dispatching: e.g. {lines[0].strip()[:90]}")
 
     # content: every synced file byte-identical (CRLF-normalised) to source
+    drift_seen = []
     for src, rel in episode_surface(ep, source_root):
         if rel in ALLOWED_DRIFT:
+            drift_seen.append(rel)
             continue
         dst = _clone_path(clone, rel)
         if src is None:
@@ -282,8 +284,9 @@ def verify(ep, source_root, clone, expected_repo=None):
 
     for p in problems:
         print(f"[verify] FAIL: {p}")
-    for rel, why in ALLOWED_DRIFT.items():
-        print(f"[verify] note: allowed drift skipped: {rel} ({why})")
+    for rel in drift_seen:
+        print(f"[verify] note: allowed drift skipped: {rel} "
+              f"({ALLOWED_DRIFT[rel]})")
     if not problems:
         print(f"[verify] CI-ready: clone matches authoring source, branch "
               f"{branch} in sync with origin, worktree clean")

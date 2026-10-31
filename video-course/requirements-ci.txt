@@ -2,6 +2,9 @@
 # Every dependency below is REQUIRED — the pipeline must never silently fall
 # back to a lower-quality parser or provider because a package is missing.
 python-hcl2      # terraform parsing (regex fallback = reduced confidence only)
-edge-tts         # canonical FREE narration (streaming word boundaries)
+edge-tts>=7.3.1  # canonical FREE narration (streaming word boundaries)
+                 # pin: 7.2.8 gets 403 from speech.platform.bing.com after
+                 # Microsoft Sec-MS-GEC rotation (verified 2026-10-31 — old
+                 # versions fail silently with 0-byte MP3s)
 requests         # optional MiniMax provider only
 playwright       # Shiki code screenshots

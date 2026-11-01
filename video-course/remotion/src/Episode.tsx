@@ -12,6 +12,7 @@ import {IterationExpansionScene} from './components/IterationExpansionScene';
 import {StateAddressScene} from './components/StateAddressScene';
 import {ForEachMapScene} from './components/ForEachMapScene';
 import {DynamicBlockScene} from './components/DynamicBlockScene';
+import {ManimScene} from './components/ManimScene';
 
 export type TimedScene = {
   id: string;
@@ -48,6 +49,7 @@ const sceneComponent: Record<string, React.FC<any>> = {
   STATE_ADDRESS: StateAddressScene,
   FOR_EACH_MAP: ForEachMapScene,
   DYNAMIC_BLOCK: DynamicBlockScene,
+  MANIM: ManimScene,
 };
 
 export const Episode: React.FC<EpisodeProps> = (props) => {
@@ -60,9 +62,17 @@ export const Episode: React.FC<EpisodeProps> = (props) => {
           const raw: any = byId[t.id] ?? {};
           // scene assets are stored relative to the episode folder (audio/…, assets/…);
           // prefix with episodeDir once, here, so every scene component can stay simple
-          const def: any = raw.asset && props.episodeDir
-            && !String(raw.asset).startsWith(props.episodeDir)
-            ? {...raw, asset: `${props.episodeDir}/${raw.asset}`} : raw;
+          // (the MANIM fallback asset gets the same treatment as the primary asset)
+          const prefix = (p?: string) =>
+            p && props.episodeDir && !String(p).startsWith(props.episodeDir)
+              ? `${props.episodeDir}/${p}`
+              : p;
+          const def: any = {
+            ...raw,
+            asset: prefix(raw.asset),
+            fallback_asset: prefix(raw.fallback_asset),
+            episodeDir: props.episodeDir,
+          };
           // diagram scenes: step_frames from the timing pipeline drive the
           // narration-synchronized highlighting in DiagramScene
           if (t.step_frames) def.step_frames = t.step_frames;

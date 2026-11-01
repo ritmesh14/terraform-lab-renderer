@@ -39,6 +39,11 @@ _WINGET_FFMPEG_BIN = os.path.expandvars(
     r".Source_8wekyb3d8bbwe\ffmpeg-*-full_build\bin")
 
 LOUDNESS_TOLERANCE_LUFS = 2.5
+# Part 1 duration policy (VIDEO-MAKING-PROCESS.md, updated 2026-10-31): the
+# AI-generated instructional portion must measure 4:00-10:00 (the manually
+# inserted demo and the thank-you outro are excluded).
+PART1_MIN_SEC = 240
+PART1_MAX_SEC = 600
 
 
 def _ff():
@@ -145,6 +150,14 @@ def main():
                 actual = float(info["format"]["duration"])
                 check("duration matches timeline", abs(actual - expected) <= 0.5,
                       f"expected {expected:.2f}s, actual {actual:.2f}s")
+                # Part 1 duration (BLOCKING): the AI lesson = frames 0..split-1
+                # at the exact boundary render_parts.py splits at (the last
+                # scene's scene_start_frame — the outro is the final scene).
+                part1_sec = ts["scenes"][-1]["scene_start_frame"] / ts["fps"]
+                check("part1 duration 4:00-10:00",
+                      PART1_MIN_SEC <= part1_sec <= PART1_MAX_SEC,
+                      f"{part1_sec:.1f}s (target {PART1_MIN_SEC}-{PART1_MAX_SEC}s, "
+                      "demo + outro excluded)")
 
     # SRT coverage (independent, not just file existence)
     cov_report, cov_fails = srt_validate(ep)
@@ -163,15 +176,30 @@ def main():
                     zero_audio.append(fn)
     check("no zero-duration scene audio", not zero_audio, ", ".join(zero_audio))
 
-    # every scene asset exists
+    # every scene asset exists. MANIM scenes are the one exception: when the
+    # Manim render failed (or Manim is unavailable, e.g. not provisioned on a
+    # CI runner), generate_assets.py engages the scene's validated non-Manim
+    # fallback (a build_diagram.py SVG) — the fallback asset must then exist.
+    # Fallback usage is RECORDED here (non-blocking) so it is never silent.
     missing_assets = []
+    manim_fallbacks = []
     scenes = json.load(open(os.path.join(ep, "writing", "scenes.json"),
                             encoding="utf-8"))["scenes"]
     for s in scenes:
-        for key in ("asset",):
-            if s.get(key) and not os.path.isfile(os.path.join(ep, s[key])):
-                missing_assets.append(f"{s['id']}:{s[key]}")
+        asset = s.get("asset")
+        if not asset:
+            continue
+        if os.path.isfile(os.path.join(ep, asset)):
+            continue
+        if (str(s.get("type", "")).upper() == "MANIM" and s.get("fallback_asset")
+                and os.path.isfile(os.path.join(ep, s["fallback_asset"]))):
+            manim_fallbacks.append(f"{s['id']} -> {s['fallback_asset']}")
+            continue
+        missing_assets.append(f"{s['id']}:{s['asset']}")
     check("all scene assets exist", not missing_assets, ", ".join(missing_assets))
+    check("manim animations rendered (no fallback)", not manim_fallbacks,
+          ("fallback engaged: " + ", ".join(manim_fallbacks)) if manim_fallbacks
+          else "", blocking=False)
 
     # demo gate: NEXT transition present -> demo material is expected. With the
     # two-part delivery format the real Azure demo is inserted MANUALLY between

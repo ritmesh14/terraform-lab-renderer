@@ -95,3 +95,100 @@ def test_local_path_leak_fails(tmp_path):
     result, fails = run(tmp_path, [
         {"id": "S001", "type": "TITLE", "narration": "see " + internal}])
     assert any("leaked" in f for f in fails)
+
+
+# ------------------------- optional Manim animation layer ------------------
+
+def manim_episode(scene, tmp_path):
+    """Full episode fixture around one MANIM scene (specs on disk)."""
+    ep = tmp_path / "mep"
+    (ep / "assets" / "manim").mkdir(parents=True)
+    (ep / "assets" / "diagrams").mkdir(parents=True)
+    (ep / "assets" / "manim" / "anim.spec.json").write_text(json.dumps({
+        "template": "resource_flow",
+        "data": {"nodes": [
+            {"id": "rg", "label": "Resource Group"},
+            {"id": "vnet", "label": "VNet"}],
+            "edges": [{"from": "rg", "to": "vnet"}]},
+    }), encoding="utf-8")
+    (ep / "assets" / "diagrams" / "fb.spec.json").write_text(json.dumps(
+        {"nodes": [{"id": "rg", "label": "Resource Group"}], "edges": []}),
+        encoding="utf-8")
+    scenes = [
+        {"id": "S001", "type": "TITLE", "narration": "Welcome."},
+        scene,
+        {"id": "S003", "type": "RECAP", "narration": "We saw the flow.",
+         "points": ["the flow"]},
+        {"id": "S004", "type": "NEXT", "narration": NEXT},
+        {"id": "S005", "type": "PORTAL", "narration": "Here it is.",
+         "demo": True},
+    ]
+    (ep / "writing").mkdir(parents=True, exist_ok=True)
+    (ep / "writing" / "scenes.json").write_text(
+        json.dumps({"scenes": scenes}), encoding="utf-8")
+    result, fails = vs.validate_scene_scenes(str(ep))
+    return result, fails
+
+
+def manim_scene(**extra):
+    s = {"id": "S002", "type": "MANIM", "narration": "Watch the flow build.",
+         "asset": "assets/manim/anim.mp4",
+         "fallback_asset": "assets/diagrams/fb.svg",
+         "steps": [{"narration": "the resource group", "nodes": ["rg"],
+                    "edges": ["rg-vnet"]}]}
+    s.update(extra)
+    return s
+
+
+def test_manim_scene_passes(tmp_path):
+    result, fails = manim_episode(manim_scene(), tmp_path)
+    assert result["status"] == "pass", fails
+
+
+def test_manim_missing_fallback_asset_fails(tmp_path):
+    s = manim_scene()
+    del s["fallback_asset"]
+    result, fails = manim_episode(s, tmp_path)
+    assert result["status"] == "fail"
+    assert any("missing fallback_asset" in f for f in fails)
+
+
+def test_manim_missing_spec_fails(tmp_path):
+    manim_episode(manim_scene(), tmp_path)   # create the fixture first
+    (tmp_path / "mep" / "assets" / "manim" / "anim.spec.json").unlink()
+    result, fails = vs.validate_scene_scenes(str(tmp_path / "mep"))
+    assert any("MANIM spec missing" in f for f in fails)
+
+
+def test_manim_unknown_template_fails(tmp_path):
+    # free-form animation code is not allowed — spec templates only
+    manim_episode(manim_scene(steps=[]), tmp_path)   # create the dirs+spec
+    (tmp_path / "mep" / "assets" / "manim" / "anim.spec.json").write_text(
+        json.dumps({"template": "freeform_spin", "data": {"nodes": []}}),
+        encoding="utf-8")
+    result, fails = vs.validate_scene_scenes(str(tmp_path / "mep"))
+    assert any("unknown Manim template" in f for f in fails)
+
+
+def test_manim_step_node_outside_spec_fails(tmp_path):
+    s = manim_scene(steps=[{"narration": "the vm", "nodes": ["vm"]}])
+    result, fails = manim_episode(s, tmp_path)
+    assert any("'vm' not in manim spec" in f for f in fails)
+
+
+def test_manim_fallback_spec_must_exist(tmp_path):
+    manim_episode(manim_scene(), tmp_path)   # create the fixture first
+    (tmp_path / "mep" / "assets" / "diagrams" / "fb.spec.json").unlink()
+    result, fails = vs.validate_scene_scenes(str(tmp_path / "mep"))
+    assert any("fallback diagram spec missing" in f for f in fails)
+
+
+def test_manim_element_without_label_fails(tmp_path):
+    manim_episode(manim_scene(
+        steps=[{"narration": "the thing", "nodes": ["rg"]}]), tmp_path)
+    (tmp_path / "mep" / "assets" / "manim" / "anim.spec.json").write_text(
+        json.dumps({"template": "resource_flow",
+                    "data": {"nodes": [{"id": "rg"}], "edges": []}}),
+        encoding="utf-8")
+    result, fails = vs.validate_scene_scenes(str(tmp_path / "mep"))
+    assert any("missing label" in f for f in fails)

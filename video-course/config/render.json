@@ -8,5 +8,14 @@
   "subtitles": "EXTERNAL_SRT_ONLY",
   "subtitle_policy": "final/episode.srt is generated separately from final audio timing. Never burn-in, never embed as MP4 subtitle stream, never render via remotion-captions or any Remotion text overlay.",
   "srt_style": { "max_lines": 2, "chars_per_line": [35, 45], "segment_sec": [1.5, 6] },
+  "manim": {
+    "enabled": true,
+    "version_pin": "manim==0.20.1",
+    "resolution": { "width": 1920, "height": 1080 },
+    "fps": 30,
+    "templates": ["resource_flow", "packet_path", "cidr_subnets"],
+    "fallback_policy": "Every MANIM scene declares a validated non-Manim fallback (a build_diagram.py SVG spec). If the Manim render fails locally or in CI, the fallback renders instead; the swap is recorded in <asset>.fallback.json and surfaces in quality-check.json — never silent, never blocking.",
+    "timing_policy": "Animation beats are derived from measured step_frames in timing/timed-scenes.json (audio is the timing authority); narration speed is never altered to fit an animation."
+  },
   "notes": "CRF 18-20 quality-based H.264 keeps thin code text readable (never starve the bitrate); audio AAC 128-160k."
 }

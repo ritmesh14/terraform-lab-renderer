@@ -231,9 +231,10 @@ def sync_episode(ep, source_root, clone, changed=None):
     print("[sync] writing/ synced")
 
     # 5. authored asset specs + terminal fixtures (inputs for the CI asset
-    #    stage; rendered assets stay un-synced/regenerated)
+    #    stage; rendered assets stay un-synced/regenerated). Includes the
+    #    optional Manim animation specs (assets/manim/*.spec.json).
     n_spec = 0
-    for sub in ("diagrams", "terminal"):
+    for sub in ("diagrams", "terminal", "manim"):
         src_sub = os.path.join(ep_dir, "assets", sub)
         if not os.path.isdir(src_sub):
             continue

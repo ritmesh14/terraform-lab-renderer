@@ -9,6 +9,12 @@ it from its authored spec (specs live beside the generated asset as
               + Playwright Chromium screenshot -> assets/code/<name>.png (1920x1080)
   DIAGRAM  -> build_diagram.py --json <spec>  (label-collision gate: exit 3 blocks)
   TERMINAL -> render_terminal_svg.py <spec>
+  MANIM    -> generate_manim.py <episode-dir> --scene Sxxx (optional animation
+              layer: spec-driven Manim clip, narration-synced beats). Failure
+              is NOT fatal: the scene's MANDATORY fallback_asset (a
+              build_diagram.py SVG rendered here first) is engaged, the swap
+              is recorded in <asset>.fallback.json and surfaces in
+              quality-check.json — never silent.
 
 TITLE/CONCEPT/RECAP/NEXT scenes have no asset file — Remotion renders them
 natively from scenes.json.
@@ -85,6 +91,38 @@ def main():
                 sys.exit(f"missing terminal spec: {spec}")
             run([sys.executable, os.path.join(HERE, "render_terminal_svg.py"),
                  spec, "-o", out])
+        elif kind == "MANIM":
+            spec = os.path.splitext(out)[0] + ".spec.json"
+            if not os.path.isfile(spec):
+                sys.exit(f"missing manim spec: {spec}")
+            # the validated non-Manim fallback is MANDATORY — render it first
+            # so the scene can always be composed even if Manim fails
+            fb = sc.get("fallback_asset")
+            if not fb:
+                sys.exit(f"{sc.get('id')}: MANIM scene missing fallback_asset")
+            fb_out = os.path.join(ep_dir, *fb.split("/"))
+            fb_spec = os.path.splitext(fb_out)[0] + ".spec.json"
+            if not os.path.isfile(fb_spec):
+                sys.exit(f"missing fallback diagram spec: {fb_spec}")
+            run([sys.executable, os.path.join(HERE, "build_diagram.py"),
+                 "--json", fb_spec, "-o", fb_out])
+            # Manim render (narration-synced): failure engages the fallback
+            marker = out + ".fallback.json"
+            sid = sc.get("id", "")
+            p = subprocess.run([sys.executable, os.path.join(HERE,
+                                 "generate_manim.py"), ep_dir, "--scene", sid])
+            if p.returncode == 0 and os.path.isfile(out):
+                if os.path.isfile(marker):
+                    os.remove(marker)
+                print(f"[assets] {asset} (manim)")
+            else:
+                json.dump({"used_fallback": True, "fallback_asset": fb,
+                           "scene": sid}, open(marker, "w", encoding="utf-8"))
+                print(f"[assets] MANIM fallback engaged for {sid} -> {fb} "
+                      f"(recorded in {os.path.basename(marker)})")
+                # the manim clip was NOT produced — do not report the mp4 as
+                # a generated asset (the fallback SVG above is the deliverable)
+                continue
         else:
             # no asset file for this visual_type. Asset-less transform types
             # (ITERATION_EXPANSION, STATE_ADDRESS, FOR_EACH_MAP, and the

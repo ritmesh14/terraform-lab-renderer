@@ -32,8 +32,17 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from validate_srt_coverage import spoken_text, validate as srt_validate  # noqa: E402
 
 WORD_WPM = 150  # rough spoken-rate estimate for the pre-audio WARN only
-MIN_EPISODE_SEC = 180   # course minimum: ~3 minutes (4-15 min is the normal target)
-MAX_EPISODE_SEC = 900   # course maximum: 15 minutes
+# Part 1 duration policy (VIDEO-MAKING-PROCESS.md, updated 2026-10-31): the
+# AI-generated instructional portion (everything before the outro clip) must
+# MEASURE 4:00-10:00. The user-recorded demo and the thank-you outro are
+# excluded. Never satisfy the range by speeding audio, trimming facts or
+# padding silence — revise narration/scene design, or split the lesson.
+PART1_MIN_SEC = 240
+PART1_MAX_SEC = 600
+# pre-audio estimate band (whole-episode narration incl. outro ~30-60s):
+# WARN only, measured gate below is authoritative
+MIN_EPISODE_SEC = 240
+MAX_EPISODE_SEC = 660
 MAX_SCENES = 80
 FIRST_CODE_TARGET_SEC = 60  # first meaningful Terraform code within 35-60s
 # fragments assembled at runtime: the scanner must never trip on
@@ -129,6 +138,21 @@ def main():
         g1.append("no RECAP scene — every educational episode must end with one")
     if not demo_teaser_present:
         g1.append("no NEXT scene — the real-world demo transition is missing")
+
+    # The user-recorded demo is ALWAYS the final instructional segment
+    # (inserted manually between the two publishing parts); the only AI
+    # content after the NEXT transition is the thank-you outro. Outro scenes
+    # may only be CONCEPT/TITLE (sign-off, no new technical content).
+    if demo_teaser_present:
+        instructional_after_next = [
+            f"{s.get('id')}({str(s.get('type', '')).upper()})"
+            for s in scenes[types.index("NEXT") + 1:]
+            if str(s.get("type", "")).upper() not in ("CONCEPT", "TITLE")]
+        if instructional_after_next:
+            g3.append("instructional scene(s) after NEXT: "
+                      + ", ".join(instructional_after_next)
+                      + " — the demo is the final instructional segment and the "
+                      "outro must contain no new technical content")
 
     # ----------------------------- ground truth scope -----------------------
     manifest_path = os.path.join(ep, "source", "source-manifest.json")
@@ -226,7 +250,9 @@ def main():
     est = total_words / WORD_WPM * 60
     if est > MAX_EPISODE_SEC or est < MIN_EPISODE_SEC:
         warns.append(f"estimated spoken length {est:.0f}s outside the "
-                     f"{MIN_EPISODE_SEC}-{MAX_EPISODE_SEC}s course range (4-15 min typical)")
+                     f"{MIN_EPISODE_SEC}-{MAX_EPISODE_SEC}s band — the measured "
+                     "instructional Part 1 must land in 4:00-10:00 (demo + outro "
+                     "excluded); if the topic cannot fit, split the lesson")
     if len(scenes) > MAX_SCENES:
         warns.append(f"{len(scenes)} scenes is a lot — consider merging scenes for pacing")
 
@@ -254,6 +280,19 @@ def main():
     if first_code_sec is not None and first_code_sec > FIRST_CODE_TARGET_SEC:
         warns.append(f"first meaningful code at ~{first_code_sec:.0f}s "
                      f"(target: within {FIRST_CODE_TARGET_SEC}s for short labs)")
+
+    # measured Part 1 duration — BLOCKING once audio exists. Part 1 = frames
+    # 0..split-1 at the exact boundary render_parts.py uses (the LAST scene's
+    # scene_start_frame; the outro is the final scene). Demo + outro excluded.
+    part1_sec = None
+    if timed and fps:
+        part1_sec = timed_doc["scenes"][-1]["scene_start_frame"] / fps
+        if part1_sec < PART1_MIN_SEC or part1_sec > PART1_MAX_SEC:
+            g3.append(f"Part 1 (instructional) measured {part1_sec:.0f}s — outside "
+                      f"the 4:00-10:00 target ({PART1_MIN_SEC}-{PART1_MAX_SEC}s; demo "
+                      "and outro excluded). Revise narration/scene design and "
+                      "regenerate only the impacted scenes; never speed audio, trim "
+                      "facts or pad silence. If the topic cannot fit, split the lesson")
 
     # per-scene WPM (measured) — dense scenes above range fail learning QC
     voice_cfg = {}
@@ -370,7 +409,10 @@ def main():
              "gate2_technical_correctness": {"status": "fail" if g2 else "pass",
                                              "cross_lab_contamination": cross_lab_contamination},
              "gate3_learning_experience": {"status": "fail" if g3 else "pass",
-                                           "first_code_sec": first_code_sec},
+                                           "first_code_sec": first_code_sec,
+                                           "part1_sec": part1_sec,
+                                           "part1_target_sec": [PART1_MIN_SEC,
+                                                                PART1_MAX_SEC]},
              "gate4_media_quality": media_checks}
     fails = g1 + g2 + g3 + g4
     result = {"status": "fail" if fails else "pass",

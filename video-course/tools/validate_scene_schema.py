@@ -4,7 +4,8 @@ structurally sound BEFORE any TTS money/time is spent. Schema errors fail the
 pipeline before TTS.
 
 Per-visual-type rules (TITLE/CONCEPT/CODE/TERMINAL/DIAGRAM/RECAP/NEXT/PORTAL
-plus the asset-less transform types ITERATION_EXPANSION/STATE_ADDRESS):
+plus the asset-less transform types ITERATION_EXPANSION/STATE_ADDRESS and
+the optional Manim animation layer MANIM):
   - every scene: id, type, narration (or steps with narrations), audio
   - CODE: source_file/start_line/end_line (1 <= start <= end), asset, optional
     steps with active_lines within [start_line, end_line] and active_tokens
@@ -40,7 +41,11 @@ FIXED_NEXT = ("Now that we understand how this Terraform configuration works, "
               "and deploy it in Microsoft Azure.")
 TYPES = {"TITLE", "CONCEPT", "CODE", "TERMINAL", "DIAGRAM", "RECAP", "NEXT",
          "PORTAL", "ITERATION_EXPANSION", "STATE_ADDRESS", "FOR_EACH_MAP",
-         "DYNAMIC_BLOCK"}
+         "DYNAMIC_BLOCK", "MANIM"}
+# Optional Manim animation layer (VIDEO-MAKING-PROCESS.md §6, 2026-10-31):
+# spec-driven templates only — every animation is grounded in the validated
+# lab inventory/spec data; free-form Manim code scenes are not allowed.
+MANIM_TEMPLATES = {"resource_flow", "packet_path", "cidr_subnets"}
 # fragments assembled at runtime: the scanner must never trip on
 # its own source when it scans the synced production source
 LEAK_RE = re.compile("|".join((
@@ -221,6 +226,51 @@ def _validate(scenes, ep, sources=None):
                 for it in focus.get("items", []):
                     check(it in item_ids,
                           f"{sid}.step{i}: focus item '{it}' not in stage items")
+        elif typ == "MANIM":
+            # optional technical-animation layer: the mp4 is rendered from a
+            # spec-driven template by generate_manim.py; a VALIDATED non-Manim
+            # fallback (a build_diagram.py SVG spec) is MANDATORY so the scene
+            # still renders if Manim is unavailable or fails (process §6/§14).
+            check(bool(s.get("asset")), f"{sid}: MANIM missing asset (mp4)")
+            spec = os.path.join(ep, *(os.path.splitext(
+                s.get("asset", ""))[0].split("/"))) + ".spec.json"
+            check(os.path.isfile(spec), f"{sid}: MANIM spec missing: {spec}")
+            elem_ids, edge_ids = set(), set()
+            if os.path.isfile(spec):
+                specdoc = json.load(open(spec, encoding="utf-8"))
+                tmpl = specdoc.get("template")
+                check(tmpl in MANIM_TEMPLATES,
+                      f"{sid}: unknown Manim template {tmpl!r} "
+                      f"(known: {sorted(MANIM_TEMPLATES)})")
+                data = specdoc.get("data", {}) if isinstance(specdoc.get("data"),
+                                                            dict) else {}
+                # element ids differ per template: resource_flow -> nodes,
+                # packet_path -> hops, cidr_subnets -> subnets
+                elem_ids = ({n.get("id") for n in data.get("nodes", [])}
+                            | {h.get("id") for h in data.get("hops", [])}
+                            | {sn.get("name") for sn in data.get("subnets", [])}
+                            ) - {None}
+                edge_ids = {f"{e['from']}-{e['to']}"
+                            for e in data.get("edges", [])}
+                for n in data.get("nodes", []) + data.get("hops", []):
+                    label = n.get("label") or n.get("name")
+                    check(bool(label), f"{sid}: MANIM element '{n.get('id')}' "
+                          "missing label")
+            fb = s.get("fallback_asset")
+            check(bool(fb), f"{sid}: MANIM missing fallback_asset "
+                  "(static diagram — mandatory non-Manim fallback)")
+            if fb:
+                fb_out = os.path.join(ep, *fb.split("/"))
+                fb_spec = os.path.splitext(fb_out)[0] + ".spec.json"
+                check(os.path.isfile(fb_spec),
+                      f"{sid}: fallback diagram spec missing: {fb_spec}")
+            for i, st in enumerate(steps, 1):
+                for n in st.get("nodes", []):
+                    check(n in elem_ids,
+                          f"{sid}.step{i}: element '{n}' not in manim spec")
+                for e in st.get("edges", []):
+                    check(e in edge_ids,
+                          f"{sid}.step{i}: edge '{e}' not in manim spec")
         elif typ == "RECAP":
             check(bool(s.get("points")), f"{sid}: RECAP missing points")
         elif typ == "NEXT":

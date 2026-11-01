@@ -94,6 +94,17 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r video-course/requirements-ci.txt
 
+      # Optional Manim animation layer (VIDEO-MAKING-PROCESS.md section 6):
+      # continue-on-error keeps non-MANIM labs rendering if the install or
+      # the runner environment changes — MANIM scenes then use their
+      # validated static fallback (recorded in quality-check.json, never
+      # silent). Remove continue-on-error once proven on the pilot run.
+      - name: Install Manim (optional animation layer)
+        continue-on-error: true
+        run: |
+          python -m pip install "manim==0.20.1"
+          python -c "import manim; print('manim', manim.__version__, 'ready')"
+
       - name: Install Playwright Chromium
         run: |
           python -m playwright install --with-deps chromium

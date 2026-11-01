@@ -87,7 +87,9 @@ class SpecScene(Scene):
         t = title and min(0.8, plan["lead_in_sec"]) or 0.0
 
         # single-column chain for <=6 nodes (matches the canonical diagram
-        # layout rule: chains read top-to-bottom); two columns beyond that
+        # layout rule: chains read top-to-bottom); two columns beyond that.
+        # Row pitch 2.15 keeps a visible gap between adjacent boxes so
+        # inter-box arrows never degenerate (buff must stay < pitch/2).
         n = len(nodes)
         cols = 1 if n <= 6 else 2
         rows = (n + cols - 1) // cols
@@ -103,14 +105,19 @@ class SpecScene(Scene):
             grp = VGroup(body, label)
             grp.move_to(ORIGIN).shift(
                 RIGHT * (col_i - (cols - 1) / 2.0) * 5.6
-                + DOWN * (row_i - (rows - 1) / 2.0) * 1.85)
+                + DOWN * (row_i - (rows - 1) / 2.0) * 2.15)
             boxes[nd["id"]] = grp
         arrows = {}
         for e in edges:
             key = f"{e['from']}-{e['to']}"
             if e["from"] in boxes and e["to"] in boxes:
-                arrows[key] = Arrow(boxes[e["from"]].get_center(),
-                                     boxes[e["to"]].get_center(), buff=0.95,
+                c1 = boxes[e["from"]].get_center()
+                c2 = boxes[e["to"]].get_center()
+                dist = ((c2[0] - c1[0]) ** 2 + (c2[1] - c1[1]) ** 2) ** 0.5
+                # start/end just OUTSIDE the box borders: never degenerate,
+                # tips land on the node edge like build_diagram.py connectors
+                buff = min(0.95, max(0.12, dist / 2.0 - 0.60))
+                arrows[key] = Arrow(c1, c2, buff=buff,
                                      stroke_color=PALETTE["edge"],
                                      stroke_width=3, max_tip_length_to_length_ratio=0.15)
 

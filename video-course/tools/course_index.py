@@ -55,10 +55,9 @@ def public_rel_path(ep):
     differ for sections 02+; the public name is what viewers' URLs use."""
     if ep.get("public_path"):
         return ep["public_path"].replace("\\", "/")
-    sec_map = renumber_map().get(ep["section"], {})
-    old = sec_map.get(ep["lab"])
-    if old:
-        return f"{ep['section']}/{old}"
+    # No public_path recorded: the public repo is 1:1 with the authoring tree
+    # since 2026-10-05, so the local relative path IS the public path. Never
+    # fall back to the renumber map's old per-section names.
     return ep["path"].replace("\\", "/")
 
 
@@ -84,13 +83,13 @@ def load_course_manifest(root, rebuild=False, manifest_path=None):
             return json.load(f)["labs"]
     labs = discover_labs(root)
     course = course_cfg()
-    rmap = renumber_map()
     doc = {"labs": []}
     for i, ep in enumerate(labs):
         ep = dict(ep)
-        old = rmap.get(ep["section"], {}).get(ep["lab"])
-        if old:
-            ep["public_path"] = f"{ep['section']}/{old}"
+        # 2026-10-05 onward the public repo carries GLOBAL folder names, so the
+        # public name IS the local folder name (1:1). The renumber map's "old"
+        # per-section names are history, never used for viewer URLs again.
+        ep["public_path"] = ep["path"].replace("\\", "/")
         doc["labs"].append({**ep, "number": i + 1,
                             "public_lab_url": public_lab_url(ep, course)})
     os.makedirs(os.path.dirname(manifest_path), exist_ok=True)

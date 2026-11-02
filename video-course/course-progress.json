@@ -122,88 +122,93 @@
     },
     "section-01-foundations/11-maps-for-subnets": {
       "status": "RENDERED",
-      "public_lab_url": null,
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/11-maps-for-subnets",
       "pipeline": "new",
       "rendered_via": "ci"
     },
     "section-01-foundations/12-subnet-resource": {
       "status": "RENDERED",
-      "public_lab_url": null,
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/12-subnet-resource",
       "pipeline": "new",
       "rendered_via": "ci"
     },
     "section-01-foundations/13-network-interface": {
       "status": "RENDERED",
-      "public_lab_url": null,
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/13-network-interface",
       "pipeline": "new",
       "rendered_via": "ci"
     },
     "section-01-foundations/14-output-values": {
       "status": "RENDERED",
-      "public_lab_url": null,
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/14-output-values",
       "pipeline": "new",
       "rendered_via": "ci"
     },
     "section-01-foundations/15-public-ip": {
       "status": "RENDERED",
-      "public_lab_url": null,
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/15-public-ip",
       "pipeline": "new",
       "rendered_via": "ci"
     },
     "section-01-foundations/16-network-security-group": {
       "status": "RENDERED",
-      "public_lab_url": null,
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/16-network-security-group",
       "pipeline": "new",
       "rendered_via": "ci"
     },
     "section-01-foundations/17-virtual-machine": {
       "status": "RENDERED",
-      "public_lab_url": null,
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/17-virtual-machine",
       "pipeline": "new",
       "rendered_via": "ci"
     },
     "section-01-foundations/18-input-variables": {
       "status": "RENDERED",
-      "public_lab_url": null,
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/18-input-variables",
       "pipeline": "new",
       "rendered_via": "ci"
     },
     "section-01-foundations/19-variable-definition-file": {
       "status": "RENDERED",
-      "public_lab_url": null,
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/19-variable-definition-file",
       "pipeline": "new",
       "rendered_via": "ci"
     },
     "section-01-foundations/20-secret-values": {
       "status": "RENDERED",
-      "public_lab_url": null,
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/20-secret-values",
       "pipeline": "new",
       "rendered_via": "ci"
     },
     "section-01-foundations/21-data-disk": {
       "status": "RENDERED",
       "pipeline": "new",
-      "rendered_via": "ci"
+      "rendered_via": "ci",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/21-data-disk"
     },
     "section-01-foundations/22-terraform-import": {
       "status": "RENDERED",
       "pipeline": "new",
-      "rendered_via": "ci"
+      "rendered_via": "ci",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/22-terraform-import"
     },
     "section-01-foundations/23-moved-block": {
       "status": "RENDERED",
       "pipeline": "new",
-      "rendered_via": "ci"
+      "rendered_via": "ci",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/23-moved-block"
     },
     "section-01-foundations/24-templatefile": {
       "status": "RENDERED",
       "pipeline": "new",
-      "rendered_via": "ci"
+      "rendered_via": "ci",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/24-templatefile"
     },
     "section-01-foundations/25-cidrsubnet-for": {
       "status": "RENDERED",
       "pipeline": "new",
-      "rendered_via": "ci"
+      "rendered_via": "ci",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-01-foundations/25-cidrsubnet-for"
     },
     "section-02-meta-arguments/26-count-meta-argument": {
       "status": "RENDERED",
@@ -222,11 +227,13 @@
     },
     "section-02-meta-arguments/29-for-each-blobs": {
       "status": "RENDERED",
-      "pipeline": "new"
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/29-for-each-blobs"
     },
     "section-02-meta-arguments/30-multiple-subnets": {
       "status": "RENDERED",
-      "pipeline": "new"
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/30-multiple-subnets"
     },
     "section-02-meta-arguments/31-multiple-nics": {
       "status": "RENDERED",
@@ -255,71 +262,86 @@
     },
     "section-02-meta-arguments/36-availability-sets": {
       "status": "RENDERED",
-      "pipeline": "new"
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/36-availability-sets"
     },
     "section-02-meta-arguments/37-availability-zones": {
       "status": "RENDERED",
-      "pipeline": "new"
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/37-availability-zones"
     },
     "section-02-meta-arguments/38-key-vault": {
       "status": "RENDERED",
-      "pipeline": "new"
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/38-key-vault"
     },
     "section-02-meta-arguments/39-data-sources": {
       "status": "RENDERED",
-      "pipeline": "new"
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/39-data-sources"
     },
     "section-02-meta-arguments/40-web-server": {
       "status": "RENDERED",
-      "pipeline": "new"
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/40-web-server"
     },
     "section-02-meta-arguments/41-dynamic-blocks": {
       "status": "RENDERED",
-      "pipeline": "new"
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/41-dynamic-blocks"
     },
     "section-02-meta-arguments/42-linux-read-file": {
       "status": "RENDERED",
-      "pipeline": "new"
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/42-linux-read-file"
     },
     "section-02-meta-arguments/43-linux-restructure": {
       "status": "RENDERED",
-      "pipeline": "new"
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/43-linux-restructure"
     },
     "section-02-meta-arguments/44-linux-deployment": {
       "status": "RENDERED",
-      "pipeline": "new"
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/44-linux-deployment"
     },
     "section-02-meta-arguments/45-provisioners": {
       "status": "RENDERED",
-      "pipeline": "new"
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/45-provisioners"
     },
     "section-02-meta-arguments/46-azure-bastion": {
       "status": "RENDERED",
-      "pipeline": "new"
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/46-azure-bastion"
     },
     "section-02-meta-arguments/47-conditional-resources": {
       "status": "RENDERED",
-      "pipeline": "new"
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/47-conditional-resources"
     },
     "section-02-meta-arguments/49-for-data-sources": {
       "status": "RENDERED",
       "pipeline": "new",
-      "rendered_via": "ci"
+      "rendered_via": "ci",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/49-for-data-sources"
     },
     "section-02-meta-arguments/50-dynamic-multi": {
       "status": "RENDERED",
       "pipeline": "new",
-      "rendered_via": "ci"
+      "rendered_via": "ci",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/50-dynamic-multi"
     },
     "section-02-meta-arguments/48-flatten-matrix": {
       "status": "RENDERED",
       "pipeline": "new",
-      "rendered_via": "ci"
+      "rendered_via": "ci",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-02-meta-arguments/48-flatten-matrix"
     },
     "section-03-web-apps-and-databases/51-web-app": {
       "status": "RENDERED",
       "pipeline": "new",
-      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-03-web-apps-and-databases/01-web-app",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-03-web-apps-and-databases/51-web-app",
       "rendered_via": "local"
     }
   },

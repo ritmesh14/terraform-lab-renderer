@@ -315,6 +315,12 @@
       "status": "RENDERED",
       "pipeline": "new",
       "rendered_via": "ci"
+    },
+    "section-03-web-apps-and-databases/51-web-app": {
+      "status": "RENDERED",
+      "pipeline": "new",
+      "public_lab_url": "https://github.com/RIT-MESH/Terraform-Azure-Labs-and-Case_Studies/tree/master/labs/section-03-web-apps-and-databases/01-web-app",
+      "rendered_via": "local"
     }
   },
   "notes": "Global course memory only: concepts/terminology/style. Lab-specific facts (resource names, variables, architecture) must NEVER be recorded here \u2014 per critical memory separation rule. Outro convention (since Lab 01, 2026-09-23): final scene always includes a calm like/share/subscribe CTA before sign-off. Diagram rule (since Lab 02, 2026-09-24): diagrams are narration-synchronized (steps + step_frames active highlighting) and must pass the build_diagram.py label-collision gate before rendering.\n2026-09-24 USER CORRECTION: two-part delivery format RESTORED (same-video retired). render_parts.py is back in the default render/ci pipeline; publishing deliverables are <lab>-<name>-part1-main.mp4(+srt) + <lab>-<name>-part2-thankyou.mp4(+srt); episode.mp4/.srt = archive full cut; demo inserted manually between parts; demo-gate QC checks are record-only. 2026-09-25: CI run 36004465310 green \u2014 artifact terraform-lab-02-video-3 copied into episode folder (final/ now holds the two-part publishing deliverables 02-storage-account-part1-main + part2-thankyou with per-part SRTs, both 1920x1080@30 h264; qc_passed=true, validation=pass, 77 cues); part2 outro frame-verified (public GitHub breadcrumb, no internal paths)."

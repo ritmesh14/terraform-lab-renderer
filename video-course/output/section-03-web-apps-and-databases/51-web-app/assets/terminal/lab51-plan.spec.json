@@ -1,0 +1,10 @@
+{
+  "mode": "illustrative",
+  "command": "terraform plan",
+  "output_file": "lab51-plan.txt",
+  "highlight": [
+    "\"app-webapp-ab12cd\"",
+    "\"B1\"",
+    "Plan: 4 to add"
+  ]
+}

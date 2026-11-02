@@ -77,6 +77,9 @@ video-course/output/**/assets/diagrams/*
 video-course/output/**/assets/terminal/*
 !video-course/output/**/assets/terminal/*.spec.json
 !video-course/output/**/assets/terminal/*.txt
+# Manim: rendered clips + fallback markers ignored; authored specs re-included
+video-course/output/**/assets/manim/*
+!video-course/output/**/assets/manim/*.spec.json
 
 # Video files
 *.mp4

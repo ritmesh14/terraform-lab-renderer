@@ -1,0 +1,49 @@
+{
+  "layers": [
+    [
+      "rg"
+    ],
+    [
+      "plan",
+      "suffix"
+    ],
+    [
+      "app"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": "rg",
+      "label": "rg-webapp"
+    },
+    {
+      "id": "plan",
+      "label": "asp-webapp (B1, Linux)"
+    },
+    {
+      "id": "app",
+      "label": "app-webapp-<suffix>"
+    },
+    {
+      "id": "suffix",
+      "label": "random_string.suffix"
+    }
+  ],
+  "edges": [
+    {
+      "from": "rg",
+      "to": "plan",
+      "label": "name + location"
+    },
+    {
+      "from": "plan",
+      "to": "app",
+      "label": "service_plan_id"
+    },
+    {
+      "from": "suffix",
+      "to": "app",
+      "label": "unique name"
+    }
+  ]
+}

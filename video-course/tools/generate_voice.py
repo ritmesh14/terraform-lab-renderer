@@ -39,6 +39,20 @@ import time
 
 import requests
 
+# Transient TTS failures that deserve a bounded retry. edge-tts raises
+# EdgeTTSException subclasses (NoAudioReceived on throttling/Sec-MS-GEC
+# flake, WebSocketError) and the 403 handshake surfaces as aiohttp
+# ClientError — any of these on ONE scene used to kill the whole stage
+# because only RuntimeError/SubprocessError were caught (CI run
+# 41543367117, 2026-11-03).
+try:
+    from edge_tts.exceptions import EdgeTTSException
+    import aiohttp
+    _TRANSIENT = (RuntimeError, subprocess.SubprocessError, OSError,
+                  EdgeTTSException, aiohttp.ClientError)
+except ImportError:  # edge path not installed (minimax-only hosts)
+    _TRANSIENT = (RuntimeError, subprocess.SubprocessError, OSError)
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 VIDEO_COURSE_ROOT = os.path.dirname(HERE)
 DEFAULT_VOICE_CFG = os.path.join(VIDEO_COURSE_ROOT, "config", "voice.json")
@@ -51,7 +65,7 @@ _WINGET_FFMPEG = os.path.expandvars(
     r".Source_8wekyb3d8bbwe\ffmpeg-*-full_build\bin\ffmpeg.exe")
 
 MAX_TEXT = 9000
-RETRIES = 3
+RETRIES = 5
 
 
 def find_ffmpeg():
@@ -264,7 +278,7 @@ def main():
                 edge_cli_timing(text, cfg, tmp)
                 os.replace(tmp, path)
                 return None
-            except (RuntimeError, subprocess.SubprocessError) as e:
+            except _TRANSIENT as e:
                 last = e
                 time.sleep(2 * (attempt + 1))
         raise SystemExit(f"TTS failed after {RETRIES} attempts: {last}")

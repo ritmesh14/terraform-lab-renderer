@@ -1,0 +1,41 @@
+{
+  "template": "resource_flow",
+  "title": "Deployment order",
+  "data": {
+    "nodes": [
+      {
+        "id": "rg",
+        "label": "Resource Group"
+      },
+      {
+        "id": "plan",
+        "label": "Service Plan (B1)"
+      },
+      {
+        "id": "app",
+        "label": "Linux Web App"
+      },
+      {
+        "id": "suffix",
+        "label": "random_string suffix"
+      }
+    ],
+    "edges": [
+      {
+        "from": "rg",
+        "to": "plan",
+        "label": "name + location"
+      },
+      {
+        "from": "plan",
+        "to": "app",
+        "label": "service_plan_id"
+      },
+      {
+        "from": "suffix",
+        "to": "app",
+        "label": "unique name"
+      }
+    ]
+  }
+}

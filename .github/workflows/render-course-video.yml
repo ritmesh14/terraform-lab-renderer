@@ -94,13 +94,13 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r video-course/requirements-ci.txt
 
-      # Optional Manim animation layer (VIDEO-MAKING-PROCESS.md section 6):
-      # continue-on-error keeps non-MANIM labs rendering if the install or
-      # the runner environment changes — MANIM scenes then use their
-      # validated static fallback (recorded in quality-check.json, never
-      # silent). Remove continue-on-error once proven on the pilot run.
-      - name: Install Manim (optional animation layer)
-        continue-on-error: true
+      # Manim animation layer (VIDEO-MAKING-PROCESS.md section 6) — proven on
+      # ubuntu runners 2026-11-03 (run 41555898486: install green, clip
+      # rendered, qc "manim animations rendered (no fallback)" PASS), so the
+      # install is now a HARD dependency: a failure must fail the run instead
+      # of silently engaging the fallback SVG. MANIM scenes still carry their
+      # validated static fallback for genuine render-time failures.
+      - name: Install Manim (animation layer)
         run: |
           # manim 0.20.1 pins manimpango<1.0.0 -> pip resolves 0.7.1, which has
           # no linux wheel for py3.12 and builds from source. That source build

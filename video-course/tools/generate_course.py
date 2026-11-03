@@ -205,6 +205,8 @@ def stage_render(ep, out_dir, force=False):
     run("generate_srt.py", out_dir)  # final SRT from actual audio (+coverage gate)
     run("qc_frames.py", out_dir)     # export preview/qc-frames for visual QC
     run("render_parts.py", out_dir)  # TWO-PART publishing deliverables (part1-main + part2-thankyou, +SRTs)
+    run("generate_youtube_metadata.py", "--lab", ep["lab"], *(
+        ["--section", ep["section"]] if ep.get("section") else []))
     set_status(PR, PROGRESS, ep, "RENDERED")
 
 

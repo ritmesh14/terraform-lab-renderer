@@ -105,10 +105,13 @@ jobs:
           # manim 0.20.1 pins manimpango<1.0.0 -> pip resolves 0.7.1, which has
           # no linux wheel for py3.12 and builds from source. That source build
           # needs pangocairo dev libraries (run 41544705817: "pangocairo >=
-          # 1.30.0 is required"), so install them before pip.
+          # 1.30.0 is required"), so install them before pip. NOTE: ubuntu 26
+          # runners no longer ship libpangocairo1.0-dev (run 41549173440:
+          # "Unable to locate package") — pangocairo headers/.pc files come
+          # from libpango1.0-dev.
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            libcairo2-dev libpango1.0-dev libpangocairo1.0-dev pkg-config
+            libcairo2-dev libpango1.0-dev pkg-config
           python -m pip install "manim==0.20.1"
           python -c "import manim; print('manim', manim.__version__, 'ready')"
 

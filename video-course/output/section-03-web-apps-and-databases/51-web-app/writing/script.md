@@ -27,7 +27,13 @@ Where does this fit? Section one built the foundations — resource groups, netw
 
 You'll find this lab in the course GitHub repository, linked in the description, under Section three, Web apps and databases — folder fifty one, web app. Three files. Main dot T F holds the four resources. Terraform dot T F pins the providers. And the README has the exact commands to run.
 
-## S005 — CODE
+## S005 — DIAGRAM: How the pieces connect
+
+[Diagram: lab51-deploy-order.svg — rg-webapp → asp-webapp (B1, Linux) → app-webapp-<suffix>; random_string.suffix → app (unique name)]
+
+Here's how the pieces connect. Everything starts with the resource group — it's the container the whole lab deploys into. The service plan defines the app's pricing tier and operating system. It points at the group's name and location, so it waits for the group. The web app runs on that plan — the service plan id is the dependency that connects them. And a random string feeds the app's name, so every deployment of this lab gets a unique web app. Keep this picture in mind — the next scenes walk the exact Terraform blocks that build it.
+
+## S006 — CODE
 
 ```hcl
 # This file pins the tooling: which Terraform CLI version works, and which
@@ -57,7 +63,7 @@ provider "azurerm" {
 
 First, the tooling pins. The terraform block declares the providers this lab uses: azurerm to talk to Azure, and random for the random string you'll meet in a moment. The version ranges mean every machine that builds this lab resolves the same provider code. Below, the provider block turns on azurerm's default behaviour — the features block is required by the provider, even when you don't customize anything inside it.
 
-## S006 — CODE
+## S007 — CODE
 
 ```hcl
 # locals = named values computed once. Keeping the resource-group name here
@@ -76,7 +82,7 @@ resource "random_string" "suffix" {
 
 Now main dot T F. Locals are named values computed once — here the resource group name lives in one place, so changing it later is a one-line edit. Then the random string. Length six, lowercase letters and digits only — upper and special are switched off, so the suffix is a clean, web-safe fragment for a domain name. And the key idea: random string is a resource. Its value is saved in Terraform state, so it only changes when the resource is destroyed. Every plan and apply reuses the same suffix — the app's name stays stable.
 
-## S007 — CODE
+## S008 — CODE
 
 ```hcl
 # A resource group is Azure's folder/container: every resource lives in one,
@@ -89,7 +95,7 @@ resource "azurerm_resource_group" "this" {
 
 The resource group — you've created one in every lab since section one. The name comes from the local you just saw, and the location is East US. It's the folder the service plan and the web app will live in, and deleting the group still deletes everything inside it.
 
-## S008 — CODE
+## S009 — CODE
 
 ```hcl
 # The Service Plan = the compute tier. sku_name "B1" = small shared Linux.
@@ -105,7 +111,7 @@ resource "azurerm_service_plan" "this" {
 
 The service plan is the compute tier. O S type Linux — it must match the web app you put on it. And the SKU, B one, is the Basic tier: a small, shared Linux instance. The plan answers one question: how much machine does my app get? Every web app sits on exactly one service plan, and the plan's tier controls scaling and features — keep that in mind for deployment slots later in this section.
 
-## S009 — CODE
+## S010 — CODE
 
 ```hcl
 # A Linux Web App runs your code. Names are globally unique (web app DNS).
@@ -128,11 +134,11 @@ output "default_hostname" { value = azurerm_linux_web_app.this.default_hostname 
 
 The web app itself. Its name appends the random suffix — because web app names are globally unique across all of Azure: the domain is the app's name dot azurewebsites dot net, and no two apps can share one. The important line is service plan underscore id — the hard dependency that says: this app runs on that plan. Inside site config, the application stack sets the runtime: node, version eighteen L T S. And at the bottom, the output prints the default hostname — the live URL of your site once apply finishes.
 
-## S010 — MANIM
+## S011 — MANIM
 
 Watch the deployment order unfold. Terraform starts with the resource group — nothing else can exist without it. Next, the service plan: it reads the group's name and location, so it waits for the group. Then the web app — service plan id is the hard dependency that makes it wait for the plan. And the suffix? It depends on nothing, so Terraform can create it any time — it only feeds the app's name.
 
-## S011 — CONCEPT: How Terraform orders the work
+## S012 — CONCEPT: How Terraform orders the work
 
 - References become dependency edges
 - Graph walks top to bottom on create
@@ -140,11 +146,11 @@ Watch the deployment order unfold. Terraform starts with the resource group — 
 
 How did Terraform know to build the group first? It read the references. The plan reads the group's name, so it waits for the group. The app reads the plan's id, so it waits for the plan. Terraform turns those references into a dependency graph and walks it top to bottom — you never write the create order by hand. And when you destroy, it walks the same graph in reverse: the app goes first, the group goes last.
 
-## S012 — TERMINAL
+## S013 — TERMINAL
 
 Here's the plan — terraform plan, an illustrative view. Four resources to add, nothing to change, nothing to destroy: the random string, the resource group, the service plan, and the Linux web app — exactly the inventory you just read. And because the suffix is stateful, after apply its value is saved in state — every later plan keeps the same app name.
 
-## S013 — CONCEPT: Common pitfalls
+## S014 — CONCEPT: Common pitfalls
 
 - B1 is not free — destroy when done
 - Web app names are globally unique — that's the suffix's job
@@ -153,7 +159,7 @@ Here's the plan — terraform plan, an illustrative view. Four resources to add,
 
 Here are the pitfalls in this lab. One: B one is not free. The Basic tier bills by the hour — destroy the lab when you're done. Two: web app names are global. The suffix exists because app name dot azurewebsites dot net must be unique across all of Azure. Three: O S type must match — a Linux web app needs a Linux service plan, so keep them in sync. Four: don't fake randomness with a timestamp. An M D five of timestamp trick regenerates on every run and destroys and recreates your app each time — random string is a stateful resource for exactly this reason.
 
-## S014 — RECAP
+## S015 — RECAP
 
 - App Service = managed web hosting, no VM
 - Service plan is the compute; web app is the code
@@ -163,10 +169,10 @@ Here are the pitfalls in this lab. One: B one is not free. The Basic tier bills 
 
 Quick recap — five things. One: App Service is Azure's managed platform for web apps: no virtual machine, no patching. Two: the service plan is the compute tier; the web app is your code running on it. Three: service plan id is the reference that binds the app to the plan. Four: the random suffix is a stateful resource — stable across applies. Five: the default hostname output hands you the live site URL.
 
-## S015 — NEXT
+## S016 — NEXT
 
 Now that we understand how this Terraform configuration works, in the next part of this video, we'll move to a real-world demo and deploy it in Microsoft Azure.
 
-## S016 — CONCEPT: Thanks for watching
+## S017 — CONCEPT: Thanks for watching
 
 Thanks for watching. If this helped, the full lab — along with every lab in this course — is in the GitHub repository linked in the description. See you in the next one.

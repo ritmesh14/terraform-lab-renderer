@@ -132,8 +132,13 @@ def render(plan, spec, out):
             sys.stderr.write((p.stdout or "")[-4000:] + "\n"
                              + (p.stderr or "")[-4000:])
             raise RuntimeError(f"manim render failed (exit {p.returncode})")
-        produced = sorted(glob.glob(os.path.join(media_dir, "**", "*.mp4"),
-                                    recursive=True))
+        # manim also drops per-animation segments under partial_movie_files/
+        # (0.4s each); sorted() puts them FIRST whenever the output basename
+        # sorts after "partial..." (t*/v*/w*... — silently copied a 0.4s clip
+        # instead of the full one). The deliverable never lives there.
+        produced = [p for p in glob.glob(os.path.join(media_dir, "**", "*.mp4"),
+                                         recursive=True)
+                    if os.sep + "partial_movie_files" + os.sep not in p]
         if not produced:
             raise RuntimeError("manim reported success but produced no mp4")
         os.makedirs(os.path.dirname(out), exist_ok=True)

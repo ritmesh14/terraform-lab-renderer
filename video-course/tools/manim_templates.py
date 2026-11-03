@@ -77,6 +77,57 @@ class SpecScene(Scene):
         """Measured per-step windows (seconds) with their step payloads."""
         return plan.get("beats") or []
 
+    # --------------------------------------- title-band layout (2026-11-03 fix)
+    # Root cause being fixed here: templates drew the title at the frame's
+    # top edge but laid content out centered on ORIGIN — a tall single-
+    # column chain rose straight into the title band and covered it (Lab 51
+    # "Deployment order": top box spanned y 2.675..3.775 vs title bottom
+    # ~2.85). The reusable correction: every template computes the content
+    # REGION below the title and fits/compresses its diagram inside it.
+    # No title => full frame => byte-identical to the previous layout.
+    TITLE_GAP = 0.45        # clearance between the title band and content
+    BOTTOM_MARGIN = 0.20    # keep content off the frame's bottom edge
+    BOX_H = 1.1             # resource_flow node box height
+    BOX_TIP_INSET = 0.05    # arrow tips land just inside the box border
+    CHAIN_PITCH = 2.15      # preferred row pitch (proven non-degenerate)
+    MIN_GAP = 0.55          # minimum inter-box gap for a visible arrow
+
+    def _content_region(self, title):
+        """[top, bottom] in Manim y-coords that ALL diagram mobjects must
+        stay inside. With a title: from the title's bottom edge (minus
+        TITLE_GAP) to the bottom frame margin. Without: the full frame."""
+        top = self.camera.frame_height / 2.0
+        if title is None:
+            return top, -top
+        return (title.get_bottom()[1] - self.TITLE_GAP,
+                -(top - self.BOTTOM_MARGIN))
+
+    def _chain_layout(self, n, region, box_h=BOX_H):
+        """(cols, rows, pitch, box_h) for an n-node chain fitted INSIDE the
+        region. Prefers one column (chains read top-to-bottom); pitch
+        compresses to fit; when compression would degenerate the arrows
+        (pitch < box_h + MIN_GAP) the chain grows a second column, and only
+        then do the boxes themselves shrink. The chain's center must be
+        placed at the region's center (see _content_region)."""
+        top, bottom = region
+        span = top - bottom
+
+        def fit(cols):
+            rows = max(1, (n + cols - 1) // cols)
+            pitch = (self.CHAIN_PITCH if rows == 1 else
+                     min(self.CHAIN_PITCH, (span - box_h) / (rows - 1)))
+            return rows, pitch
+
+        cols = 1 if n <= 6 else 2
+        rows, pitch = fit(cols)
+        if cols == 1 and rows > 1 and pitch < box_h + self.MIN_GAP:
+            cols = 2
+            rows, pitch = fit(cols)
+        if rows > 1 and pitch < box_h + self.MIN_GAP:
+            box_h = max(0.5, (span - (rows - 1) * self.MIN_GAP) / rows)
+            pitch = box_h + self.MIN_GAP
+        return cols, rows, pitch, box_h
+
     # ------------------------------------------------------- resource_flow
     def tmpl_resource_flow(self, plan):
         spec, data = plan["spec"], plan["spec"].get("data", {})
@@ -88,24 +139,31 @@ class SpecScene(Scene):
 
         # single-column chain for <=6 nodes (matches the canonical diagram
         # layout rule: chains read top-to-bottom); two columns beyond that.
-        # Row pitch 2.15 keeps a visible gap between adjacent boxes so
-        # inter-box arrows never degenerate (buff must stay < pitch/2).
+        # TITLE-BAND LAYOUT (2026-11-03): the chain is laid out INSIDE the
+        # content region below the title (pitch compresses to fit; a second
+        # column and then smaller boxes take over only when compression
+        # would degenerate the arrows), centered on the region — it can
+        # never reach the title band. No title => full frame region =>
+        # pitch 2.15 centered at y 0, the previously-proven layout.
         n = len(nodes)
-        cols = 1 if n <= 6 else 2
-        rows = (n + cols - 1) // cols
+        region = self._content_region(title)
+        cols, rows, pitch, box_h = self._chain_layout(n, region)
+        cy = (region[0] + region[1]) / 2.0
+        label_font = 26 if box_h >= self.BOX_H else max(18, int(26 * box_h / self.BOX_H))
         boxes = {}
         for i, nd in enumerate(nodes):
             col_i, row_i = (i % cols), (i // cols)
-            body = RoundedRectangle(corner_radius=0.12, width=4.6, height=1.1,
+            body = RoundedRectangle(corner_radius=0.12, width=4.6, height=box_h,
                                    stroke_color=PALETTE["edge"],
                                    fill_color=PALETTE["panel"], fill_opacity=1.0)
-            label = Text(str(nd.get("label", nd.get("id", ""))), font_size=26,
+            label = Text(str(nd.get("label", nd.get("id", ""))), font_size=label_font,
                          color=PALETTE["fg"])
             label.width = min(label.width, 4.0)
             grp = VGroup(body, label)
             grp.move_to(ORIGIN).shift(
                 RIGHT * (col_i - (cols - 1) / 2.0) * 5.6
-                + DOWN * (row_i - (rows - 1) / 2.0) * 2.15)
+                + DOWN * (row_i - (rows - 1) / 2.0) * pitch
+                + UP * cy)
             boxes[nd["id"]] = grp
         arrows = {}
         for e in edges:
@@ -117,6 +175,11 @@ class SpecScene(Scene):
                 # start/end just OUTSIDE the box borders: never degenerate,
                 # tips land on the node edge like build_diagram.py connectors
                 buff = min(0.95, max(0.12, dist / 2.0 - 0.60))
+                if dist < self.CHAIN_PITCH:
+                    # compressed chain (title region fit): the old formula
+                    # would bury the tips inside the boxes — keep them ON
+                    # the borders instead
+                    buff = box_h / 2.0 - self.BOX_TIP_INSET
                 arrows[key] = Arrow(c1, c2, buff=buff,
                                      stroke_color=PALETTE["edge"],
                                      stroke_width=3, max_tip_length_to_length_ratio=0.15)
@@ -162,6 +225,11 @@ class SpecScene(Scene):
             self.play(Write(title), run_time=min(0.8, plan["lead_in_sec"]))
         t = title and min(0.8, plan["lead_in_sec"]) or 0.0
 
+        # TITLE-BAND LAYOUT (2026-11-03): center the hop row in the content
+        # region below the title; no title => region center is y 0 => the
+        # previously-proven layout, unchanged.
+        region = self._content_region(title)
+        cy = (region[0] + region[1]) / 2.0
         pads = {}
         m = len(hops)
         for i, h in enumerate(hops):
@@ -172,7 +240,7 @@ class SpecScene(Scene):
                          color=PALETTE["fg"])
             label.width = min(label.width, 2.5)
             VGroup(pad, label).move_to(ORIGIN).shift(
-                RIGHT * (i - (m - 1) / 2.0) * 3.9)
+                RIGHT * (i - (m - 1) / 2.0) * 3.9 + UP * cy)
             pads[h["id"]] = VGroup(pad, label)
         links = [Line(pads[hops[i]["id"]].get_right(),
                       pads[hops[i + 1]["id"]].get_left(),
@@ -220,6 +288,10 @@ class SpecScene(Scene):
             self.play(Write(title), run_time=min(0.8, plan["lead_in_sec"]))
         t = title and min(0.8, plan["lead_in_sec"]) or 0.0
 
+        # TITLE-BAND LAYOUT (2026-11-03): center the subnet bar in the
+        # content region below the title; no title => y 0 => unchanged.
+        region = self._content_region(title)
+        cy = (region[0] + region[1]) / 2.0
         bar_w, m = 15.0, max(len(subnets), 1)
         block_w = bar_w / m
         blocks, labels = [], []
@@ -227,7 +299,7 @@ class SpecScene(Scene):
             blk = Rectangle(width=block_w - 0.08, height=1.5,
                             stroke_color=PALETTE["edge"],
                             fill_color=PALETTE["panel"], fill_opacity=1.0)
-            blk.move_to(ORIGIN).shift(RIGHT * (i - (m - 1) / 2.0) * block_w)
+            blk.move_to(ORIGIN).shift(RIGHT * (i - (m - 1) / 2.0) * block_w + UP * cy)
             name = Text(str(sn.get("name", "")), font_size=24, color=PALETTE["fg"])
             cidr = Text(str(sn.get("cidr", "")), font_size=22, color=PALETTE["accent2"])
             name.next_to(blk, UP, buff=0.18)

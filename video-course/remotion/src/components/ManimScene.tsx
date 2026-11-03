@@ -13,6 +13,13 @@ import {AbsoluteFill, Img, Video, getStaticFiles, staticFile} from 'remotion';
 // Episode.tsx (the single place that joins scene-relative paths) and keep
 // their snake_case names from scenes.json — do not re-join here or the URL
 // double-prefixes and 404s.
+//
+// TITLE-BAND LAYOUT (2026-11-03 fix): the label used to be absolutely
+// positioned over full-frame media, so tall diagrams rose into it. The
+// heading is now IN FLOW — the media contain-fits into the REMAINING area
+// (flex: 1, minHeight: 0), the same reservation pattern as DiagramScene's
+// caption. No label => the media area is the full frame, byte-identical to
+// the previous layout.
 export const ManimScene: React.FC<any> = ({
   asset,
   fallback_asset,
@@ -21,30 +28,14 @@ export const ManimScene: React.FC<any> = ({
   const hasVideo = asset ? getStaticFiles().some((f) => f.name === asset) : false;
   return (
     <AbsoluteFill style={{backgroundColor: '#0B1120'}}>
-      {hasVideo ? (
-        <Video
-          src={staticFile(asset)}
-          style={{width: '100%', height: '100%', objectFit: 'contain'}}
-        />
-      ) : fallback_asset ? (
-        <Img
-          src={staticFile(fallback_asset)}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-            padding: 48,
-            boxSizing: 'border-box',
-          }}
-        />
-      ) : null}
       {label ? (
         <div
           style={{
-            position: 'absolute',
-            top: 36,
-            left: 0,
-            right: 0,
+            flex: '0 0 auto',
+            paddingTop: 36,
+            paddingBottom: 20,
+            paddingLeft: 96,
+            paddingRight: 96,
             textAlign: 'center',
             color: '#E8EDF6',
             fontFamily: 'Inter, sans-serif',
@@ -55,6 +46,33 @@ export const ManimScene: React.FC<any> = ({
           {label}
         </div>
       ) : null}
+      <div
+        style={{
+          flex: '1 1 auto',
+          minHeight: 0,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        {hasVideo ? (
+          <Video
+            src={staticFile(asset)}
+            style={{width: '100%', height: '100%', objectFit: 'contain'}}
+          />
+        ) : fallback_asset ? (
+          <Img
+            src={staticFile(fallback_asset)}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              padding: 48,
+              boxSizing: 'border-box',
+            }}
+          />
+        ) : null}
+      </div>
     </AbsoluteFill>
   );
 };
